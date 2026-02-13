@@ -333,7 +333,7 @@ class PosEntry extends Component
             $now = now();
             $cashierId = auth()->id();
             $date = $this->selectedDate;
-            $percentageBps = app(ShuPointService::class)->getPercentageBps();
+            $conversionAmount = app(ShuPointService::class)->getConversionAmount();
 
             // Generate invoice numbers inside transaction with lock
             $invoices = Sale::generateBatchInvoiceNumbers(count($salesData), $date);
@@ -348,7 +348,7 @@ class PosEntry extends Component
                 $subtotal = $data['qty'] * $data['price'];
                 $amount = (int) round($subtotal);
                 $studentId = $data['student_id'] ?? null;
-                $points = $studentId ? app(ShuPointService::class)->computeEarnedPoints($amount, $percentageBps) : 0;
+                $points = $studentId ? app(ShuPointService::class)->computeEarnedPoints($amount, $conversionAmount) : 0;
                 if ($studentId) {
                     $pointsByStudent[$studentId] = ($pointsByStudent[$studentId] ?? 0) + $points;
                 }
@@ -363,7 +363,7 @@ class PosEntry extends Component
                     'payment_amount' => $subtotal,
                     'change_amount' => 0,
                     'shu_points_earned' => $points,
-                    'shu_percentage_bps' => $studentId ? $percentageBps : 0,
+                    'shu_percentage_bps' => $studentId ? $conversionAmount : 0,
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
@@ -405,14 +405,14 @@ class PosEntry extends Component
                 $studentId = $data['student_id'] ?? null;
                 if ($studentId) {
                     $amount = (int) round($data['qty'] * $data['price']);
-                    $points = app(ShuPointService::class)->computeEarnedPoints($amount, $percentageBps);
+                    $points = app(ShuPointService::class)->computeEarnedPoints($amount, $conversionAmount);
 
                     $transactionsToInsert[] = [
                         'student_id' => $studentId,
                         'sale_id' => $saleId,
                         'type' => 'earn',
                         'amount' => $amount,
-                        'percentage_bps' => $percentageBps,
+                        'percentage_bps' => $conversionAmount,
                         'points' => $points,
                         'cash_amount' => null,
                         'notes' => null,

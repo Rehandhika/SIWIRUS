@@ -170,20 +170,20 @@
         <x-ui.card>
             <x-layout.form-section 
                 title="Pengaturan Poin SHU"
-                description="Konfigurasi persentase poin yang didapat dari nominal pembelian"
+                description="Konfigurasi nominal pembelian untuk mendapatkan 1 Poin SHU"
             >
                 <form wire:submit.prevent="saveShuSettings" class="space-y-5">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Persentase Poin (%)</label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Nominal per 1 Poin (Rp)</label>
                             <input
                                 type="text"
-                                inputmode="decimal"
-                                wire:model.defer="shuPercentage"
+                                inputmode="numeric"
+                                wire:model="shuConversionAmount"
+                                placeholder="Contoh: 10000"
                                 class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
                             >
-                            @error('shuPercentage') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-2 text-sm text-gray-500">Rumus: Total Poin = Nominal Pembelian × Persentase / 100</p>
+                            @error('shuConversionAmount') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
                     </div>
 

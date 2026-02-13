@@ -96,15 +96,13 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Cari</label>
-                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Invoice / catatan" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <x-ui.icon name="magnifying-glass" class="h-4 w-4 text-gray-400" />
+                        </div>
+                        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Invoice / catatan" class="w-full pl-9 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl">
+                    </div>
                 </div>
-            </div>
-            <div class="flex gap-2">
-                @can('export.shu')
-                    <button type="button" wire:click="exportExcel" class="px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold rounded-xl">
-                        Export Excel
-                    </button>
-                @endcan
             </div>
         </div>
 
@@ -116,8 +114,6 @@
                         <th class="px-4 py-3 text-left font-semibold">Tipe</th>
                         <th class="px-4 py-3 text-right font-semibold">Poin</th>
                         <th class="px-4 py-3 text-right font-semibold">Nominal</th>
-                        <th class="px-4 py-3 text-right font-semibold">%</th>
-                        <th class="px-4 py-3 text-left font-semibold">Invoice</th>
                         <th class="px-4 py-3 text-right font-semibold">Pencairan</th>
                         <th class="px-4 py-3 text-left font-semibold">Catatan</th>
                     </tr>
@@ -143,14 +139,17 @@
                                 {{ number_format($trx->points, 0, ',', '.') }}
                             </td>
                             <td class="px-4 py-3 text-right">{{ $trx->amount ? number_format($trx->amount, 0, ',', '.') : '-' }}</td>
-                            <td class="px-4 py-3 text-right">{{ $trx->percentage_bps ? number_format($trx->percentage_bps / 100, 2, ',', '.') : '-' }}</td>
-                            <td class="px-4 py-3 font-mono">{{ $trx->sale?->invoice_number ?? '-' }}</td>
                             <td class="px-4 py-3 text-right">{{ $trx->cash_amount ? number_format($trx->cash_amount, 0, ',', '.') : '-' }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $trx->notes ?: '-' }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-gray-300">
+                                @if($trx->sale)
+                                    <span class="text-xs text-gray-500 block">Inv: {{ $trx->sale->invoice_number }}</span>
+                                @endif
+                                {{ $trx->notes ?: '-' }}
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-8 text-center text-gray-500">Tidak ada transaksi</td>
+                            <td colspan="6" class="px-4 py-8 text-center text-gray-500">Tidak ada transaksi</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -21,7 +21,7 @@ class Sale extends Model
         'payment_amount',
         'change_amount',
         'shu_points_earned',
-        'shu_percentage_bps',
+        'shu_percentage_bps', // Now stores conversion amount
         'notes',
     ];
 

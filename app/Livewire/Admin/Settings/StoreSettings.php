@@ -44,7 +44,7 @@ class StoreSettings extends Component
     ];
 
     // Poin SHU Settings
-    public string $shuPercentage = '0';
+    public string $shuConversionAmount = '10000';
 
     protected StoreStatusService $storeStatusService;
 
@@ -89,8 +89,8 @@ class StoreSettings extends Component
 
     public function loadShuSettings()
     {
-        $bps = (int) AppSetting::get('shu_point_percentage_bps', 0);
-        $this->shuPercentage = number_format($bps / 100, 2, '.', '');
+        $amount = (int) AppSetting::get('shu_point_conversion_amount', 10000);
+        $this->shuConversionAmount = (string) $amount;
     }
 
     public function refreshStatus()
@@ -308,25 +308,29 @@ class StoreSettings extends Component
             return;
         }
 
-        $this->shuPercentage = str_replace(',', '.', trim($this->shuPercentage));
+        // Hapus karakter non-digit (seperti titik ribuan)
+        $cleanAmount = preg_replace('/\D/', '', $this->shuConversionAmount);
 
         $this->validate([
-            'shuPercentage' => ['required', 'numeric', 'min:0', 'max:100'],
+            'shuConversionAmount' => ['required', 'numeric', 'min:1'],
+        ], [], [
+            'shuConversionAmount' => 'Nominal konversi'
         ]);
 
-        $existing = AppSetting::where('key', 'shu_point_percentage_bps')->first();
+        $existing = AppSetting::where('key', 'shu_point_conversion_amount')->first();
         $oldValue = $existing?->value;
+        $newValue = (string) $cleanAmount;
 
-        $bps = (int) round(((float) $this->shuPercentage) * 100);
-        $bps = max(0, min(10000, $bps));
+        $saved = AppSetting::set('shu_point_conversion_amount', $newValue);
+        Cache::forget('shu_point_conversion_amount');
 
-        $saved = AppSetting::set('shu_point_percentage_bps', (string) $bps);
-        Cache::forget('shu_point_percentage_bps');
-
-        AuditLog::log('update', $saved, ['value' => $oldValue], ['value' => (string) $bps]);
+        AuditLog::log('update', $saved, ['value' => $oldValue], ['value' => $newValue]);
         ActivityLogService::logSettingsUpdated('Poin SHU');
 
         $this->dispatch('toast', message: 'Pengaturan Poin SHU berhasil disimpan', type: 'success');
+        
+        // Refresh tampilan input agar formatnya kembali rapi (jika ada mask)
+        $this->shuConversionAmount = $newValue;
     }
 
     public function render()

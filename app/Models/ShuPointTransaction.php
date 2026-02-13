@@ -16,7 +16,7 @@ class ShuPointTransaction extends Model
         'sale_id',
         'type',
         'amount',
-        'percentage_bps',
+        'percentage_bps', // Now stores conversion amount
         'points',
         'cash_amount',
         'notes',

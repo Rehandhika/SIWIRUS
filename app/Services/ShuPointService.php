@@ -12,43 +12,42 @@ use Illuminate\Support\Facades\DB;
 
 class ShuPointService
 {
-    public function getPercentageBps(): int
+    public function getConversionAmount(): int
     {
-        return (int) Cache::remember('shu_point_percentage_bps', 60, function () {
-            return (int) Setting::get('shu_point_percentage_bps', 0);
+        return (int) Cache::remember('shu_point_conversion_amount', 60, function () {
+            return (int) Setting::get('shu_point_conversion_amount', 10000);
         });
     }
 
-    public function computeEarnedPoints(int $amount, int $percentageBps): int
+    public function computeEarnedPoints(int $amount, int $conversionAmount): int
     {
-        if ($amount <= 0 || $percentageBps <= 0) {
+        if ($amount <= 0 || $conversionAmount <= 0) {
             return 0;
         }
 
-        if ($percentageBps > 10000) {
-            $percentageBps = 10000;
-        }
-
-        return (int) floor(($amount * $percentageBps) / 10000);
+        // Rumus: floor(Nominal / Konversi)
+        // Contoh: Beli 16.000 dengan setting 10.000 per poin
+        // floor(16.000 / 10.000) = 1 poin
+        return (int) floor($amount / $conversionAmount);
     }
 
-    public function awardPointsForSale(Sale $sale, Student $student, ?int $percentageBps = null): int
+    public function awardPointsForSale(Sale $sale, Student $student, ?int $conversionAmount = null): int
     {
-        $percentageBps ??= $this->getPercentageBps();
+        $conversionAmount ??= $this->getConversionAmount();
         $amount = (int) round((float) $sale->total_amount);
-        $points = $this->computeEarnedPoints($amount, $percentageBps);
+        $points = $this->computeEarnedPoints($amount, $conversionAmount);
 
         if ($points <= 0) {
             $sale->update([
                 'student_id' => $student->id,
                 'shu_points_earned' => 0,
-                'shu_percentage_bps' => $percentageBps,
+                'shu_percentage_bps' => $conversionAmount, // Reusing column for conversion amount to avoid migration overhead
             ]);
 
             return 0;
         }
 
-        return DB::transaction(function () use ($sale, $student, $amount, $percentageBps, $points) {
+        return DB::transaction(function () use ($sale, $student, $amount, $conversionAmount, $points) {
             $lockedStudent = Student::lockForUpdate()->findOrFail($student->id);
 
             $existing = ShuPointTransaction::where('sale_id', $sale->id)->where('type', 'earn')->first();
@@ -62,7 +61,7 @@ class ShuPointService
             $sale->update([
                 'student_id' => $lockedStudent->id,
                 'shu_points_earned' => $points,
-                'shu_percentage_bps' => $percentageBps,
+                'shu_percentage_bps' => $conversionAmount, // Storing conversion amount here
             ]);
 
             ShuPointTransaction::create([
@@ -70,7 +69,7 @@ class ShuPointService
                 'sale_id' => $sale->id,
                 'type' => 'earn',
                 'amount' => $amount,
-                'percentage_bps' => $percentageBps,
+                'percentage_bps' => $conversionAmount, // Storing conversion amount here
                 'points' => $points,
                 'created_by' => Auth::id(),
             ]);
