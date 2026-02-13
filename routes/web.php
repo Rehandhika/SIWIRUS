@@ -122,7 +122,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Attendance (Absensi)
         Route::prefix('absensi')->name('attendance.')->group(function () {
-            Route::get('/', \App\Livewire\Attendance\Index::class)->name('index');
+            Route::get('/', \App\Livewire\Admin\AttendanceManagement::class)->name('index');
             Route::get('/check-in-out', \App\Livewire\Attendance\CheckInOut::class)->name('check-in-out');
             Route::get('/riwayat', \App\Livewire\Attendance\History::class)->name('history');
         });

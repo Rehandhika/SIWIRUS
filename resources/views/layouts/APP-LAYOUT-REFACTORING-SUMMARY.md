@@ -26,9 +26,9 @@
 - Added `pointer-events-none` to toast container with `pointer-events-auto` on content
 
 #### 4. Design System Color Migration
-- Replaced `bg-indigo-600` with `bg-primary-600` (logo)
-- Replaced `bg-indigo-500` with `bg-primary-500` (avatar fallback)
-- Replaced `text-indigo-600` with `text-primary-600` (login link)
+- Replaced `bg-blue-600` with `bg-primary-600` (logo)
+- Replaced `bg-blue-500` with `bg-primary-500` (avatar fallback)
+- Replaced `text-blue-600` with `text-primary-600` (login link)
 - Updated toast notifications to use semantic colors:
   - `bg-green-50` → `bg-success-50`
   - `bg-red-50` → `bg-danger-50`

@@ -19,7 +19,7 @@
                     type="button"
                     wire:click="$set('tab', 'my-requests')"
                     class="group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 
-                        {{ $tab === 'my-requests' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
+                        {{ $tab === 'my-requests' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
                 >
                     Permintaan Saya
                 </button>
@@ -27,7 +27,7 @@
                     type="button"
                     wire:click="$set('tab', 'received')"
                     class="group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 
-                        {{ $tab === 'received' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
+                        {{ $tab === 'received' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
                 >
                     Permintaan Masuk
                 </button>

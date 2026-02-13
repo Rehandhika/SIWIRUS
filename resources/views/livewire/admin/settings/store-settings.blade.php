@@ -28,7 +28,7 @@
 
                             {{-- Mode Badge --}}
                             @if($currentStatus['mode'] === 'manual')
-                                <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">Manual</span>
+                                <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700">Manual</span>
                             @elseif($currentStatus['mode'] === 'override')
                                 <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700">Override</span>
                             @endif
@@ -45,7 +45,7 @@
 
                     {{-- Academic Holiday --}}
                     @if(!empty($currentStatus['academic_holiday']))
-                        <div class="flex items-center gap-2 text-sm text-indigo-600">
+                        <div class="flex items-center gap-2 text-sm text-blue-600">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
@@ -124,16 +124,16 @@
                     <button 
                         wire:click="{{ $currentStatus['mode'] === 'manual' ? 'disableManualMode' : 'enableManualMode' }}"
                         wire:confirm="{{ $currentStatus['mode'] === 'manual' ? 'Nonaktifkan mode manual?' : 'Aktifkan mode manual? Anda akan kontrol penuh status.' }}"
-                        class="p-4 rounded-lg border-2 transition-all {{ $currentStatus['mode'] === 'manual' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-gray-300' }}"
+                        class="p-4 rounded-lg border-2 transition-all {{ $currentStatus['mode'] === 'manual' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300' }}"
                     >
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full {{ $currentStatus['mode'] === 'manual' ? 'bg-purple-100' : 'bg-gray-100' }} flex items-center justify-center">
-                                <svg class="w-4 h-4 {{ $currentStatus['mode'] === 'manual' ? 'text-purple-600' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-8 h-8 rounded-full {{ $currentStatus['mode'] === 'manual' ? 'bg-blue-100' : 'bg-gray-100' }} flex items-center justify-center">
+                                <svg class="w-4 h-4 {{ $currentStatus['mode'] === 'manual' ? 'text-blue-600' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <p class="font-medium text-sm {{ $currentStatus['mode'] === 'manual' ? 'text-purple-700' : 'text-gray-700' }}">Manual</p>
+                                <p class="font-medium text-sm {{ $currentStatus['mode'] === 'manual' ? 'text-blue-700' : 'text-gray-700' }}">Manual</p>
                                 <p class="text-xs text-gray-500">Kontrol penuh admin</p>
                             </div>
                         </div>

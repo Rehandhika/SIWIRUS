@@ -4,10 +4,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | SIKOPMA Application Settings
+    | SIWIRUS Application Settings
     |--------------------------------------------------------------------------
     |
-    | Configuration for SIKOPMA (Sistem Informasi Koperasi Mahasiswa)
+    | Configuration for SIWIRUS (Sistem Informasi Koperasi Mahasiswa)
     | This file contains all application-specific constants and settings.
     |
     */
@@ -58,6 +58,7 @@ return [
      * Attendance settings
      */
     'attendance' => [
+        'override_mode' => true, // Allow check-in without schedule
         'auto_absent_after_hours' => 2,  // Mark as absent if no check-in after this many hours
         'allow_early_checkin_minutes' => 30,  // Allow check-in this many minutes before session start
         'require_photo' => true,  // Require photo for check-in

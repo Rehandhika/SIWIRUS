@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? config('app.name', 'SIKOPMA') }}</title>
+    <title>{{ $title ?? config('app.name', 'SIWIRUS') }}</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link rel="dns-prefetch" href="https://fonts.bunny.net">

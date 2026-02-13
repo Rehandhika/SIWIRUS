@@ -7,7 +7,7 @@ export default function PublicFooter() {
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-muted-foreground">
                     <div className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 bg-primary/60 rounded-full" />
-                        <span className="tracking-wide">SIKOPMA</span>
+                        <span className="tracking-wide">SIWIRUS</span>
                         <span className="text-border">•</span>
                         <span>Divisi IT UKM Kewirausahaan STIS</span>
                     </div>

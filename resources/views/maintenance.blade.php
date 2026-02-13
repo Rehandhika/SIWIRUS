@@ -8,7 +8,7 @@
     {{-- Auto-refresh every 60 seconds to check if maintenance ended --}}
     <meta http-equiv="refresh" content="60">
 
-    <title>{{ config('app.name', 'SIKOPMA') }} - Maintenance</title>
+    <title>{{ config('app.name', 'SIWIRUS') }} - Maintenance</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -50,10 +50,10 @@
                     <!-- Brand / Logo -->
                     <div class="flex items-center gap-3 group">
                         <div class="relative w-10 h-10 flex items-center justify-center">
-                            <img src="{{ asset('images/logo.png') }}" alt="SIKOPMA" class="w-10 h-10 rounded-xl object-cover shadow-lg">
+                            <img src="{{ asset('images/logo.png') }}" alt="SIWIRUS" class="w-10 h-10 rounded-xl object-cover shadow-lg">
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-grotesk font-bold text-lg text-white tracking-tight leading-none">SIKOPMA</span>
+                            <span class="font-grotesk font-bold text-lg text-white tracking-tight leading-none">SIWIRUS</span>
                             <span class="text-[10px] uppercase tracking-[0.2em] text-slate-500 hidden sm:block">Maintenance</span>
                         </div>
                     </div>
@@ -87,7 +87,7 @@
                 <div class="relative w-32 h-32 mx-auto mb-8">
                     <div class="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse"></div>
                     <div class="relative w-full h-full flex items-center justify-center">
-                        <img src="{{ asset('images/logo.png') }}" alt="SIKOPMA" class="w-24 h-24 rounded-2xl object-cover shadow-2xl">
+                        <img src="{{ asset('images/logo.png') }}" alt="SIWIRUS" class="w-24 h-24 rounded-2xl object-cover shadow-2xl">
                     </div>
                 </div>
 
@@ -136,7 +136,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-500">
                     <div class="flex items-center gap-2">
                         <span class="w-1.5 h-1.5 bg-blue-500/60 rounded-full"></span>
-                        <span class="tracking-wide">SIKOPMA</span>
+                        <span class="tracking-wide">SIWIRUS</span>
                         <span class="text-slate-700">•</span>
                         <span>Divisi IT UKM Kewirausahaan STIS</span>
                     </div>

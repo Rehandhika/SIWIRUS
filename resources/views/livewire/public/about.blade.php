@@ -1,6 +1,6 @@
 <div class="min-h-screen relative overflow-hidden">
     {{-- Ambient Background --}}
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-indigo-900/20 blur-[120px] pointer-events-none -z-10"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-blue-900/20 blur-[120px] pointer-events-none -z-10"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         
@@ -15,8 +15,8 @@
             <!-- About Text Section -->
             <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl">
                 <div class="flex items-center gap-4 mb-8">
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                        <i class="fas fa-building text-xl text-indigo-400"></i>
+                    <div class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                        <i class="fas fa-building text-xl text-blue-400"></i>
                     </div>
                     <h2 class="text-2xl font-bold text-white">Tentang Koperasi</h2>
                 </div>
@@ -46,7 +46,7 @@
                     <!-- Phone -->
                     @if($storeSetting && $storeSetting->contact_phone && $storeSetting->contact_phone !== '-')
                     <div class="group flex items-start p-4 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
-                        <div class="mr-4 mt-1 w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 text-slate-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                        <div class="mr-4 mt-1 w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 text-slate-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
                             <i class="fas fa-phone"></i>
                         </div>
                         <div>
@@ -61,7 +61,7 @@
                     <!-- Email -->
                     @if($storeSetting && $storeSetting->contact_email && $storeSetting->contact_email !== '-')
                     <div class="group flex items-start p-4 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
-                        <div class="mr-4 mt-1 w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 text-slate-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                        <div class="mr-4 mt-1 w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 text-slate-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
                             <i class="fas fa-envelope"></i>
                         </div>
                         <div>
@@ -93,7 +93,7 @@
                     <!-- Address -->
                     @if($storeSetting && $storeSetting->contact_address && $storeSetting->contact_address !== '-')
                     <div class="group flex items-start p-4 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
-                        <div class="mr-4 mt-1 w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 text-slate-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                        <div class="mr-4 mt-1 w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 text-slate-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
                             <i class="fas fa-map-marker-alt"></i>
                         </div>
                         <div>
@@ -149,10 +149,10 @@
                 @endforeach
             </div>
 
-            <div class="mt-8 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-start gap-3">
-                <i class="fas fa-info-circle text-indigo-400 mt-0.5"></i>
-                <p class="text-sm text-indigo-200">
-                    <strong class="text-indigo-100">Catatan:</strong> Jam operasional dapat berubah sewaktu-waktu. Silakan cek status toko secara real-time di indikator HUD bagian atas halaman.
+            <div class="mt-8 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-start gap-3">
+                <i class="fas fa-info-circle text-blue-400 mt-0.5"></i>
+                <p class="text-sm text-blue-200">
+                    <strong class="text-blue-100">Catatan:</strong> Jam operasional dapat berubah sewaktu-waktu. Silakan cek status toko secara real-time di indikator HUD bagian atas halaman.
                 </p>
             </div>
         </div>

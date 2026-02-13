@@ -26,7 +26,7 @@ class SwapRequestCreate extends FormRequest
                 'integer',
                 Rule::exists('schedule_assignments', 'id')->where(function ($query) {
                     $query->where('user_id', auth()->id())
-                        ->where('date', '>=', today()->addDays(config('sikopma.swap.min_advance_notice_days', 2)))
+                        ->where('date', '>=', today()->addDays(config('siwirus.swap.min_advance_notice_days', 2)))
                         ->where('status', 'scheduled');
                 }),
             ],
@@ -45,7 +45,7 @@ class SwapRequestCreate extends FormRequest
                 'integer',
                 Rule::exists('schedule_assignments', 'id')->where(function ($query) {
                     $query->where('user_id', $this->target_user_id)
-                        ->where('date', '>=', today()->addDays(config('sikopma.swap.min_advance_notice_days', 2)))
+                        ->where('date', '>=', today()->addDays(config('siwirus.swap.min_advance_notice_days', 2)))
                         ->where('status', 'scheduled');
                 }),
             ],

@@ -11,7 +11,7 @@ Dokumen ini menjadi referensi konsistensi UI untuk halaman publik (Katalog, Deta
 ### Warna (Light & Dark Mode)
 - Gunakan **semantic tokens** shadcn (Tailwind classes): `bg-background`, `text-foreground`, `bg-card`, `text-muted-foreground`, `border-border`, `bg-accent`, `text-accent-foreground`.
 - Hindari hardcode warna seperti `bg-slate-*`, `text-slate-*`, `border-white/*` kecuali untuk badge/status yang memang bernuansa (merah/oranye/hijau).
-- Aksen utama: `primary` (indigo) via token shadcn `--primary` dan kelas `text-primary` / `bg-primary`.
+- Aksen utama: `primary` (blue) via token shadcn `--primary` dan kelas `text-primary` / `bg-primary`.
 
 ### Tipografi
 - Judul halaman: `text-4xl md:text-5xl font-bold tracking-tight`

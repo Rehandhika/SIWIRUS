@@ -1,6 +1,6 @@
 <div class="space-y-6">
     <!-- Hero Section -->
-    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg overflow-hidden">
+    <div class="bg-gradient-to-r from-blue-600 to-blue-600 rounded-lg shadow-lg overflow-hidden">
         <div class="px-6 py-8 sm:px-8 sm:py-12">
             <div class="flex items-center space-x-4 mb-4">
                 <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
@@ -9,15 +9,15 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-3xl font-bold text-white">Selamat Datang di SIKOPMA</h1>
-                    <p class="text-indigo-100 text-sm mt-1">Sistem Informasi Koperasi Mahasiswa</p>
+                    <h1 class="text-3xl font-bold text-white">Selamat Datang di SIWIRUS</h1>
+                    <p class="text-blue-100 text-sm mt-1">Sistem Informasi Koperasi Mahasiswa</p>
                 </div>
             </div>
             <p class="text-white/90 text-base max-w-2xl">
                 Platform terintegrasi untuk mengelola kegiatan operasional Kopma dengan sistem absensi, penjadwalan, kasir, dan pelaporan yang modern.
             </p>
             <div class="mt-6 flex flex-wrap gap-3">
-                <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center px-5 py-2.5 bg-white text-indigo-700 font-semibold rounded-lg hover:bg-indigo-50 transition-colors">
+                <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center px-5 py-2.5 bg-white text-blue-700 font-semibold rounded-lg hover:bg-blue-50 transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
                     </svg>
@@ -70,8 +70,8 @@
         <div class="bg-white rounded-lg shadow p-5 hover:shadow-md transition-shadow">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </div>
@@ -119,14 +119,14 @@
         </div>
 
         <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
             </div>
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Manajemen Jadwal</h3>
             <p class="text-gray-600 text-sm mb-4">Generate jadwal otomatis berdasarkan ketersediaan anggota.</p>
-            <a href="{{ route('admin.schedule.calendar') }}" class="text-purple-600 hover:text-purple-700 text-sm font-medium inline-flex items-center">
+            <a href="{{ route('admin.schedule.calendar') }}" class="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center">
                 Lihat Detail
                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -183,14 +183,14 @@
         </div>
 
         <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
-                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
             </div>
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Laporan & Analitik</h3>
             <p class="text-gray-600 text-sm mb-4">Dashboard analitik lengkap dengan export PDF dan Excel.</p>
-            <a href="{{ route('admin.reports.attendance') }}" class="text-indigo-600 hover:text-indigo-700 text-sm font-medium inline-flex items-center">
+            <a href="{{ route('admin.reports.attendance') }}" class="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center">
                 Lihat Detail
                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

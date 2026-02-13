@@ -64,10 +64,10 @@
                 <p class="text-xs text-slate-400 font-mono" x-text="isOpen ? 'Silakan datang bertransaksi' : 'Kami sedang tidak beroperasi'"></p>
             </div>
 
-            <!-- Info Grid -->
-            <div class="grid grid-cols-1 gap-3 bg-white/5 p-4 rounded-xl border border-white/5">
+            <!-- Info Grid (Only show if closed or if there is specific reason other than default) -->
+            <div x-show="!isOpen" class="grid grid-cols-1 gap-3 bg-white/5 p-4 rounded-xl border border-white/5">
                 <div class="flex items-start gap-3">
-                    <div class="mt-1"><i class="fas fa-info-circle text-indigo-400 text-xs"></i></div>
+                    <div class="mt-1"><i class="fas fa-info-circle text-blue-400 text-xs"></i></div>
                     <div>
                         <p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Keterangan</p>
                         <p class="text-sm text-slate-200 leading-snug">{{ $reason }}</p>
@@ -76,7 +76,7 @@
 
                 @if(!$isOpen && $nextOpenTime)
                     <div class="flex items-start gap-3 pt-3 border-t border-white/5">
-                        <div class="mt-1"><i class="fas fa-clock text-indigo-400 text-xs"></i></div>
+                        <div class="mt-1"><i class="fas fa-clock text-blue-400 text-xs"></i></div>
                         <div>
                             <p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Buka Kembali</p>
                             <p class="text-sm text-slate-200">{{ $nextOpenTime }}</p>

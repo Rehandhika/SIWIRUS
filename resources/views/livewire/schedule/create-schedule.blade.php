@@ -291,10 +291,10 @@
                 <div class="text-xl sm:text-2xl font-bold text-green-900 mt-1">{{ number_format($coverageRate, 1) }}%</div>
                 <div class="text-xs text-green-700 mt-1">slot terisi</div>
             </div>
-            <div class="bg-purple-50 rounded-lg p-3 sm:p-4">
-                <div class="text-xs sm:text-sm text-purple-600 font-medium">Unique Users</div>
-                <div class="text-xl sm:text-2xl font-bold text-purple-900 mt-1">{{ count($assignmentsPerUser) }}</div>
-                <div class="text-xs text-purple-700 mt-1">anggota</div>
+            <div class="bg-blue-50 rounded-lg p-3 sm:p-4">
+                <div class="text-xs sm:text-sm text-blue-600 font-medium">Unique Users</div>
+                <div class="text-xl sm:text-2xl font-bold text-blue-900 mt-1">{{ count($assignmentsPerUser) }}</div>
+                <div class="text-xs text-blue-700 mt-1">anggota</div>
             </div>
             <div class="bg-orange-50 rounded-lg p-3 sm:p-4">
                 <div class="text-xs sm:text-sm text-orange-600 font-medium">Empty Slots</div>

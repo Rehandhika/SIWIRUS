@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? config('app.name', 'SIKOPMA') }}</title>
+    <title>{{ $title ?? config('app.name', 'SIWIRUS') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -44,7 +44,7 @@
             height: 1px;
             bottom: -2px;
             left: 50%;
-            background: linear-gradient(90deg, transparent, #6366f1, transparent);
+            background: linear-gradient(90deg, transparent, #3b82f6, transparent);
             transition: width 0.3s ease, left 0.3s ease;
         }
         .nav-link-glow:hover::after {
@@ -53,12 +53,12 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 font-sans antialiased text-slate-300 selection:bg-indigo-500/30 selection:text-indigo-200">
+<body class="bg-slate-950 font-sans antialiased text-slate-300 selection:bg-blue-500/30 selection:text-blue-200">
     
     <!-- Ambient Dynamic Background -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div class="absolute top-[-10%] left-1/4 w-[600px] h-[600px] bg-indigo-900/10 rounded-full blur-[120px] animate-pulse"></div>
-        <div class="absolute bottom-[-10%] right-1/4 w-[500px] h-[500px] bg-purple-900/10 rounded-full blur-[100px]"></div>
+        <div class="absolute top-[-10%] left-1/4 w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-[120px] animate-pulse"></div>
+        <div class="absolute bottom-[-10%] right-1/4 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[100px]"></div>
         <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03]"></div>
     </div>
 
@@ -71,9 +71,9 @@
                     
                     <!-- Left: Brand / Logo -->
                     <a href="{{ route('home') }}" class="flex items-center gap-3 group z-10 w-1/3" wire:navigate>
-                        <img src="{{ asset('images/logo.png') }}" alt="SIKOPMA" class="h-9 w-auto object-contain transition-transform group-hover:scale-105">
+                        <img src="{{ asset('images/logo.png') }}" alt="SIWIRUS" class="h-9 w-auto object-contain transition-transform group-hover:scale-105">
                         <div class="flex flex-col">
-                            <span class="font-grotesk font-bold text-lg text-white tracking-tight leading-none group-hover:text-indigo-300 transition-colors">SIKOPMA</span>
+                            <span class="font-grotesk font-bold text-lg text-white tracking-tight leading-none group-hover:text-blue-300 transition-colors">SIWIRUS</span>
                             <span class="text-[10px] uppercase tracking-[0.15em] text-slate-500 hidden sm:block">UKM Kewirausahaan STIS</span>
                         </div>
                     </a>
@@ -102,9 +102,9 @@
                         <a href="{{ route('login') }}" 
                            wire:navigate
                            class="relative group px-5 py-2 rounded-xl overflow-hidden">
-                            <div class="absolute inset-0 bg-indigo-600/20 group-hover:bg-indigo-600/30 transition-colors"></div>
-                            <div class="absolute inset-0 border border-indigo-500/30 rounded-xl"></div>
-                            <span class="relative text-sm font-medium text-indigo-300 group-hover:text-white transition-colors">Login</span>
+                            <div class="absolute inset-0 bg-blue-600/20 group-hover:bg-blue-600/30 transition-colors"></div>
+                            <div class="absolute inset-0 border border-blue-500/30 rounded-xl"></div>
+                            <span class="relative text-sm font-medium text-blue-300 group-hover:text-white transition-colors">Login</span>
                         </a>
                     </div>
 
@@ -132,7 +132,7 @@
                     <div class="glass-nav rounded-2xl p-4 flex flex-col gap-2">
                         <a href="{{ route('home') }}" wire:navigate class="p-3 rounded-xl bg-white/5 text-slate-200 font-medium hover:bg-white/10">Katalog</a>
                         <a href="{{ route('public.about') }}" wire:navigate class="p-3 rounded-xl bg-white/5 text-slate-200 font-medium hover:bg-white/10">Tentang</a>
-                        <a href="{{ route('login') }}" wire:navigate class="p-3 rounded-xl bg-indigo-600 text-white font-medium text-center shadow-lg shadow-indigo-500/20">Login System</a>
+                        <a href="{{ route('login') }}" wire:navigate class="p-3 rounded-xl bg-blue-600 text-white font-medium text-center shadow-lg shadow-blue-500/20">Login System</a>
                     </div>
                 </div>
             </div>
@@ -149,14 +149,14 @@
             <div class="max-w-7xl mx-auto px-6 py-10">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                     <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-                        <span class="text-xs font-grotesk text-slate-500 tracking-widest uppercase">SIKOPMA System v3.0</span>
+                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                        <span class="text-xs font-grotesk text-slate-500 tracking-widest uppercase">SIWIRUS System v3.0</span>
                     </div>
                     
                     <div class="flex gap-6">
-                        <a href="#" class="text-slate-600 hover:text-indigo-400 transition-colors"><i class="fab fa-instagram text-lg"></i></a>
-                        <a href="#" class="text-slate-600 hover:text-indigo-400 transition-colors"><i class="fab fa-whatsapp text-lg"></i></a>
-                        <a href="#" class="text-slate-600 hover:text-indigo-400 transition-colors"><i class="fas fa-globe text-lg"></i></a>
+                        <a href="#" class="text-slate-600 hover:text-blue-400 transition-colors"><i class="fab fa-instagram text-lg"></i></a>
+                        <a href="#" class="text-slate-600 hover:text-blue-400 transition-colors"><i class="fab fa-whatsapp text-lg"></i></a>
+                        <a href="#" class="text-slate-600 hover:text-blue-400 transition-colors"><i class="fas fa-globe text-lg"></i></a>
                     </div>
 
                     <p class="text-xs text-slate-600 font-mono">

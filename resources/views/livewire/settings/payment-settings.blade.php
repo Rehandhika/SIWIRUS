@@ -75,19 +75,19 @@
                     {{-- QRIS Payment Toggle --}}
                     <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full {{ $qrisEnabled ? 'bg-purple-100' : 'bg-gray-200' }} flex items-center justify-center">
-                                <svg class="w-5 h-5 {{ $qrisEnabled ? 'text-purple-600' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-10 h-10 rounded-full {{ $qrisEnabled ? 'bg-blue-100' : 'bg-gray-200' }} flex items-center justify-center">
+                                <svg class="w-5 h-5 {{ $qrisEnabled ? 'text-blue-600' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                                 </svg>
                             </div>
                             <div>
-                                <p class="font-medium {{ $qrisEnabled ? 'text-purple-700' : 'text-gray-700' }}">QRIS</p>
+                                <p class="font-medium {{ $qrisEnabled ? 'text-blue-700' : 'text-gray-700' }}">QRIS</p>
                                 <p class="text-sm text-gray-500">Pembayaran digital via scan QR code</p>
                             </div>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" wire:model.live="qrisEnabled" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                     </div>
                 </div>
@@ -109,7 +109,7 @@
                         @if($this->qrisImageUrl)
                             {{-- Preview existing/uploaded image --}}
                             <div class="relative group w-full max-w-xs">
-                                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-purple-200">
+                                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200">
                                     <img 
                                         src="{{ $this->qrisImageUrl }}" 
                                         alt="QRIS Preview" 
@@ -152,7 +152,7 @@
                                     class="absolute inset-0 max-w-xs aspect-square bg-white/80 rounded-lg flex items-center justify-center"
                                 >
                                     <div class="text-center">
-                                        <svg class="animate-spin h-8 w-8 text-purple-600 mx-auto" fill="none" viewBox="0 0 24 24">
+                                        <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
@@ -163,26 +163,26 @@
                         @else
                             {{-- Empty Upload Area --}}
                             <label 
-                                class="flex flex-col items-center justify-center w-full max-w-xs aspect-square border-2 border-dashed rounded-lg cursor-pointer transition-colors border-gray-300 hover:border-purple-400 bg-gray-50 hover:bg-purple-50"
+                                class="flex flex-col items-center justify-center w-full max-w-xs aspect-square border-2 border-dashed rounded-lg cursor-pointer transition-colors border-gray-300 hover:border-blue-400 bg-gray-50 hover:bg-blue-50"
                                 x-data="{ isDragging: false }"
                                 x-on:dragover.prevent="isDragging = true"
                                 x-on:dragleave.prevent="isDragging = false"
                                 x-on:drop.prevent="isDragging = false"
-                                :class="isDragging ? 'border-purple-500 bg-purple-50' : ''"
+                                :class="isDragging ? 'border-blue-500 bg-blue-50' : ''"
                             >
                                 <div class="flex flex-col items-center justify-center p-6 text-center" wire:loading.remove wire:target="qrisImage">
                                     <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                                     </svg>
                                     <p class="mb-1 text-sm text-gray-600">
-                                        <span class="font-semibold text-purple-600">Klik untuk upload</span> atau drag & drop
+                                        <span class="font-semibold text-blue-600">Klik untuk upload</span> atau drag & drop
                                     </p>
                                     <p class="text-xs text-gray-500">JPG, JPEG, PNG (Maks. 2MB)</p>
                                 </div>
 
                                 {{-- Loading State --}}
                                 <div wire:loading wire:target="qrisImage" class="flex flex-col items-center justify-center p-6">
-                                    <svg class="animate-spin h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24">
+                                    <svg class="animate-spin h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>

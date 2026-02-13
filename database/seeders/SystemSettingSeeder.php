@@ -12,7 +12,7 @@ class SystemSettingSeeder extends Seeder
         $settings = [
             [
                 'key' => 'app_name',
-                'value' => 'SIKOPMA',
+                'value' => 'SIWIRUS',
                 'type' => 'string',
                 'description' => 'Nama aplikasi',
             ],

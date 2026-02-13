@@ -29,39 +29,65 @@ class AttendanceService
      *
      * @throws \Exception
      */
-    public function checkIn(int $userId, int $scheduleAssignmentId, ?string $notes = null): Attendance
+    public function checkIn(int $userId, ?int $scheduleAssignmentId, ?string $notes = null): Attendance
     {
         try {
-            // Validate schedule exists and belongs to user
-            $schedule = ScheduleAssignment::findOrFail($scheduleAssignmentId);
+            $schedule = null;
+            $status = 'present';
+            $lateMinutes = 0;
 
-            if ($schedule->user_id !== $userId) {
-                Log::warning('Unauthorized check-in attempt', [
-                    'user_id' => $userId,
-                    'schedule_id' => $scheduleAssignmentId,
-                    'schedule_user_id' => $schedule->user_id,
-                ]);
-                throw new BusinessException('Jadwal tidak sesuai dengan user.', 'UNAUTHORIZED_SCHEDULE');
-            }
+            if ($scheduleAssignmentId) {
+                // Validate schedule exists and belongs to user
+                $schedule = ScheduleAssignment::findOrFail($scheduleAssignmentId);
 
-            // Validate schedule date is today
-            if (! $schedule->date->isToday()) {
-                throw new BusinessException('Hanya dapat check-in untuk jadwal hari ini.', 'INVALID_SCHEDULE_DATE');
-            }
+                if ($schedule->user_id !== $userId) {
+                    Log::warning('Unauthorized check-in attempt', [
+                        'user_id' => $userId,
+                        'schedule_id' => $scheduleAssignmentId,
+                        'schedule_user_id' => $schedule->user_id,
+                    ]);
+                    throw new BusinessException('Jadwal tidak sesuai dengan user.', 'UNAUTHORIZED_SCHEDULE');
+                }
 
-            // Check if already checked in for this schedule
-            $existing = Attendance::where('user_id', $userId)
-                ->where('schedule_assignment_id', $scheduleAssignmentId)
-                ->first();
+                // Validate schedule date is today
+                if (! $schedule->date->isToday()) {
+                    throw new BusinessException('Hanya dapat check-in untuk jadwal hari ini.', 'INVALID_SCHEDULE_DATE');
+                }
 
-            if ($existing && $existing->check_in) {
-                throw new BusinessException('Anda sudah check-in untuk jadwal ini.', 'ALREADY_CHECKED_IN');
+                // Check if already checked in for this schedule
+                $existing = Attendance::where('user_id', $userId)
+                    ->where('schedule_assignment_id', $scheduleAssignmentId)
+                    ->first();
+
+                if ($existing && $existing->check_in) {
+                    throw new BusinessException('Anda sudah check-in untuk jadwal ini.', 'ALREADY_CHECKED_IN');
+                }
+            } else {
+                // Override Mode Check-in (No Schedule)
+                if (! config('siwirus.attendance.override_mode', false)) {
+                    throw new BusinessException('Check-in tanpa jadwal tidak diizinkan.', 'OVERRIDE_DISABLED');
+                }
+
+                // Check for duplicate unscheduled check-in today?
+                // Optional: Prevent multiple unscheduled check-ins?
+                // For now, let's allow it but maybe limit to 1 per day?
+                // Or check if user has an active attendance without check-out?
+                $existingActive = Attendance::where('user_id', $userId)
+                    ->whereNull('schedule_assignment_id')
+                    ->whereDate('date', today())
+                    ->whereNull('check_out')
+                    ->exists();
+
+                if ($existingActive) {
+                     throw new BusinessException('Anda masih memiliki sesi check-in aktif.', 'ALREADY_CHECKED_IN');
+                }
             }
 
             $checkInTime = now();
 
-            // Check if user has approved leave for this date
-            if ($this->hasApprovedLeave($userId, $checkInTime->toDateString())) {
+            // Check if user has approved leave for this date (Only relevant if schedule exists?)
+            // If override check-in, user is present, so leave doesn't matter much unless we want to warn them.
+            if ($schedule && $this->hasApprovedLeave($userId, $checkInTime->toDateString())) {
                 // User has approved leave, mark as excused without penalty
                 return DB::transaction(function () use ($userId, $scheduleAssignmentId, $notes, $checkInTime, $schedule) {
                     $attendance = $this->repository->create([
@@ -89,10 +115,12 @@ class AttendanceService
                 });
             }
 
-            // Determine status and late minutes
-            $statusData = $this->determineStatus($checkInTime, $schedule);
-            $status = $statusData['status'];
-            $lateMinutes = $statusData['late_minutes'];
+            // Determine status and late minutes only if schedule exists
+            if ($schedule) {
+                $statusData = $this->determineStatus($checkInTime, $schedule);
+                $status = $statusData['status'];
+                $lateMinutes = $statusData['late_minutes'];
+            }
 
             // Create attendance record within transaction
             return DB::transaction(function () use ($userId, $scheduleAssignmentId, $notes, $checkInTime, $status, $lateMinutes, $schedule) {
@@ -105,13 +133,13 @@ class AttendanceService
                     'notes' => $notes,
                 ]);
 
-                // Apply penalty if late
-                if ($status === 'late' && $lateMinutes > 0) {
+                // Apply penalty if late and schedule exists
+                if ($schedule && $status === 'late' && $lateMinutes > 0) {
                     $this->applyLatePenalty($userId, $attendance, $lateMinutes);
                 }
 
-                // Update schedule assignment status
-                if ($status === 'present' || $status === 'late') {
+                // Update schedule assignment status if exists
+                if ($schedule && ($status === 'present' || $status === 'late')) {
                     $schedule->update(['status' => 'completed']);
                 }
 
@@ -123,6 +151,7 @@ class AttendanceService
                     'attendance_id' => $attendance->id,
                     'status' => $status,
                     'late_minutes' => $lateMinutes,
+                    'is_override' => is_null($scheduleAssignmentId),
                 ]);
 
                 return $attendance;

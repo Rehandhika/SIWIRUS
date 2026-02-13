@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'SIKOPMA') }} - @yield('title', 'Dashboard')</title>
+    <title>{{ config('app.name', 'SIWIRUS') }} - @yield('title', 'Dashboard')</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -41,8 +41,8 @@
                 <!-- Logo -->
                 <div class="flex items-center justify-between px-4 py-5 border-b border-gray-200 flex-shrink-0">
                     <div class="flex items-center space-x-2">
-                        <img src="{{ asset('images/logo.png') }}" alt="SIKOPMA" class="w-8 h-8 rounded-lg flex-shrink-0 object-cover">
-                        <span class="text-xl font-semibold text-gray-900">SIKOPMA</span>
+                        <img src="{{ asset('images/logo.png') }}" alt="SIWIRUS" class="w-8 h-8 rounded-lg flex-shrink-0 object-cover">
+                        <span class="text-xl font-semibold text-gray-900">SIWIRUS</span>
                     </div>
                     <button @click="sidebarOpen = false" 
                             type="button"
@@ -107,7 +107,7 @@
                             aria-label="Open sidebar">
                         <x-ui.icon name="bars-3" class="h-6 w-6" />
                     </button>
-                    <span class="text-lg font-semibold text-gray-900">SIKOPMA</span>
+                    <span class="text-lg font-semibold text-gray-900">SIWIRUS</span>
                     <a href="{{ route('admin.notifications.index') }}" 
                         class="relative p-1 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-lg transition-colors"
                         aria-label="Notifikasi">

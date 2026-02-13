@@ -112,10 +112,10 @@
                 </div>
 
                 <!-- Total Assignments -->
-                <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 p-5 shadow-md hover:shadow-lg transition-shadow duration-200">
+                <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 p-5 shadow-md hover:shadow-lg transition-shadow duration-200">
                     <div class="relative z-10">
                         <div class="flex items-center justify-between mb-2">
-                            <div class="text-4xl font-bold text-purple-600">
+                            <div class="text-4xl font-bold text-blue-600">
                                 {{ $totalAssignments }}
                             </div>
                             <div class="text-2xl">👥</div>

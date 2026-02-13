@@ -31,13 +31,13 @@ export default function PublicNavbar() {
                         <div className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 flex items-center justify-center flex-shrink-0 bg-transparent">
                             <img 
                                 src="/images/logo.png" 
-                                alt="SIKOPMA" 
+                                alt="SIWIRUS" 
                                 className="h-full w-full object-contain"
                             />
                         </div>
                         <div className="flex flex-col min-w-0">
                             <span className="font-semibold text-xs sm:text-sm md:text-base text-foreground tracking-tight leading-none group-hover:text-primary transition-colors truncate">
-                                SIKOPMA
+                                SIWIRUS
                             </span>
                             <span className="hidden sm:block text-[8px] md:text-[9px] uppercase tracking-[0.08em] md:tracking-[0.1em] text-muted-foreground truncate">
                                 UKM Kewirausahaan STIS

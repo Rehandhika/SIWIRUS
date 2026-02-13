@@ -76,7 +76,7 @@ function BannerSection({ initialBanners }) {
     const slides = banners.map((banner) => ({
         id: banner.id,
         title: banner.title || null,
-        alt: banner.title || 'Banner promosi SIKOPMA',
+        alt: banner.title || 'Banner promosi SIWIRUS',
         href: null,
         images: {
             default: banner.images?.default ?? '',

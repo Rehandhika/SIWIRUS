@@ -1,7 +1,7 @@
 import React from 'react'
 
 export default function TestPage() {
-    console.log('[SIKOPMA] TestPage rendering')
+    console.log('[SIWIRUS] TestPage rendering')
     return (
         <div style={{ padding: '40px', backgroundColor: '#10b981', color: 'white', minHeight: '100vh' }}>
             <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '20px' }}>

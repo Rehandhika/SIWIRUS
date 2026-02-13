@@ -3,7 +3,7 @@
     <div class="border-b border-white/5 bg-slate-900/30 backdrop-blur-sm py-4">
         <div class="max-w-7xl mx-auto px-4">
             <nav class="flex items-center space-x-3 text-sm">
-                <a href="{{ route('home') }}" class="text-slate-500 hover:text-indigo-400 transition-colors">
+                <a href="{{ route('home') }}" class="text-slate-500 hover:text-blue-400 transition-colors">
                     <i class="fas fa-home"></i>
                 </a>
                 <span class="text-slate-700">/</span>
@@ -50,7 +50,7 @@
                     {{-- Variant Count Badge --}}
                     @if($product->has_variants && $product->variant_count > 0)
                         <div class="absolute bottom-4 left-4">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-bold backdrop-blur-md">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold backdrop-blur-md">
                                 <i class="fas fa-layer-group mr-1.5"></i> {{ $product->variant_count }} Varian
                             </span>
                         </div>
@@ -63,12 +63,12 @@
                 <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl lg:rounded-3xl p-5 lg:p-8 shadow-xl relative overflow-hidden">
                     
                     {{-- Decorative Blur --}}
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] -z-10"></div>
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] -z-10"></div>
 
                     {{-- Category & SKU --}}
                     <div class="flex items-center justify-between mb-4">
                         @if($product->category)
-                            <span class="px-3 py-1 bg-white/5 text-indigo-300 text-xs font-semibold rounded-full border border-white/10">
+                            <span class="px-3 py-1 bg-white/5 text-blue-300 text-xs font-semibold rounded-full border border-white/10">
                                 {{ $product->category }}
                             </span>
                         @endif
@@ -82,7 +82,7 @@
 
                     {{-- Selected Variant Name --}}
                     @if($product->has_variants && $this->selectedVariant)
-                        <p class="text-sm text-indigo-400 mb-4">
+                        <p class="text-sm text-blue-400 mb-4">
                             Varian: {{ collect($this->selectedVariant->option_values)->pluck('value')->implode(' / ') }}
                         </p>
                     @endif
@@ -93,7 +93,7 @@
                             <p class="text-sm text-slate-400 mb-1">
                                 {{ $product->has_variants ? 'Harga Varian' : 'Harga Satuan' }}
                             </p>
-                            <div class="text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+                            <div class="text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
                                 Rp {{ number_format($this->displayPrice, 0, ',', '.') }}
                             </div>
                             @if($product->has_variants)
@@ -147,14 +147,14 @@
                                         @if($isOutOfStockVariant) disabled @endif
                                         class="relative p-3 rounded-xl border-2 transition-all duration-200 text-left
                                             {{ $isSelected 
-                                                ? 'border-indigo-500 bg-indigo-500/10 ring-2 ring-indigo-500/20' 
-                                                : 'border-white/10 bg-slate-900/40 hover:border-indigo-500/50 hover:bg-slate-900/60'
+                                                ? 'border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/20' 
+                                                : 'border-white/10 bg-slate-900/40 hover:border-blue-500/50 hover:bg-slate-900/60'
                                             }}
                                             {{ $isOutOfStockVariant ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }}"
                                     >
                                         {{-- Selected Indicator --}}
                                         @if($isSelected)
-                                            <div class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center">
+                                            <div class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
                                                 <i class="fas fa-check text-white text-[10px]"></i>
                                             </div>
                                         @endif
@@ -166,7 +166,7 @@
                                         
                                         {{-- Price and Stock --}}
                                         <div class="mt-1 flex items-center justify-between gap-2">
-                                            <span class="text-xs font-semibold text-indigo-400">
+                                            <span class="text-xs font-semibold text-blue-400">
                                                 Rp {{ number_format($variant->price, 0, ',', '.') }}
                                             </span>
                                             @if($isOutOfStockVariant)
@@ -196,9 +196,9 @@
 
                     {{-- Actions --}}
                     <div class="space-y-4 mb-8">
-                        <div class="bg-indigo-900/20 border border-indigo-500/20 rounded-xl p-4 flex items-start space-x-3">
-                            <i class="fas fa-info-circle text-indigo-400 mt-0.5"></i>
-                            <p class="text-sm text-indigo-200/80 leading-relaxed">
+                        <div class="bg-blue-900/20 border border-blue-500/20 rounded-xl p-4 flex items-start space-x-3">
+                            <i class="fas fa-info-circle text-blue-400 mt-0.5"></i>
+                            <p class="text-sm text-blue-200/80 leading-relaxed">
                                 Pembelian dilakukan secara langsung di Koperasi. Silakan kunjungi kami pada jam operasional.
                             </p>
                         </div>
@@ -228,17 +228,17 @@
         <div class="mt-8 lg:mt-12 grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
             <!-- Reuse glass card style -->
             <div class="bg-slate-900/40 border border-white/5 rounded-2xl p-5 lg:p-6 text-center">
-                <i class="fas fa-clock text-indigo-500 text-2xl mb-3"></i>
+                <i class="fas fa-clock text-blue-500 text-2xl mb-3"></i>
                 <h4 class="text-white font-medium mb-1">Jam Operasional</h4>
                 <p class="text-sm text-slate-400">Senin - Kamis, 07:30 - 16:00</p>
             </div>
             <div class="bg-slate-900/40 border border-white/5 rounded-2xl p-6 text-center">
-                <i class="fas fa-map-marker-alt text-indigo-500 text-2xl mb-3"></i>
+                <i class="fas fa-map-marker-alt text-blue-500 text-2xl mb-3"></i>
                 <h4 class="text-white font-medium mb-1">Lokasi</h4>
                 <p class="text-sm text-slate-400">Kampus Universitas, Yogyakarta</p>
             </div>
             <div class="bg-slate-900/40 border border-white/5 rounded-2xl p-6 text-center">
-                <i class="fas fa-headset text-indigo-500 text-2xl mb-3"></i>
+                <i class="fas fa-headset text-blue-500 text-2xl mb-3"></i>
                 <h4 class="text-white font-medium mb-1">Bantuan</h4>
                 <p class="text-sm text-slate-400">Hubungi admin via WhatsApp</p>
             </div>

@@ -117,7 +117,7 @@
                                     'flex items-center justify-between p-3 rounded-lg border-l-4',
                                     'bg-green-50 border-green-500' => $assignment->session == 1,
                                     'bg-amber-50 border-amber-500' => $assignment->session == 2,
-                                    'bg-purple-50 border-purple-500' => $assignment->session == 3,
+                                    'bg-blue-50 border-blue-500' => $assignment->session == 3,
                                 ])>
                                     <div class="min-w-0">
                                         <p class="text-sm font-medium text-gray-900">Sesi {{ $assignment->session }}</p>
@@ -133,7 +133,7 @@
                                             'px-2 py-1 text-xs font-medium rounded-full',
                                             'bg-green-100 text-green-700' => $assignment->session == 1,
                                             'bg-amber-100 text-amber-700' => $assignment->session == 2,
-                                            'bg-purple-100 text-purple-700' => $assignment->session == 3,
+                                            'bg-blue-100 text-blue-700' => $assignment->session == 3,
                                         ])>
                                             @if($assignment->session == 1) Pagi
                                             @elseif($assignment->session == 2) Siang
@@ -169,7 +169,7 @@
             <p class="text-xs text-gray-500 mt-1">Mendatang</p>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 p-4 text-center">
-            <p class="text-2xl font-bold text-purple-600">
+            <p class="text-2xl font-bold text-blue-600">
                 {{ $mySchedules->flatten()->count() * 3 }}
             </p>
             <p class="text-xs text-gray-500 mt-1">Jam</p>

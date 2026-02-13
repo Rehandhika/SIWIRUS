@@ -110,12 +110,12 @@
         
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div class="flex items-center">
-                <div class="p-3 bg-purple-100 rounded-lg">
-                    <i class="fas fa-clock text-purple-600"></i>
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <i class="fas fa-clock text-blue-600"></i>
                 </div>
                 <div class="ml-4">
                     <p class="text-sm text-gray-600">Total Jam</p>
-                    <p class="text-xl font-bold text-purple-900">{{ $monthStats['total_hours'] }}</p>
+                    <p class="text-xl font-bold text-blue-900">{{ $monthStats['total_hours'] }}</p>
                 </div>
             </div>
         </div>

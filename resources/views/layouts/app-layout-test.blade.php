@@ -61,7 +61,7 @@
                     <x-ui.icon name="check-circle" class="w-5 h-5 text-success-500 flex-shrink-0 mt-0.5" />
                     <div>
                         <p class="font-medium text-gray-900">Design System Colors</p>
-                        <p class="text-sm text-gray-600">Replaced hardcoded colors (indigo-*) with theme colors (primary-*)</p>
+                        <p class="text-sm text-gray-600">Replaced hardcoded colors (blue-*) with theme colors (primary-*)</p>
                     </div>
                 </div>
             </div>

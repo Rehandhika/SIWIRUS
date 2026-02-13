@@ -10,7 +10,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Login - SIKOPMA')]
+#[Title('Login - SIWIRUS')]
 #[Layout('layouts.guest')]
 class LoginForm extends Component
 {

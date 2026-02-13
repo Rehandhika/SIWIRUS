@@ -35,14 +35,14 @@ class UserSeeder extends Seeder
                 'nim' => '222413550',
                 'jabatan' => 'Ketua',
                 'role' => 'Ketua',
-                'email' => 'diva.afdholia@sikopma.test',
+                'email' => 'diva.afdholia@siwirus.test',
             ],
             [
                 'name' => 'Fikri Adi Nugraha',
                 'nim' => '222413577',
                 'jabatan' => 'Wakil Ketua',
                 'role' => 'Wakil Ketua',
-                'email' => 'fikri.adi@sikopma.test',
+                'email' => 'fikri.adi@siwirus.test',
             ],
 
             // =====================================================
@@ -53,14 +53,14 @@ class UserSeeder extends Seeder
                 'nim' => '222413540',
                 'jabatan' => 'Sekretaris I',
                 'role' => 'Sekretaris',
-                'email' => 'defila.cahyati@sikopma.test',
+                'email' => 'defila.cahyati@siwirus.test',
             ],
             [
                 'name' => 'Raziq Alzam Fadlullah',
                 'nim' => '112413751',
                 'jabatan' => 'Sekretaris II',
                 'role' => 'Sekretaris',
-                'email' => 'raziq.alzam@sikopma.test',
+                'email' => 'raziq.alzam@siwirus.test',
             ],
 
             // =====================================================
@@ -71,21 +71,21 @@ class UserSeeder extends Seeder
                 'nim' => '222413785',
                 'jabatan' => 'Bendahara Umum',
                 'role' => 'Bendahara Umum',
-                'email' => 'siti.rahmadhani@sikopma.test',
+                'email' => 'siti.rahmadhani@siwirus.test',
             ],
             [
                 'name' => 'Mei Indriyanti Syamsi',
                 'nim' => '222413652',
                 'jabatan' => 'Bendahara Kegiatan',
                 'role' => 'Bendahara Kegiatan',
-                'email' => 'mei.indriyanti@sikopma.test',
+                'email' => 'mei.indriyanti@siwirus.test',
             ],
             [
                 'name' => 'Putra Irvan Kala\'padang',
                 'nim' => '222413736',
                 'jabatan' => 'Bendahara Toko',
                 'role' => 'Bendahara Toko',
-                'email' => 'putra.irvan@sikopma.test',
+                'email' => 'putra.irvan@siwirus.test',
             ],
 
             // =====================================================
@@ -96,42 +96,42 @@ class UserSeeder extends Seeder
                 'nim' => '222413547',
                 'jabatan' => 'Koordinator Toko',
                 'role' => 'Koordinator Toko',
-                'email' => 'diah.puji@sikopma.test',
+                'email' => 'diah.puji@siwirus.test',
             ],
             [
                 'name' => 'Ego Stiven Rafliza',
                 'nim' => '222413552',
                 'jabatan' => 'Koordinator PSDA',
                 'role' => 'Koordinator PSDA',
-                'email' => 'ego.stiven@sikopma.test',
+                'email' => 'ego.stiven@siwirus.test',
             ],
             [
                 'name' => 'Desvita Prabawaningrum',
                 'nim' => '222413544',
                 'jabatan' => 'Koordinator Humsar',
                 'role' => 'Koordinator Humsar',
-                'email' => 'desvita.prabawaningrum@sikopma.test',
+                'email' => 'desvita.prabawaningrum@siwirus.test',
             ],
             [
                 'name' => 'Fatimah Az Zahra',
                 'nim' => '222413569',
                 'jabatan' => 'Koordinator Produksi dan Pengadaan',
                 'role' => 'Koordinator Produksi',
-                'email' => 'fatimah.azzahra@sikopma.test',
+                'email' => 'fatimah.azzahra@siwirus.test',
             ],
             [
                 'name' => 'Rehandhika Arya Pratama',
                 'nim' => '222413752',
                 'jabatan' => 'Koordinator IT',
                 'role' => 'Super Admin', // Super Admin karena IT
-                'email' => 'rehandhika.arya@sikopma.test',
+                'email' => 'rehandhika.arya@siwirus.test',
             ],
             [
                 'name' => 'Risyda Azifatil Maghfira',
                 'nim' => '222413763',
                 'jabatan' => 'Koordinator Desain',
                 'role' => 'Koordinator Desain',
-                'email' => 'risyda.azifatil@sikopma.test',
+                'email' => 'risyda.azifatil@siwirus.test',
             ],
 
             // =====================================================
@@ -142,7 +142,7 @@ class UserSeeder extends Seeder
                 'nim' => '222413742',
                 'jabatan' => 'Anggota Produksi dan Pengadaan',
                 'role' => 'Anggota',
-                'email' => 'rahmat.budiyanto@sikopma.test',
+                'email' => 'rahmat.budiyanto@siwirus.test',
             ],
         ];
 

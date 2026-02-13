@@ -10,12 +10,12 @@
         <div class="flex items-center gap-3">
             <h1 class="text-xl font-semibold text-gray-900">Entry Transaksi</h1>
             <input type="date" wire:model.live="selectedDate" max="{{ now()->format('Y-m-d') }}"
-                class="text-sm border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                class="text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
             <span x-show="isDraft" x-cloak class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">Draft</span>
         </div>
         <div class="text-right">
             <span class="text-sm text-gray-500">Total Hari Ini</span>
-            <p class="text-xl font-bold text-indigo-600">Rp {{ number_format($this->dailySummary['total'], 0, ',', '.') }}</p>
+            <p class="text-xl font-bold text-blue-600">Rp {{ number_format($this->dailySummary['total'], 0, ',', '.') }}</p>
         </div>
     </div>
 
@@ -28,7 +28,7 @@
                     Reset
                 </button>
                 <button @click="submitAll()" :disabled="!hasValidRows() || isSubmitting"
-                    class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
                     <span wire:loading.remove wire:target="submitAll">Simpan Semua</span>
                     <span wire:loading wire:target="submitAll">Menyimpan...</span>
                 </button>
@@ -59,7 +59,7 @@
                                         @keydown.escape="closeDropdown(idx)"
                                         @keydown.enter.prevent="selectFirstProduct(idx)"
                                         placeholder="Cari produk..."
-                                        class="w-full px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 truncate"
+                                        class="w-full px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 truncate"
                                         :class="row.product_id ? 'border-green-400 bg-green-50' : 'border-gray-300'">
                                     
                                     <div x-show="row.showDropdown && row.search.length > 0" x-transition
@@ -68,9 +68,9 @@
                                         style="z-index: 9999;">
                                         <template x-for="p in filterProducts(row.search)" :key="p.id">
                                             <button type="button" @click="selectProduct(idx, p)"
-                                                class="w-full px-3 py-2 text-left text-sm hover:bg-indigo-50 flex justify-between items-center border-b border-gray-100 last:border-0">
+                                                class="w-full px-3 py-2 text-left text-sm hover:bg-blue-50 flex justify-between items-center border-b border-gray-100 last:border-0">
                                                 <span x-text="p.name"></span>
-                                                <span class="text-indigo-600 font-medium" x-text="formatRupiah(p.price)"></span>
+                                                <span class="text-blue-600 font-medium" x-text="formatRupiah(p.price)"></span>
                                             </button>
                                         </template>
                                         <div x-show="filterProducts(row.search).length === 0" class="px-3 py-3 text-sm text-gray-400 text-center">
@@ -88,7 +88,7 @@
                                     @keydown.enter.prevent="selectFirstStudent(idx)"
                                     inputmode="numeric" maxlength="9"
                                     placeholder="NIM (opsional)"
-                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                                     :class="row.student_nim ? 'border-green-400 bg-green-50' : ''">
 
                                 {{-- Student Suggestions Dropdown --}}
@@ -98,12 +98,12 @@
                                     style="z-index: 9999;">
                                     <template x-for="s in filterStudentsList(row.student_nim)" :key="s.nim">
                                         <button type="button" @click="selectStudent(idx, s)"
-                                            class="w-full px-3 py-2 text-left text-sm hover:bg-indigo-50 flex justify-between items-center border-b border-gray-100 last:border-0">
+                                            class="w-full px-3 py-2 text-left text-sm hover:bg-blue-50 flex justify-between items-center border-b border-gray-100 last:border-0">
                                             <div>
                                                 <span class="font-medium" x-text="s.nim"></span>
                                                 <span class="text-gray-500 text-xs block" x-text="s.full_name"></span>
                                             </div>
-                                            <span class="text-indigo-600 text-xs font-medium" x-text="s.points_balance.toLocaleString('id-ID') + ' poin'"></span>
+                                            <span class="text-blue-600 text-xs font-medium" x-text="s.points_balance.toLocaleString('id-ID') + ' poin'"></span>
                                         </button>
                                     </template>
                                     <div x-show="filterStudentsList(row.student_nim).length === 0" class="px-3 py-3 text-sm text-gray-400 text-center">
@@ -116,7 +116,7 @@
                             <input type="number" x-model.number="row.qty" min="1" :disabled="!row.product_id"
                                 @change="validateQty(row); saveDraft()"
                                 @keydown.enter.prevent="addRowAndFocus()"
-                                class="w-full px-2 py-2 text-sm text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
+                                class="w-full px-2 py-2 text-sm text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
                         </td>
                         <td class="px-4 py-3 text-right w-28">
                             <span class="text-sm font-semibold" :class="row.product_id ? 'text-gray-900' : 'text-gray-300'"
@@ -124,7 +124,7 @@
                         </td>
                         <td class="px-4 py-3 w-28">
                             <select x-model="row.payment_method" @change="saveDraft()"
-                                class="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500">
+                                class="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
                                 <option value="cash">Cash</option>
                                 <option value="transfer">Transfer</option>
                                 <option value="qris">QRIS</option>
@@ -144,14 +144,14 @@
             <tfoot class="bg-gray-50 border-t">
                 <tr>
                     <td class="px-4 py-3">
-                        <button @click="addRowAndFocus()" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                        <button @click="addRowAndFocus()" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
                             + Tambah
                         </button>
                     </td>
                     <td class="px-4 py-3"></td>
                     <td class="px-4 py-3 text-center text-sm text-gray-600" x-text="getTotalQty() + ' item'"></td>
                     <td class="px-4 py-3 text-right">
-                        <span class="text-base font-bold text-indigo-600" x-text="formatRupiah(getGrandTotal())"></span>
+                        <span class="text-base font-bold text-blue-600" x-text="formatRupiah(getGrandTotal())"></span>
                     </td>
                     <td colspan="2"></td>
                 </tr>
@@ -179,7 +179,7 @@
                                 <span class="text-xs px-2 py-1 rounded-full 
                                     {{ $tx['payment_method'] === 'cash' ? 'bg-green-100 text-green-700' : '' }}
                                     {{ $tx['payment_method'] === 'transfer' ? 'bg-blue-100 text-blue-700' : '' }}
-                                    {{ $tx['payment_method'] === 'qris' ? 'bg-purple-100 text-purple-700' : '' }}">
+                                    {{ $tx['payment_method'] === 'qris' ? 'bg-blue-100 text-blue-700' : '' }}">
                                     {{ ucfirst($tx['payment_method']) }}
                                 </span>
                             </td>
@@ -279,7 +279,7 @@
                 </div>
                 <div>
                     <span class="text-gray-500">QRIS</span>
-                    <p class="font-semibold text-purple-600">Rp {{ number_format($this->dailySummary['qris'], 0, ',', '.') }}</p>
+                    <p class="font-semibold text-blue-600">Rp {{ number_format($this->dailySummary['qris'], 0, ',', '.') }}</p>
                 </div>
             </div>
             <div class="text-right">

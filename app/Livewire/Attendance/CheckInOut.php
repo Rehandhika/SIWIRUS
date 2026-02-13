@@ -5,6 +5,7 @@ namespace App\Livewire\Attendance;
 use App\Models\Attendance;
 use App\Models\ScheduleAssignment;
 use App\Services\ActivityLogService;
+use App\Services\AttendanceService;
 use App\Services\NotificationService;
 use App\Services\Storage\FileStorageServiceInterface;
 use Carbon\Carbon;
@@ -34,6 +35,7 @@ class CheckInOut extends Component
     public $showPhotoPreview = false;
 
     protected FileStorageServiceInterface $fileStorageService;
+    protected AttendanceService $attendanceService;
 
     protected $rules = [
         'checkInPhoto' => 'required|image|max:5120', // 5MB max
@@ -45,9 +47,12 @@ class CheckInOut extends Component
         'checkInPhoto.max' => 'Ukuran foto maksimal 5MB.',
     ];
 
-    public function boot(FileStorageServiceInterface $fileStorageService)
-    {
+    public function boot(
+        FileStorageServiceInterface $fileStorageService,
+        AttendanceService $attendanceService
+    ) {
         $this->fileStorageService = $fileStorageService;
+        $this->attendanceService = $attendanceService;
     }
 
     public function mount()
@@ -130,13 +135,21 @@ class CheckInOut extends Component
             $this->currentAttendance = Attendance::where('user_id', $user->id)
                 ->where('schedule_assignment_id', $this->currentSchedule->id)
                 ->first();
-
-            if ($this->currentAttendance) {
-                $this->checkInTime = $this->currentAttendance->check_in?->format('H:i');
-                $this->checkOutTime = $this->currentAttendance->check_out?->format('H:i');
-            }
         } else {
             $this->scheduleStatus = null;
+            
+            // Check for override attendance (no schedule)
+            // Get the latest one to handle multiple sessions correctly
+            $this->currentAttendance = Attendance::where('user_id', $user->id)
+                ->where('date', $today)
+                ->whereNull('schedule_assignment_id')
+                ->latest()
+                ->first();
+        }
+
+        if ($this->currentAttendance) {
+            $this->checkInTime = $this->currentAttendance->check_in?->format('H:i');
+            $this->checkOutTime = $this->currentAttendance->check_out?->format('H:i');
         }
     }
 
@@ -146,9 +159,15 @@ class CheckInOut extends Component
     public function checkIn()
     {
         try {
-            // Validate schedule exists
+            $isOverride = false;
+
+            // Validate schedule exists or override is allowed
             if (! $this->currentSchedule) {
-                throw new \Exception('Tidak ada jadwal aktif saat ini.');
+                if (config('siwirus.attendance.override_mode', false)) {
+                    $isOverride = true;
+                } else {
+                    throw new \Exception('Tidak ada jadwal aktif saat ini.');
+                }
             }
 
             // Check if already checked in
@@ -156,18 +175,21 @@ class CheckInOut extends Component
                 throw new \Exception('Anda sudah check-in.');
             }
 
-            // Check if schedule is published
-            if ($this->currentSchedule->schedule->status !== 'published') {
-                throw new \Exception('Jadwal belum dipublikasikan.');
-            }
+            // If schedule exists, validate status and timing
+            if ($this->currentSchedule) {
+                // Check if schedule is published
+                if ($this->currentSchedule->schedule->status !== 'published') {
+                    throw new \Exception('Jadwal belum dipublikasikan.');
+                }
 
-            // Validate timing
-            $scheduleStart = $this->currentSchedule->date->copy()->setTimeFromTimeString($this->currentSchedule->time_start);
-            $now = now();
-            $tolerance = config('sikopma.attendance.allow_early_checkin_minutes', 30);
+                // Validate timing
+                $scheduleStart = $this->currentSchedule->date->copy()->setTimeFromTimeString($this->currentSchedule->time_start);
+                $now = now();
+                $tolerance = config('siwirus.attendance.allow_early_checkin_minutes', 30);
 
-            if ($now->lt($scheduleStart->copy()->subMinutes($tolerance))) {
-                throw new \Exception("Belum waktunya check-in. Check-in dapat dilakukan {$tolerance} menit sebelum jadwal dimulai.");
+                if ($now->lt($scheduleStart->copy()->subMinutes($tolerance))) {
+                    throw new \Exception("Belum waktunya check-in. Check-in dapat dilakukan {$tolerance} menit sebelum jadwal dimulai.");
+                }
             }
 
             // Validate photo and notes
@@ -176,28 +198,35 @@ class CheckInOut extends Component
             // Store photo using FileStorageService
             $photoPath = $this->storeCheckInPhoto();
 
-            // Create attendance record
-            $this->currentAttendance = Attendance::create([
-                'user_id' => auth()->id(),
-                'schedule_assignment_id' => $this->currentSchedule->id,
-                'date' => today(),
-                'check_in' => $now,
-                'check_in_photo' => $photoPath,
-                'status' => $this->determineAttendanceStatus($now),
-            ]);
+            // Use AttendanceService to create check-in
+            $this->currentAttendance = $this->attendanceService->checkIn(
+                userId: auth()->id(),
+                scheduleAssignmentId: $this->currentSchedule?->id,
+                notes: null
+            );
+            
+            // Update photo path since Service doesn't handle photo upload in checkIn method yet
+            // Or we could pass it to notes, but better to update model directly here
+            $this->currentAttendance->update(['check_in_photo' => $photoPath]);
 
+            $now = $this->currentAttendance->check_in;
             $this->checkInTime = $now->format('H:i');
 
             // Log activity
-            $sessionLabel = $this->currentSchedule->session_label ?? 'Sesi '.$this->currentSchedule->session;
+            $sessionLabel = $this->currentSchedule ? ($this->currentSchedule->session_label ?? 'Sesi '.$this->currentSchedule->session) : 'Check-in Luar Jadwal';
             ActivityLogService::logCheckIn($sessionLabel, $now->format('H:i'));
 
             // Send notification
+            $notifTitle = $isOverride ? 'Check-in Luar Jadwal Berhasil' : 'Check-in Berhasil';
+            $notifMessage = $isOverride 
+                ? "Check-in berhasil pada {$now->format('H:i')} (Tanpa Jadwal)"
+                : "Check-in berhasil pada {$now->format('H:i')} untuk jadwal {$this->currentSchedule->day_label} {$this->currentSchedule->session_label}";
+
             NotificationService::send(
                 auth()->user(),
                 'check_in_success',
-                'Check-in Berhasil',
-                "Check-in berhasil pada {$now->format('H:i')} untuk jadwal {$this->currentSchedule->day_label} {$this->currentSchedule->session_label}"
+                $notifTitle,
+                $notifMessage
             );
 
             $this->dispatch('toast', message: 'Check-in berhasil! Waktu: '.$now->format('H:i'), type: 'success');
@@ -276,7 +305,7 @@ class CheckInOut extends Component
             $this->checkOutTime = $now->format('H:i');
 
             // Log activity
-            $sessionLabel = $this->currentSchedule->session_label ?? 'Sesi '.$this->currentSchedule->session;
+            $sessionLabel = $this->currentSchedule ? ($this->currentSchedule->session_label ?? 'Sesi '.$this->currentSchedule->session) : 'Check-in Luar Jadwal';
             ActivityLogService::logCheckOut($sessionLabel, $now->format('H:i'), number_format($workingHours, 2));
 
             // Send notification
@@ -329,8 +358,12 @@ class CheckInOut extends Component
      */
     private function determineAttendanceStatus(Carbon $checkInTime): string
     {
+        if (! $this->currentSchedule) {
+            return 'present'; // Override mode always present
+        }
+
         $scheduleStart = $this->currentSchedule->date->copy()->setTimeFromTimeString($this->currentSchedule->time_start);
-        $lateThreshold = config('sikopma.late_threshold_minutes', 15);
+        $lateThreshold = config('siwirus.late_threshold_minutes', 15);
 
         if ($checkInTime->greaterThan($scheduleStart->copy()->addMinutes($lateThreshold))) {
             return 'late';
@@ -344,18 +377,19 @@ class CheckInOut extends Component
      */
     public function canCheckInNow(): bool
     {
-        if (! $this->currentSchedule) {
+        if ($this->currentAttendance && $this->currentAttendance->check_in) {
             return false;
         }
 
-        if ($this->currentAttendance && $this->currentAttendance->check_in) {
-            return false;
+        if (! $this->currentSchedule) {
+            // Allow check-in if override mode is enabled
+            return config('siwirus.attendance.override_mode', false);
         }
 
         // Allow check-in with tolerance
         $scheduleStart = $this->currentSchedule->date->copy()->setTimeFromTimeString($this->currentSchedule->time_start);
         $now = now();
-        $tolerance = config('sikopma.attendance.allow_early_checkin_minutes', 30);
+        $tolerance = config('siwirus.attendance.allow_early_checkin_minutes', 30);
 
         return $now->gte($scheduleStart->copy()->subMinutes($tolerance));
     }
@@ -370,7 +404,7 @@ class CheckInOut extends Component
         }
 
         $scheduleStart = $this->currentSchedule->date->copy()->setTimeFromTimeString($this->currentSchedule->time_start);
-        $tolerance = config('sikopma.attendance.allow_early_checkin_minutes', 30);
+        $tolerance = config('siwirus.attendance.allow_early_checkin_minutes', 30);
         $checkInAvailable = $scheduleStart->copy()->subMinutes($tolerance);
 
         return $checkInAvailable->diffForHumans();

@@ -50,7 +50,7 @@
                         <button type="button" wire:click="$set('leave_type', 'other')" 
                                 @class([
                                     'p-4 border-2 rounded-lg transition text-center',
-                                    'border-purple-600 bg-purple-50 text-purple-600' => $leave_type === 'other',
+                                    'border-blue-600 bg-blue-50 text-blue-600' => $leave_type === 'other',
                                     'border-gray-300 text-gray-700 hover:border-gray-400' => $leave_type !== 'other',
                                 ])>
                             <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

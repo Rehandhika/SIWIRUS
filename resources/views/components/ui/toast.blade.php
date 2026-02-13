@@ -137,7 +137,7 @@ $positionClass = $positionClasses[$position] ?? $positionClasses['top-right'];
                     <button 
                         @click="$store.toasts.remove(toast.id)" 
                         type="button"
-                        class="ml-auto flex-shrink-0 inline-flex text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-lg p-1 transition-colors"
+                        class="ml-auto flex-shrink-0 inline-flex text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg p-1 transition-colors"
                         aria-label="Close notification">
                         <x-ui.icon name="x" class="h-5 w-5" />
                     </button>

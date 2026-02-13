@@ -81,7 +81,18 @@
                     </x-ui.alert>
                 </div>
             @endif
+        @elseif(config('siwirus.attendance.override_mode', false))
+            <div class="mb-6">
+                <x-ui.alert variant="info">
+                    <div class="flex items-center">
+                        <x-ui.icon name="information-circle" class="h-5 w-5 mr-2" />
+                        <span>Mode check-in bebas aktif. Anda dapat check-in tanpa jadwal.</span>
+                    </div>
+                </x-ui.alert>
+            </div>
+        @endif
 
+        @if($currentSchedule || config('siwirus.attendance.override_mode', false))
             {{-- Check-in/Check-out Section --}}
             <x-layout.grid cols="2" gap="6" class="mb-6">
                 {{-- Check-in Card --}}

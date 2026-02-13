@@ -33,7 +33,7 @@
                     type="text" 
                     wire:model.live.debounce.300ms="search"
                     placeholder="Cari notifikasi..."
-                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
             </div>
 
@@ -43,7 +43,7 @@
                     wire:click="$set('filter', 'all')" 
                     @class([
                         'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                        'bg-indigo-100 text-indigo-700' => $filter === 'all',
+                        'bg-blue-100 text-blue-700' => $filter === 'all',
                         'text-gray-700 hover:bg-gray-100' => $filter !== 'all',
                     ])
                 >
@@ -53,7 +53,7 @@
                     wire:click="$set('filter', 'unread')" 
                     @class([
                         'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                        'bg-indigo-100 text-indigo-700' => $filter === 'unread',
+                        'bg-blue-100 text-blue-700' => $filter === 'unread',
                         'text-gray-700 hover:bg-gray-100' => $filter !== 'unread',
                     ])
                 >
@@ -63,7 +63,7 @@
                     wire:click="$set('filter', 'read')" 
                     @class([
                         'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                        'bg-indigo-100 text-indigo-700' => $filter === 'read',
+                        'bg-blue-100 text-blue-700' => $filter === 'read',
                         'text-gray-700 hover:bg-gray-100' => $filter !== 'read',
                     ])
                 >
@@ -168,7 +168,7 @@
                                     @if(!$notification->read_at)
                                         <button 
                                             wire:click="markAsRead({{ $notification->id }})" 
-                                            class="text-indigo-600 hover:text-indigo-800 transition-colors p-1 rounded-lg hover:bg-indigo-50"
+                                            class="text-blue-600 hover:text-blue-800 transition-colors p-1 rounded-lg hover:bg-blue-50"
                                             title="Tandai sudah dibaca"
                                         >
                                             <x-ui.icon name="check-circle" class="w-5 h-5" />
@@ -189,7 +189,7 @@
                             @if($notification->link)
                                 <a 
                                     href="{{ $notification->link }}" 
-                                    class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 mt-3 font-medium transition-colors"
+                                    class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 mt-3 font-medium transition-colors"
                                 >
                                     Lihat Detail
                                     <x-ui.icon name="arrow-right" class="w-4 h-4 ml-1" />

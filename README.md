@@ -1,4 +1,4 @@
-# SIKOPMA - Sistem Informasi Koperasi Mahasiswa
+# SIWIRUS - Sistem Informasi Koperasi Mahasiswa
 
 > **Comprehensive Cooperative Management System**  
 > Built with Laravel 12, Livewire v3, Tailwind CSS v4, Alpine.js, and Vite
@@ -6,13 +6,13 @@
 [![Laravel](https://img.shields.io/badge/Laravel-12-red.svg)](https://laravel.com)
 [![Livewire](https://img.shields.io/badge/Livewire-v3-pink.svg)](https://livewire.laravel.com)
 [![Tailwind](https://img.shields.io/badge/Tailwind-v4-blue.svg)](https://tailwindcss.com)
-[![PHP](https://img.shields.io/badge/PHP-8.3-purple.svg)](https://php.net)
+[![PHP](https://img.shields.io/badge/PHP-8.3-blue.svg)](https://php.net)
 
 ---
 
 ## 📋 Table of Contents
 
-- [About SIKOPMA](#about-sikopma)
+- [About SIWIRUS](#about-siwirus)
 - [Features](#features)
 - [Technology Stack](#technology-stack)
 - [Quick Start](#quick-start)
@@ -27,9 +27,9 @@
 
 ---
 
-## 📖 About SIKOPMA
+## 📖 About SIWIRUS
 
-SIKOPMA (Sistem Informasi Koperasi Mahasiswa) is a comprehensive web-based management system designed for student cooperatives. It provides complete operational management including attendance tracking, scheduling, cashier operations, inventory management, financial reporting, and administrative functions.
+SIWIRUS (Sistem Informasi Koperasi Mahasiswa) is a comprehensive web-based management system designed for student cooperatives. It provides complete operational management including attendance tracking, scheduling, cashier operations, inventory management, financial reporting, and administrative functions.
 
 ### Key Highlights
 
@@ -141,8 +141,8 @@ SIKOPMA (Sistem Informasi Koperasi Mahasiswa) is a comprehensive web-based manag
 
 ```bash
 # 1. Clone & Install
-git clone https://github.com/[your-org]/sikopma.git
-cd sikopma
+git clone https://github.com/[your-org]/siwirus.git
+cd siwirus
 composer install
 npm install
 
@@ -166,7 +166,7 @@ php artisan serve
 
 ## 🔐 Authentication System
 
-SIKOPMA uses a secure, traditional Laravel authentication system with the following features:
+SIWIRUS uses a secure, traditional Laravel authentication system with the following features:
 
 ### Current Implementation
 - **Controller**: `SimpleLoginController` (Traditional Laravel)
@@ -219,7 +219,7 @@ $middleware->group('web', [
 ## 📁 Project Structure
 
 ```
-sikopma/
+siwirus/
 ├── app/
 │   ├── Http/Controllers/      # Traditional controllers (if any)
 │   ├── Livewire/              # Livewire components (main logic)
@@ -390,7 +390,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## 📄 License
 
-SIKOPMA is open-source software licensed under the [MIT License](LICENSE).
+SIWIRUS is open-source software licensed under the [MIT License](LICENSE).
 
 ---
 
@@ -409,8 +409,8 @@ Built with amazing open-source technologies:
 ## 📞 Support
 
 - **Documentation**: See [docs/](docs/) folder
-- **Issues**: [GitHub Issues](https://github.com/[your-org]/sikopma/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/[your-org]/sikopma/discussions)
+- **Issues**: [GitHub Issues](https://github.com/[your-org]/siwirus/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/[your-org]/siwirus/discussions)
 
 ---
 

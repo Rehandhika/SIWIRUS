@@ -30,7 +30,7 @@
                         type="text" 
                         wire:model.live="search"
                         placeholder="Cari produk (nama, SKU)..."
-                        class="w-full pl-11 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 text-white placeholder-slate-600 transition-all"
+                        class="w-full pl-11 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-white placeholder-slate-600 transition-all"
                     >
                 </div>
 
@@ -40,10 +40,10 @@
                         @click="open = !open" 
                         @click.away="open = false"
                         type="button"
-                        class="w-full flex items-center justify-between pl-3 pr-4 py-2.5 bg-slate-950/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 text-left transition-all hover:bg-slate-900/80 group h-[52px]"
+                        class="w-full flex items-center justify-between pl-3 pr-4 py-2.5 bg-slate-950/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-left transition-all hover:bg-slate-900/80 group h-[52px]"
                     >
                         <div class="flex items-center gap-3 overflow-hidden">
-                            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-colors shrink-0">
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors shrink-0">
                                 <i class="fas fa-filter text-xs"></i>
                             </div>
                             <span class="text-slate-300 font-medium truncate block">
@@ -69,7 +69,7 @@
                             <button 
                                 @click="$wire.set('category', ''); open = false"
                                 type="button"
-                                class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors {{ $category == '' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}"
+                                class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors {{ $category == '' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}"
                             >
                                 <span>Semua Kategori</span>
                                 @if($category == '') <i class="fas fa-check text-xs"></i> @endif
@@ -79,7 +79,7 @@
                                 <button 
                                     @click="$wire.set('category', '{{ $cat }}'); open = false"
                                     type="button"
-                                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors {{ $category == $cat ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}"
+                                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors {{ $category == $cat ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}"
                                 >
                                     <span>{{ $cat }}</span>
                                     @if($category == $cat) <i class="fas fa-check text-xs"></i> @endif
@@ -95,7 +95,7 @@
         @if($products->count() > 0)
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 @foreach($products as $product)
-                    <div wire:key="product-{{ $product->id }}" class="group relative bg-slate-900/40 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-sm transition-all duration-300 hover:bg-slate-800/60 hover:border-indigo-500/30 hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] hover:-translate-y-1">
+                    <div wire:key="product-{{ $product->id }}" class="group relative bg-slate-900/40 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-sm transition-all duration-300 hover:bg-slate-800/60 hover:border-blue-500/30 hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] hover:-translate-y-1">
                         
                         {{-- Image Area --}}
                         <div class="aspect-square relative overflow-hidden bg-slate-800">
@@ -122,7 +122,7 @@
                                     </span>
                                 @endif
                                 @if($product->has_variants && $product->variant_count > 0)
-                                    <span class="bg-indigo-500/20 text-indigo-300 backdrop-blur-md border border-indigo-500/30 px-2 py-1 rounded-lg text-[10px] font-bold shadow-lg flex items-center gap-1">
+                                    <span class="bg-blue-500/20 text-blue-300 backdrop-blur-md border border-blue-500/30 px-2 py-1 rounded-lg text-[10px] font-bold shadow-lg flex items-center gap-1">
                                         <i class="fas fa-layer-group text-[8px]"></i>
                                         {{ $product->variant_count }}
                                     </span>
@@ -147,10 +147,10 @@
                         {{-- Content --}}
                         <div class="p-5">
                             @if($product->category)
-                                <p class="text-[10px] text-indigo-400 uppercase tracking-widest font-semibold mb-2">{{ $product->category }}</p>
+                                <p class="text-[10px] text-blue-400 uppercase tracking-widest font-semibold mb-2">{{ $product->category }}</p>
                             @endif
                             
-                            <h3 class="text-sm md:text-base font-medium text-slate-100 mb-1 line-clamp-2 min-h-[2.5rem] group-hover:text-indigo-300 transition-colors">
+                            <h3 class="text-sm md:text-base font-medium text-slate-100 mb-1 line-clamp-2 min-h-[2.5rem] group-hover:text-blue-300 transition-colors">
                                 {{ $product->name }}
                             </h3>
 
@@ -158,7 +158,7 @@
                             <div class="flex items-center flex-wrap gap-2 mb-3 text-xs">
                                 @if($product->has_variants)
                                     {{-- Variant Count Badge --}}
-                                    <span class="inline-flex items-center gap-1 text-indigo-300 text-[10px] px-2 py-0.5 bg-indigo-500/15 border border-indigo-500/30 rounded-full font-medium">
+                                    <span class="inline-flex items-center gap-1 text-blue-300 text-[10px] px-2 py-0.5 bg-blue-500/15 border border-blue-500/30 rounded-full font-medium">
                                         <i class="fas fa-layer-group text-[8px]"></i>
                                         {{ $product->variant_count }} varian
                                     </span>
@@ -183,7 +183,7 @@
                                         <span class="text-xs text-slate-500 mb-1">
                                             {{ $hasRange ? 'Mulai dari' : 'Harga' }}
                                         </span>
-                                        <span class="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 group-hover:from-indigo-400 group-hover:to-cyan-400 transition-all duration-300">
+                                        <span class="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 group-hover:from-blue-400 group-hover:to-cyan-400 transition-all duration-300">
                                             Rp{{ number_format($priceRange['min'], 0, ',', '.') }}
                                         </span>
                                         @if($hasRange)
@@ -193,14 +193,14 @@
                                         @endif
                                     @else
                                         <span class="text-xs text-slate-500 mb-1">Harga</span>
-                                        <span class="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 group-hover:from-indigo-400 group-hover:to-cyan-400 transition-all duration-300">
+                                        <span class="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 group-hover:from-blue-400 group-hover:to-cyan-400 transition-all duration-300">
                                             {{ $product->display_price }}
                                         </span>
                                     @endif
                                 </div>
                                 <a href="{{ route('public.products.show', $product->slug) }}" 
                                    wire:navigate.hover
-                                   class="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-indigo-600 text-slate-400 hover:text-white transition-all border border-white/10">
+                                   class="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-blue-600 text-slate-400 hover:text-white transition-all border border-white/10">
                                     <i class="fas fa-arrow-right text-xs"></i>
                                 </a>
                             </div>

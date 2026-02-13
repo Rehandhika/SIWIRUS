@@ -10,7 +10,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                         </svg>
                     </button>
-                    <button wire:click="goToToday" class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition">
+                    <button wire:click="goToToday" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">
                         Hari Ini
                     </button>
                     <button wire:click="nextPeriod" class="p-2 hover:bg-gray-100 rounded-lg transition">
@@ -74,7 +74,7 @@
                     <input type="text" 
                            wire:model.live="searchUser" 
                            placeholder="Cari user..."
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <svg class="absolute right-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
@@ -89,9 +89,9 @@
                             $user = $availableUsers->where('id', $userId)->first();
                         @endphp
                         @if($user)
-                            <span class="inline-flex items-center px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
+                            <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
                                 {{ $user->name }}
-                                <button wire:click="removeUser({{ $userId }})" class="ml-1 hover:text-indigo-600">
+                                <button wire:click="removeUser({{ $userId }})" class="ml-1 hover:text-blue-600">
                                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                     </svg>
@@ -110,7 +110,7 @@
                             <input type="checkbox" 
                                    wire:model.live="selectedUsers" 
                                    value="{{ $user->id }}"
-                                   class="rounded text-indigo-600 focus:ring-indigo-500">
+                                   class="rounded text-blue-600 focus:ring-blue-500">
                             <span class="text-sm">{{ $user->name }} ({{ $user->nim }})</span>
                         </label>
                     @endforeach
@@ -151,7 +151,7 @@
                 <div class="text-sm text-gray-600">Pending</div>
             </div>
             <div class="text-center">
-                <div class="text-2xl font-bold text-purple-600">{{ $this->getScheduleStats()['users_with_schedule'] }}</div>
+                <div class="text-2xl font-bold text-blue-600">{{ $this->getScheduleStats()['users_with_schedule'] }}</div>
                 <div class="text-sm text-gray-600">User Aktif</div>
             </div>
         </div>
@@ -201,14 +201,14 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal</label>
                     <input type="date" 
                            wire:model="selectedDate" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                            required>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Sesi</label>
                     <select wire:model="selectedSession" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             required>
                         <option value="">Pilih Sesi</option>
                         <option value="1">Sesi 1 (07:30 - 10:00)</option>
@@ -225,7 +225,7 @@
                                 <input type="checkbox" 
                                        wire:model="selectedUsers" 
                                        value="{{ $user->id }}"
-                                       class="rounded text-indigo-600 focus:ring-indigo-500">
+                                       class="rounded text-blue-600 focus:ring-blue-500">
                                 <span class="text-sm">{{ $user->name }} ({{ $user->nim }})</span>
                             </label>
                         @endforeach
@@ -240,7 +240,7 @@
                     Batal
                 </button>
                 <button type="submit" 
-                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                     Tetapkan
                 </button>
             </div>

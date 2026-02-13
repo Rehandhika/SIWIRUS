@@ -5,7 +5,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Tukar Jadwal</h1>
             <p class="text-sm text-gray-500">Kelola permintaan tukar jadwal shift</p>
         </div>
-        <button wire:click="openForm" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">
+        <button wire:click="openForm" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Ajukan Tukar
         </button>
@@ -14,17 +14,17 @@
     {{-- Tabs --}}
     <div class="border-b border-gray-200">
         <nav class="flex gap-8">
-            <button wire:click="setTab('my-requests')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-indigo-500 text-indigo-600' => $activeTab === 'my-requests', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'my-requests'])>
+            <button wire:click="setTab('my-requests')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-blue-500 text-blue-600' => $activeTab === 'my-requests', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'my-requests'])>
                 Permintaan Saya
             </button>
-            <button wire:click="setTab('received')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-indigo-500 text-indigo-600' => $activeTab === 'received', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'received'])>
+            <button wire:click="setTab('received')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-blue-500 text-blue-600' => $activeTab === 'received', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'received'])>
                 Permintaan Masuk
                 @if($stats['pending'] > 0 && $activeTab !== 'received')
                 <span class="ml-2 px-2 py-0.5 text-xs bg-red-100 text-red-800 rounded-full">{{ $stats['pending'] }}</span>
                 @endif
             </button>
             @if($isAdmin)
-            <button wire:click="setTab('admin')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-indigo-500 text-indigo-600' => $activeTab === 'admin', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'admin'])>
+            <button wire:click="setTab('admin')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-blue-500 text-blue-600' => $activeTab === 'admin', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'admin'])>
                 Persetujuan Admin
             </button>
             @endif
@@ -219,7 +219,7 @@
                         {{-- Actions --}}
                         <div class="flex gap-3 pt-4">
                             <button type="button" wire:click="closeForm" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Batal</button>
-                            <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700" wire:loading.attr="disabled">
+                            <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700" wire:loading.attr="disabled">
                                 <span wire:loading.remove wire:target="submitForm">Kirim</span>
                                 <span wire:loading wire:target="submitForm">Mengirim...</span>
                             </button>

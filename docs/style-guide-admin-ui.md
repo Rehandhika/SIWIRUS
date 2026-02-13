@@ -1,6 +1,6 @@
 # Style Guide - Admin UI Components
 
-Dokumen ini menjadi referensi konsistensi UI untuk halaman admin SIKOPMA menggunakan Laravel Livewire + Alpine.js + Tailwind CSS.
+Dokumen ini menjadi referensi konsistensi UI untuk halaman admin SIWIRUS menggunakan Laravel Livewire + Alpine.js + Tailwind CSS.
 
 ## Stack Teknologi
 - **Backend**: Laravel 11 dengan Livewire 3
@@ -18,7 +18,7 @@ Dokumen ini menjadi referensi konsistensi UI untuk halaman admin SIKOPMA menggun
 
 ### Semantic Color Tokens
 Gunakan semantic color tokens untuk memudahkan dark mode:
-- **Primary**: Indigo (indigo-500/600/700)
+- **Primary**: Blue (blue-500/600/700)
 - **Success**: Emerald (emerald-400/500/700)
 - **Danger**: Red (red-400/500/700)
 - **Warning**: Amber (amber-400/500/700)
@@ -121,14 +121,14 @@ Button component dengan berbagai variant dan size.
 ```
 
 #### Variants
-- `primary`: Indigo background (default)
+- `primary`: Blue background (default)
 - `secondary`: Gray background
 - `success`: Green background
 - `danger`: Red background
 - `warning`: Yellow background
 - `info`: Blue background
 - `white`: White background dengan border
-- `outline`: Transparent dengan border indigo
+- `outline`: Transparent dengan border blue
 - `ghost`: Transparent tanpa border
 
 #### Sizes
@@ -433,7 +433,7 @@ Badge untuk status indicators dan labels.
 - `danger`: Red
 - `warning`: Yellow
 - `info`: Blue
-- `primary`: Indigo
+- `primary`: Blue
 
 #### Sizes
 - `sm`: Small (text-xs px-2 py-0.5)

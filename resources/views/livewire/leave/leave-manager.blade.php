@@ -5,7 +5,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Izin & Cuti</h1>
             <p class="text-sm text-gray-500">Kelola pengajuan izin dan cuti</p>
         </div>
-        <button wire:click="openForm" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">
+        <button wire:click="openForm" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Ajukan Izin
         </button>
@@ -14,14 +14,14 @@
     {{-- Tabs --}}
     <div class="border-b border-gray-200">
         <nav class="flex gap-8">
-            <button wire:click="setTab('my-requests')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-indigo-500 text-indigo-600' => $activeTab === 'my-requests', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'my-requests'])>
+            <button wire:click="setTab('my-requests')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-blue-500 text-blue-600' => $activeTab === 'my-requests', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'my-requests'])>
                 Pengajuan Saya
                 @if($stats['pending'] > 0 && $activeTab === 'my-requests')
                 <span class="ml-2 px-2 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded-full">{{ $stats['pending'] }}</span>
                 @endif
             </button>
             @if($isAdmin)
-            <button wire:click="setTab('approvals')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-indigo-500 text-indigo-600' => $activeTab === 'approvals', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'approvals'])>
+            <button wire:click="setTab('approvals')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-blue-500 text-blue-600' => $activeTab === 'approvals', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'approvals'])>
                 Persetujuan
                 @if($stats['pending'] > 0 && $activeTab === 'approvals')
                 <span class="ml-2 px-2 py-0.5 text-xs bg-red-100 text-red-800 rounded-full">{{ $stats['pending'] }}</span>
@@ -67,7 +67,7 @@
                     <span class="font-medium text-gray-900">{{ $req->user->name }}</span>
                     <span class="text-gray-300">•</span>
                     @endif
-                    <span @class(['px-2 py-0.5 text-xs rounded-full', 'bg-blue-100 text-blue-700' => $req->leave_type === 'permission', 'bg-red-100 text-red-700' => $req->leave_type === 'sick', 'bg-orange-100 text-orange-700' => $req->leave_type === 'emergency', 'bg-purple-100 text-purple-700' => $req->leave_type === 'other'])>
+                    <span @class(['px-2 py-0.5 text-xs rounded-full', 'bg-blue-100 text-blue-700' => $req->leave_type === 'permission', 'bg-red-100 text-red-700' => $req->leave_type === 'sick', 'bg-orange-100 text-orange-700' => $req->leave_type === 'emergency', 'bg-blue-100 text-blue-700' => $req->leave_type === 'other'])>
                         {{ $req->getLeaveTypeLabel() }}
                     </span>
                     <span @class(['px-2 py-0.5 text-xs rounded-full', 'bg-yellow-100 text-yellow-700' => $req->status === 'pending', 'bg-green-100 text-green-700' => $req->status === 'approved', 'bg-red-100 text-red-700' => $req->status === 'rejected', 'bg-gray-100 text-gray-700' => $req->status === 'cancelled'])>
@@ -113,7 +113,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Jenis</label>
                             <div class="grid grid-cols-2 gap-2">
                                 @foreach(['permission' => 'Izin', 'sick' => 'Sakit', 'emergency' => 'Darurat', 'other' => 'Lainnya'] as $val => $label)
-                                <button type="button" wire:click="$set('leave_type', '{{ $val }}')" @class(['p-3 border rounded-lg text-sm font-medium transition', 'border-indigo-500 bg-indigo-50 text-indigo-700' => $leave_type === $val, 'border-gray-200 text-gray-600 hover:border-gray-300' => $leave_type !== $val])>
+                                <button type="button" wire:click="$set('leave_type', '{{ $val }}')" @class(['p-3 border rounded-lg text-sm font-medium transition', 'border-blue-500 bg-blue-50 text-blue-700' => $leave_type === $val, 'border-gray-200 text-gray-600 hover:border-gray-300' => $leave_type !== $val])>
                                     {{ $label }}
                                 </button>
                                 @endforeach
@@ -151,7 +151,7 @@
                         {{-- Actions --}}
                         <div class="flex gap-3 pt-4">
                             <button type="button" wire:click="closeForm" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Batal</button>
-                            <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700" wire:loading.attr="disabled">
+                            <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700" wire:loading.attr="disabled">
                                 <span wire:loading.remove wire:target="submitForm">Kirim</span>
                                 <span wire:loading wire:target="submitForm">Mengirim...</span>
                             </button>
@@ -204,7 +204,7 @@
                             </div>
                         </div>
 
-                        <div class="p-3 bg-indigo-50 rounded-lg text-sm text-indigo-700">
+                        <div class="p-3 bg-blue-50 rounded-lg text-sm text-blue-700">
                             Total: <strong>{{ $viewingRequest->total_days }} hari</strong>
                         </div>
 
@@ -214,7 +214,7 @@
                         </div>
 
                         @if($viewingRequest->attachment)
-                        <a href="{{ Storage::url($viewingRequest->attachment) }}" target="_blank" class="inline-flex items-center gap-2 text-sm text-indigo-600 hover:underline">
+                        <a href="{{ Storage::url($viewingRequest->attachment) }}" target="_blank" class="inline-flex items-center gap-2 text-sm text-blue-600 hover:underline">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                             Lihat Lampiran
                         </a>

@@ -5,7 +5,7 @@
       <div class="px-8 pt-10 pb-6 text-center">
         <!-- Logo -->
         <div class="mb-4 flex justify-center">
-          <img src="{{ asset('images/logo.png') }}" alt="SIKOPMA" class="w-24 h-auto">
+          <img src="{{ asset('images/logo.png') }}" alt="SIWIRUS" class="w-24 h-auto">
         </div>
         <h1 class="text-3xl font-bold text-gray-900 mb-1">Login Pengurus</h1>
       </div>

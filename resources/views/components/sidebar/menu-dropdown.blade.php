@@ -12,14 +12,14 @@ $hasAccessibleChildren = collect($children)->contains('accessible', true);
 $parentAccessible = $accessible || $hasAccessibleChildren;
 
 // Base classes for dropdown button
-$baseClasses = 'w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2';
-$activeClasses = 'bg-indigo-50 text-indigo-700';
+$baseClasses = 'w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2';
+$activeClasses = 'bg-blue-50 text-blue-700';
 $inactiveClasses = 'text-gray-700 hover:bg-gray-100 hover:text-gray-900';
 $lockedClasses = 'text-gray-400 cursor-not-allowed opacity-60';
 
 // Submenu link classes
-$submenuBaseClasses = 'block px-3 py-2 text-sm rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2';
-$submenuActiveClasses = 'bg-indigo-50 text-indigo-700 font-medium';
+$submenuBaseClasses = 'block px-3 py-2 text-sm rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2';
+$submenuActiveClasses = 'bg-blue-50 text-blue-700 font-medium';
 $submenuInactiveClasses = 'text-gray-600 hover:bg-gray-100 hover:text-gray-900';
 $submenuLockedClasses = 'text-gray-400 cursor-not-allowed opacity-60';
 

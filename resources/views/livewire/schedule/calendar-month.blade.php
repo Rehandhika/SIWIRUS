@@ -70,7 +70,7 @@
             <div class="p-1 space-y-1">
                 @foreach($schedules as $session => $sessionSchedules)
                     @foreach($sessionSchedules as $schedule)
-                        <div class="schedule-item bg-indigo-100 text-indigo-800 p-1 rounded text-xs cursor-move hover:bg-indigo-200 transition-colors"
+                        <div class="schedule-item bg-blue-100 text-blue-800 p-1 rounded text-xs cursor-move hover:bg-blue-200 transition-colors"
                              draggable="true"
                              ondragstart="handleDragStart(event, {{ $schedule->id }})"
                              onclick="event.stopPropagation(); @this.call('handleScheduleClick', {{ $schedule->id }})">

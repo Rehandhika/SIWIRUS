@@ -132,12 +132,12 @@
         
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div class="flex items-center">
-                <div class="p-3 bg-purple-100 rounded-lg">
-                    <i class="fas fa-clock text-purple-600"></i>
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <i class="fas fa-clock text-blue-600"></i>
                 </div>
                 <div class="ml-4">
                     <p class="text-sm text-gray-600">Hari Diproses</p>
-                    <p class="text-xl font-bold text-purple-900">{{ \Carbon\Carbon::parse($startDate)->diffInDays(\Carbon\Carbon::parse($endDate)) + 1 }}</p>
+                    <p class="text-xl font-bold text-blue-900">{{ \Carbon\Carbon::parse($startDate)->diffInDays(\Carbon\Carbon::parse($endDate)) + 1 }}</p>
                 </div>
             </div>
         </div>
@@ -193,12 +193,12 @@
                     </div>
                 </div>
                 
-                <div class="bg-purple-50 rounded-lg p-4">
+                <div class="bg-blue-50 rounded-lg p-4">
                     <div class="flex items-center">
-                        <i class="fas fa-chart-bar text-purple-600 text-xl mr-3"></i>
+                        <i class="fas fa-chart-bar text-blue-600 text-xl mr-3"></i>
                         <div>
-                            <p class="text-sm text-purple-600">Rata-rata/Pengguna</p>
-                            <p class="text-xl font-bold text-purple-900">{{ $previewStats['assignments_per_user'] }}</p>
+                            <p class="text-sm text-blue-600">Rata-rata/Pengguna</p>
+                            <p class="text-xl font-bold text-blue-900">{{ $previewStats['assignments_per_user'] }}</p>
                         </div>
                     </div>
                 </div>

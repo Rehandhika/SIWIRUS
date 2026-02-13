@@ -56,12 +56,12 @@
         
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div class="flex items-center">
-                <div class="p-3 bg-purple-100 rounded-lg">
-                    <i class="fas fa-layer-group text-purple-600"></i>
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <i class="fas fa-layer-group text-blue-600"></i>
                 </div>
                 <div class="ml-4">
                     <p class="text-sm text-gray-600">Sesi</p>
-                    <p class="text-xl font-bold text-purple-600">{{ $stats['by_session']->count() }}</p>
+                    <p class="text-xl font-bold text-blue-600">{{ $stats['by_session']->count() }}</p>
                 </div>
             </div>
         </div>

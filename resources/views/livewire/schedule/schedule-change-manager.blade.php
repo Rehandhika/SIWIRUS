@@ -5,7 +5,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Pengajuan Perubahan Jadwal</h1>
             <p class="text-sm text-gray-500">Ajukan pindah atau batalkan jadwal shift Anda</p>
         </div>
-        <button wire:click="openForm" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">
+        <button wire:click="openForm" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Ajukan Perubahan
         </button>
@@ -14,11 +14,11 @@
     {{-- Tabs --}}
     <div class="border-b border-gray-200">
         <nav class="flex gap-8">
-            <button wire:click="setTab('my-requests')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-indigo-500 text-indigo-600' => $activeTab === 'my-requests', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'my-requests'])>
+            <button wire:click="setTab('my-requests')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-blue-500 text-blue-600' => $activeTab === 'my-requests', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'my-requests'])>
                 Pengajuan Saya
             </button>
             @if($isAdmin)
-            <button wire:click="setTab('admin')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-indigo-500 text-indigo-600' => $activeTab === 'admin', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'admin'])>
+            <button wire:click="setTab('admin')" @class(['pb-3 text-sm font-medium border-b-2 -mb-px', 'border-blue-500 text-blue-600' => $activeTab === 'admin', 'border-transparent text-gray-500 hover:text-gray-700' => $activeTab !== 'admin'])>
                 Persetujuan
                 @if($stats['pending'] > 0)
                 <span class="ml-2 px-2 py-0.5 text-xs bg-red-100 text-red-800 rounded-full">{{ $stats['pending'] }}</span>
@@ -77,7 +77,7 @@
                 </p>
                 @endif
                 @if($req->change_type === 'reschedule' && $req->requested_date)
-                <p class="text-sm text-indigo-600">
+                <p class="text-sm text-blue-600">
                     → Pindah ke: {{ $req->requested_date->format('d M Y') }} • {{ $req->getSessionLabel() }}
                 </p>
                 @endif
@@ -133,7 +133,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Perubahan</label>
                             <div class="grid grid-cols-2 gap-2">
-                                <button type="button" wire:click="$set('changeType', 'reschedule')" @class(['p-3 border rounded-lg text-sm font-medium transition', 'border-indigo-500 bg-indigo-50 text-indigo-700' => $changeType === 'reschedule', 'border-gray-200 text-gray-600 hover:border-gray-300' => $changeType !== 'reschedule'])>
+                                <button type="button" wire:click="$set('changeType', 'reschedule')" @class(['p-3 border rounded-lg text-sm font-medium transition', 'border-blue-500 bg-blue-50 text-blue-700' => $changeType === 'reschedule', 'border-gray-200 text-gray-600 hover:border-gray-300' => $changeType !== 'reschedule'])>
                                     <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
                                     Pindah Jadwal
                                 </button>
@@ -175,7 +175,7 @@
                         {{-- Actions --}}
                         <div class="flex gap-3 pt-4">
                             <button type="button" wire:click="closeForm" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Batal</button>
-                            <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700" wire:loading.attr="disabled">
+                            <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700" wire:loading.attr="disabled">
                                 <span wire:loading.remove wire:target="submitForm">Kirim Pengajuan</span>
                                 <span wire:loading wire:target="submitForm">Mengirim...</span>
                             </button>
@@ -232,10 +232,10 @@
 
                         {{-- Target Schedule (for reschedule) --}}
                         @if($viewingRequest->change_type === 'reschedule' && $viewingRequest->requested_date)
-                        <div class="p-3 bg-indigo-50 rounded-lg">
-                            <p class="text-xs text-indigo-600 mb-1">Jadwal Tujuan</p>
-                            <p class="font-medium text-indigo-700">{{ $viewingRequest->requested_date->format('d M Y') }}</p>
-                            <p class="text-sm text-indigo-600">{{ $viewingRequest->getSessionLabel() }}</p>
+                        <div class="p-3 bg-blue-50 rounded-lg">
+                            <p class="text-xs text-blue-600 mb-1">Jadwal Tujuan</p>
+                            <p class="font-medium text-blue-700">{{ $viewingRequest->requested_date->format('d M Y') }}</p>
+                            <p class="text-sm text-blue-600">{{ $viewingRequest->getSessionLabel() }}</p>
                         </div>
                         @endif
 

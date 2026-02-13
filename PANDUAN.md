@@ -1,6 +1,6 @@
-# PANDUAN SIKOPMA - Simpel & Lengkap
+# PANDUAN SIWIRUS - Simpel & Lengkap
 
-Panduan lengkap untuk deploy dan maintenance SIKOPMA dengan upload manual (tanpa npm di server).
+Panduan lengkap untuk deploy dan maintenance SIWIRUS dengan upload manual (tanpa npm di server).
 
 ---
 
@@ -39,12 +39,12 @@ composer dump-autoload --optimize
 ## 🚀 DEPLOY KE SERVER (Upload Manual)
 
 ### Step 1: Upload File
-Upload semua file via FTP/SFTP ke folder web server (misal: `/public_html/sikopma`)
+Upload semua file via FTP/SFTP ke folder web server (misal: `/public_html/siwirus`)
 
 ### Step 2: Buat .env di Server
 Copy dari `.env.example`, lalu edit:
 ```env
-APP_NAME=SIKOPMA
+APP_NAME=SIWIRUS
 APP_ENV=production
 APP_KEY=                          # Generate nanti
 APP_DEBUG=false                   # PENTING: false!
@@ -64,7 +64,7 @@ MAIL_USERNAME=email@gmail.com
 MAIL_PASSWORD=app_password
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=noreply@domain.com
-MAIL_FROM_NAME=SIKOPMA
+MAIL_FROM_NAME=SIWIRUS
 
 QUEUE_CONNECTION=database
 CACHE_STORE=database

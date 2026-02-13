@@ -152,7 +152,7 @@ export default function StoreStatusPopover() {
                         </div>
                     </div>
 
-                    <div className="rounded-xl border border-border bg-muted/40 p-4 space-y-3">
+                    <div className="rounded-xl border border-border bg-muted/40 p-4 space-y-3" style={{ display: !isOpen ? 'block' : 'none' }}>
                         <div className="space-y-1">
                             <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
                                 Keterangan

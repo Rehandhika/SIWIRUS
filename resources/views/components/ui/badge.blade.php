@@ -11,7 +11,7 @@
 // Variant styling with dark mode support
 $variants = [
     'default' => 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700',
-    'primary' => 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-700',
+    'primary' => 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700',
     'success' => 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700',
     'danger' => 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700',
     'warning' => 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700',
@@ -21,7 +21,7 @@ $variants = [
 // Dot color mapping
 $dotColors = [
     'default' => 'bg-gray-400 dark:bg-gray-500',
-    'primary' => 'bg-indigo-400 dark:bg-indigo-500',
+    'primary' => 'bg-blue-400 dark:bg-blue-500',
     'success' => 'bg-emerald-400 dark:bg-emerald-500',
     'danger' => 'bg-red-400 dark:bg-red-500',
     'warning' => 'bg-amber-400 dark:bg-amber-500',

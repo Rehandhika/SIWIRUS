@@ -74,15 +74,11 @@
 
     {{-- Filters --}}
     <x-ui.card>
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <x-ui.input type="date" name="dateFrom" label="Dari" wire:model="dateFrom" />
-            <x-ui.input type="date" name="dateTo" label="Sampai" wire:model="dateTo" />
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <x-ui.input type="date" name="dateFrom" label="Dari" wire:model.live="dateFrom" />
+            <x-ui.input type="date" name="dateTo" label="Sampai" wire:model.live="dateTo" />
             <x-ui.select name="filterStatus" label="Status" wire:model.live="filterStatus" :options="['' => 'Semua', 'present' => 'Hadir', 'late' => 'Terlambat', 'absent' => 'Tidak Hadir', 'excused' => 'Izin']" />
             <x-ui.input type="text" name="search" label="Cari" placeholder="Nama / NIM..." wire:model.live.debounce.300ms="search" />
-            <div class="flex items-end gap-2">
-                <x-ui.button variant="primary" wire:click="applyFilter" class="flex-1">Filter</x-ui.button>
-                <x-ui.button variant="white" wire:click="resetFilters">Reset</x-ui.button>
-            </div>
         </div>
     </x-ui.card>
 

@@ -20,8 +20,8 @@ class LeaveRequestCreate extends FormRequest
      */
     public function rules(): array
     {
-        $maxDays = config('sikopma.leave.max_days_per_month', 5);
-        $minAdvanceDays = config('sikopma.leave.min_advance_notice_days', 3);
+        $maxDays = config('siwirus.leave.max_days_per_month', 5);
+        $minAdvanceDays = config('siwirus.leave.min_advance_notice_days', 3);
 
         return [
             'leave_type_id' => [
@@ -53,7 +53,7 @@ class LeaveRequestCreate extends FormRequest
      */
     public function messages(): array
     {
-        $minAdvanceDays = config('sikopma.leave.min_advance_notice_days', 3);
+        $minAdvanceDays = config('siwirus.leave.min_advance_notice_days', 3);
 
         return [
             'leave_type_id.required' => 'Jenis cuti harus dipilih.',
@@ -133,7 +133,7 @@ class LeaveRequestCreate extends FormRequest
                 }
 
                 // Check monthly leave limit
-                $maxDaysPerMonth = config('sikopma.leave.max_days_per_month', 5);
+                $maxDaysPerMonth = config('siwirus.leave.max_days_per_month', 5);
                 $currentMonthLeaves = \App\Models\LeaveRequest::where('user_id', $userId)
                     ->whereMonth('date_from', \Carbon\Carbon::parse($dateFrom)->month)
                     ->whereYear('date_from', \Carbon\Carbon::parse($dateFrom)->year)

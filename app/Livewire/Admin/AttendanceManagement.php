@@ -108,6 +108,20 @@ class AttendanceManagement extends Component
         $this->clearStatsCache();
     }
 
+    public function updatedDateFrom(): void
+    {
+        $this->datePreset = 'custom';
+        $this->resetPage();
+        $this->clearStatsCache();
+    }
+
+    public function updatedDateTo(): void
+    {
+        $this->datePreset = 'custom';
+        $this->resetPage();
+        $this->clearStatsCache();
+    }
+
     public function applyFilter(): void
     {
         $this->datePreset = 'custom';

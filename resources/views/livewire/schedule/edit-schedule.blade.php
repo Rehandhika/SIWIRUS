@@ -61,7 +61,7 @@
                         $sessionColors = [
                             1 => ['bg' => 'bg-blue-50', 'border' => 'border-l-blue-500', 'badge' => 'bg-blue-100 text-blue-700'],
                             2 => ['bg' => 'bg-emerald-50', 'border' => 'border-l-emerald-500', 'badge' => 'bg-emerald-100 text-emerald-700'],
-                            3 => ['bg' => 'bg-purple-50', 'border' => 'border-l-purple-500', 'badge' => 'bg-purple-100 text-purple-700'],
+                            3 => ['bg' => 'bg-blue-50', 'border' => 'border-l-blue-500', 'badge' => 'bg-blue-100 text-blue-700'],
                         ];
                     @endphp
                     @foreach([1, 2, 3] as $session)

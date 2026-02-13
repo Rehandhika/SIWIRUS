@@ -86,7 +86,7 @@ class CacheService
      */
     public static function rememberWithConfig(string $key, string $configKey, callable $callback): mixed
     {
-        $ttl = now()->addMinutes(config("sikopma.cache.{$configKey}", 10));
+        $ttl = now()->addMinutes(config("siwirus.cache.{$configKey}", 10));
 
         return Cache::remember($key, $ttl, $callback);
     }

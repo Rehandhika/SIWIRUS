@@ -10,13 +10,13 @@
             {{-- Modal panel --}}
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
                 {{-- Header --}}
-                <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
                     <div class="flex items-center justify-between">
                         <div class="flex-1">
                             <h3 class="text-lg font-semibold text-white" id="modal-title">
                                 Pilih Template Jadwal
                             </h3>
-                            <p class="text-sm text-purple-100 mt-1">
+                            <p class="text-sm text-blue-100 mt-1">
                                 Gunakan template untuk mempercepat pembuatan jadwal
                             </p>
                         </div>
@@ -41,22 +41,22 @@
                             </div>
                             <input type="text" 
                                    wire:model.live.debounce.300ms="search"
-                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                                    placeholder="Cari template...">
                         </div>
                         
                         {{-- Filter --}}
                         <div class="flex items-center space-x-2">
                             <button wire:click="$set('filterType', 'all')"
-                                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ $filterType === 'all' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ $filterType === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                                 Semua
                             </button>
                             <button wire:click="$set('filterType', 'my')"
-                                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ $filterType === 'my' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ $filterType === 'my' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                                 Saya
                             </button>
                             <button wire:click="$set('filterType', 'public')"
-                                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ $filterType === 'public' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ $filterType === 'public' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                                 Publik
                             </button>
                         </div>
@@ -71,7 +71,7 @@
                             <div class="divide-y divide-gray-200">
                                 @foreach($templates as $template)
                                     <div wire:click="previewTemplate({{ $template['id'] }})"
-                                         class="p-4 hover:bg-gray-50 cursor-pointer transition-colors {{ $selectedTemplateId === $template['id'] ? 'bg-purple-50 border-l-4 border-purple-600' : '' }}">
+                                         class="p-4 hover:bg-gray-50 cursor-pointer transition-colors {{ $selectedTemplateId === $template['id'] ? 'bg-blue-50 border-l-4 border-blue-600' : '' }}">
                                         <div class="flex items-start justify-between">
                                             <div class="flex-1">
                                                 <div class="flex items-center space-x-2">
@@ -173,9 +173,9 @@
                                             <p class="text-xs text-green-600 font-medium">Coverage</p>
                                             <p class="text-lg font-bold text-green-900">{{ $stats['coverage'] }}%</p>
                                         </div>
-                                        <div class="text-center p-2 bg-purple-50 rounded">
-                                            <p class="text-xs text-purple-600 font-medium">Users</p>
-                                            <p class="text-lg font-bold text-purple-900">{{ $stats['unique_users'] }}</p>
+                                        <div class="text-center p-2 bg-blue-50 rounded">
+                                            <p class="text-xs text-blue-600 font-medium">Users</p>
+                                            <p class="text-lg font-bold text-blue-900">{{ $stats['unique_users'] }}</p>
                                         </div>
                                     </div>
                                 </div>

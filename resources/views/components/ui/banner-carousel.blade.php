@@ -143,7 +143,7 @@
                         {{ Storage::url($tabletImage) }} 768w,
                         {{ Storage::url($desktopImage) }} 1920w"
                 sizes="100vw"
-                alt="{{ $banner->title ?: 'Banner promosi SIKOPMA' }}"
+                alt="{{ $banner->title ?: 'Banner promosi SIWIRUS' }}"
                 class="w-full h-full object-cover"
                 @if($index > 1) loading="lazy" @endif
                 draggable="false"

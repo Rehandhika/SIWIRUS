@@ -13,9 +13,9 @@ const defaultConfig = {
         },
         option: function(data, escape) {
             const isSelected = this.items.indexOf(data.value) !== -1;
-            return `<div class="px-3 py-2 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20 flex items-center justify-between ${isSelected ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400' : ''}">
+            return `<div class="px-3 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center justify-between ${isSelected ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : ''}">
                 <span>${escape(data.text)}</span>
-                ${isSelected ? '<svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                ${isSelected ? '<svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
             </div>`;
         },
         item: function(data, escape) {
@@ -62,12 +62,12 @@ window.initUserSelect = function(selector, options = {}) {
         render: {
             option: function(data, escape) {
                 const isSelected = this.items.indexOf(data.id) !== -1;
-                return `<div class="px-3 py-2 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20 flex items-center justify-between ${isSelected ? 'bg-indigo-50 dark:bg-indigo-900/20' : ''}">
+                return `<div class="px-3 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center justify-between ${isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : ''}">
                     <div>
                         <div class="font-medium text-sm">${escape(data.name)}</div>
                         <div class="text-xs text-gray-500">${escape(data.email || '')} ${data.nim ? '- ' + escape(data.nim) : ''}</div>
                     </div>
-                    ${isSelected ? '<svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                    ${isSelected ? '<svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
                 </div>`;
             },
             item: function(data, escape) { return `<div class="text-sm">${escape(data.name)}</div>`; }
@@ -84,12 +84,12 @@ window.initProductSelect = function(selector, options = {}) {
         render: {
             option: function(data, escape) {
                 const isSelected = this.items.indexOf(data.id) !== -1;
-                return `<div class="px-3 py-2 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20 flex items-center justify-between ${isSelected ? 'bg-indigo-50 dark:bg-indigo-900/20' : ''}">
+                return `<div class="px-3 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center justify-between ${isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : ''}">
                     <div>
                         <div class="font-medium text-sm">${escape(data.name)}</div>
                         <div class="text-xs text-gray-500">SKU: ${escape(data.sku || '-')} | Harga: Rp ${escape(data.price || 0)}</div>
                     </div>
-                    ${isSelected ? '<svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                    ${isSelected ? '<svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
                 </div>`;
             },
             item: function(data, escape) { return `<div class="text-sm">${escape(data.name)}</div>`; }

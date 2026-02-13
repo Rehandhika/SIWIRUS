@@ -19,7 +19,7 @@
                                 {{ auth()->user()->roles?->pluck('name')?->join(', ') ?? 'User' }}
                             </p>
                         @else
-                            <h1 class="text-lg sm:text-xl font-bold">Selamat datang di SIKOPMA</h1>
+                            <h1 class="text-lg sm:text-xl font-bold">Selamat datang di SIWIRUS</h1>
                             <p class="text-primary-100 text-sm">Silakan login untuk melanjutkan</p>
                         @endif
                     </div>

@@ -209,7 +209,7 @@
         </div>
 
         <div class="bg-white rounded-lg shadow-sm p-4 text-center">
-            <div class="text-2xl font-bold text-purple-600">{{ $bulk }}</div>
+            <div class="text-2xl font-bold text-blue-600">{{ $bulk }}</div>
             <div class="text-sm text-gray-600">Bulk Operations</div>
         </div>
     </div>
