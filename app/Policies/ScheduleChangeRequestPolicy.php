@@ -12,7 +12,7 @@ class ScheduleChangeRequestPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('create.swap.request');
+        return $user->can('ajukan_tukar_jadwal') || $user->can('kelola_tukar_jadwal');
     }
 
     /**
@@ -21,7 +21,7 @@ class ScheduleChangeRequestPolicy
     public function view(User $user, ScheduleChangeRequest $request): bool
     {
         return $user->id === $request->user_id ||
-               $user->can('view.swap.all');
+               $user->can('kelola_tukar_jadwal');
     }
 
     /**
@@ -29,24 +29,33 @@ class ScheduleChangeRequestPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create.swap.request') && $user->isActive();
+        return $user->can('ajukan_tukar_jadwal') && $user->isActive();
     }
 
     /**
-     * Can admin respond to a schedule change request
+     * Can update a schedule change request
      */
-    public function adminRespond(User $user, ScheduleChangeRequest $request): bool
+    public function update(User $user, ScheduleChangeRequest $request): bool
     {
-        return $user->can('approve.swap.admin') &&
+        return $user->id === $request->user_id &&
                $request->status === 'pending';
     }
 
     /**
-     * Can cancel a schedule change request
+     * Can delete a schedule change request
      */
-    public function cancel(User $user, ScheduleChangeRequest $request): bool
+    public function delete(User $user, ScheduleChangeRequest $request): bool
     {
         return $user->id === $request->user_id &&
+               $request->status === 'pending';
+    }
+
+    /**
+     * Can approve/reject a schedule change request
+     */
+    public function approve(User $user, ScheduleChangeRequest $request): bool
+    {
+        return $user->can('kelola_tukar_jadwal') &&
                $request->status === 'pending';
     }
 }

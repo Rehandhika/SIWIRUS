@@ -16,13 +16,11 @@ class RedeemShuPointsTest extends TestCase
 
     public function test_redeem_creates_transaction_and_decreases_balance(): void
     {
-        Permission::create(['name' => 'view.shu']);
-        Permission::create(['name' => 'redeem.shu']);
-        Permission::create(['name' => 'adjust.shu']);
-        Permission::create(['name' => 'export.shu']);
+        Permission::create(['name' => 'lihat_poin_shu']);
+        Permission::create(['name' => 'kelola_poin_shu']);
 
         $user = User::factory()->create();
-        $user->givePermissionTo(['view.shu', 'redeem.shu', 'adjust.shu', 'export.shu']);
+        $user->givePermissionTo(['lihat_poin_shu', 'kelola_poin_shu']);
         $this->actingAs($user);
 
         $student = Student::factory()->create(['points_balance' => 500]);
@@ -48,13 +46,11 @@ class RedeemShuPointsTest extends TestCase
 
     public function test_redeem_fails_when_balance_insufficient(): void
     {
-        Permission::create(['name' => 'view.shu']);
-        Permission::create(['name' => 'redeem.shu']);
-        Permission::create(['name' => 'adjust.shu']);
-        Permission::create(['name' => 'export.shu']);
+        Permission::create(['name' => 'lihat_poin_shu']);
+        Permission::create(['name' => 'kelola_poin_shu']);
 
         $user = User::factory()->create();
-        $user->givePermissionTo(['view.shu', 'redeem.shu', 'adjust.shu', 'export.shu']);
+        $user->givePermissionTo(['lihat_poin_shu', 'kelola_poin_shu']);
         $this->actingAs($user);
 
         $student = Student::factory()->create(['points_balance' => 50]);

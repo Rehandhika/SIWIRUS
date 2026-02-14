@@ -38,10 +38,6 @@ class Index extends Component
 
     public string $email = '';
 
-    public string $phone = '';
-
-    public string $address = '';
-
     public string $password = '';
 
     public string $password_confirmation = '';
@@ -58,8 +54,6 @@ class Index extends Component
             'nim' => ['required', 'string', 'max:20', 'unique:users,nim'.($this->editMode ? ','.$this->userId : '')],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'.($this->editMode ? ','.$this->userId : '')],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string', 'max:500'],
             'selectedRoles' => ['required', 'array', 'min:1'],
             'status' => ['required', 'in:active,inactive'],
         ];
@@ -148,8 +142,6 @@ class Index extends Component
         $this->nim = $user->nim ?? '';
         $this->name = $user->name;
         $this->email = $user->email;
-        $this->phone = $user->phone ?? '';
-        $this->address = $user->address ?? '';
         $this->status = $user->status ?? 'active';
         $this->selectedRoles = $user->roles->pluck('name')->toArray();
         $this->password = '';
@@ -171,8 +163,6 @@ class Index extends Component
                     'nim' => $this->nim,
                     'name' => $this->name,
                     'email' => $this->email,
-                    'phone' => $this->phone ?: null,
-                    'address' => $this->address ?: null,
                     'status' => $this->status,
                 ]);
 
@@ -190,8 +180,6 @@ class Index extends Component
                     'nim' => $this->nim,
                     'name' => $this->name,
                     'email' => $this->email,
-                    'phone' => $this->phone ?: null,
-                    'address' => $this->address ?: null,
                     'password' => Hash::make($this->password),
                     'status' => $this->status,
                 ]);
@@ -277,7 +265,7 @@ class Index extends Component
     private function resetForm(): void
     {
         $this->reset([
-            'userId', 'nim', 'name', 'email', 'phone', 'address',
+            'userId', 'nim', 'name', 'email',
             'password', 'password_confirmation', 'selectedRoles',
         ]);
         $this->status = 'active';

@@ -171,7 +171,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="font-semibold text-sm text-gray-900 dark:text-white">{{ format_currency($sale->total_amount) }}</span>
-                            @can('delete.sales')
+                                                        @can('kelola_penjualan')
                             <button wire:click="confirmDelete({{ $sale->id }})" class="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded" title="Hapus">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -209,7 +209,7 @@
                         <th class="px-4 py-2.5 text-center">Item</th>
                         <th class="px-4 py-2.5 text-center">Metode</th>
                         <th class="px-4 py-2.5 text-right">Total</th>
-                        @can('delete.sales')
+                                                    @can('kelola_penjualan')
                         <th class="px-4 py-2.5 text-center w-16">Aksi</th>
                         @endcan
                     </tr>
@@ -236,7 +236,7 @@
                             <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-2.5 text-right font-semibold text-gray-900 dark:text-white cursor-pointer">
                                 {{ format_currency($sale->total_amount) }}
                             </td>
-                            @can('delete.sales')
+                                                        @can('kelola_penjualan')
                             <td class="px-4 py-2.5 text-center">
                                 <button wire:click="confirmDelete({{ $sale->id }})" class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition" title="Hapus transaksi">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,7 +248,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="@can('delete.sales')7@else 6 @endcan" class="px-4 py-12 text-center text-gray-400 text-sm">Tidak ada transaksi</td>
+                            <td colspan="                            @can('kelola_penjualan')7@else 6 @endcan" class="px-4 py-12 text-center text-gray-400 text-sm">Tidak ada transaksi</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -375,7 +375,7 @@
                         <button wire:click="closeDetail" class="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg transition">
                             Tutup
                         </button>
-                        @can('delete.sales')
+                                                    @can('kelola_penjualan')
                         <button wire:click="confirmDelete({{ $this->selectedSale->id }})" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>

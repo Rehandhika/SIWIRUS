@@ -231,7 +231,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
         // Poin SHU - Combined Monitoring & Redemptions
-        Route::prefix('poin-shu')->name('poin-shu.')->middleware('permission:view.shu')->group(function () {
+        Route::prefix('poin-shu')->name('poin-shu.')->middleware('permission:lihat_poin_shu')->group(function () {
             Route::get('/monitoring', \App\Livewire\ShuPoint\Monitoring::class)->name('monitoring');
             Route::get('/mahasiswa/{student}', \App\Livewire\ShuPoint\StudentDetail::class)->name('student');
         });

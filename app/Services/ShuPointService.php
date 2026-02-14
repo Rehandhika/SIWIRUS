@@ -10,8 +10,31 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * SHU Point Service
+ *
+ * Handles all SHU (Sisa Hasil Usaha) point calculations and transactions.
+ *
+ * IMPORTANT: Column Naming Convention
+ * ================================
+ * The `percentage_bps` column in sales and shu_point_transactions tables stores
+ * the CONVERSION AMOUNT (rupiah per point), NOT a percentage value.
+ *
+ * This naming is retained to avoid migration overhead from the original design.
+ *
+ * Example:
+ * - percentage_bps = 10000 means Rp 10,000 purchase earns 1 point
+ * - Formula: points = floor(purchase_amount / conversion_amount)
+ *
+ * The setting key is `shu_point_conversion_amount` (default: 10000).
+ */
 class ShuPointService
 {
+    /**
+     * Get the conversion amount from settings.
+     *
+     * @return int The rupiah amount required to earn 1 point (default: 10000)
+     */
     public function getConversionAmount(): int
     {
         return (int) Cache::remember('shu_point_conversion_amount', 60, function () {

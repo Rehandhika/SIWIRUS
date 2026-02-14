@@ -102,35 +102,34 @@ abstract class AuditTestCase extends TestCase
     {
         return [
             // User management
-            'view.users', 'create.users', 'edit.users', 'delete.users',
+            'kelola_pengguna', 'lihat_pengguna',
             // Role management
-            'view.roles', 'create.roles', 'edit.roles', 'delete.roles',
+            'kelola_peran', 'lihat_peran',
             // Attendance
-            'view.attendance.all', 'view.attendance.own', 'checkin.attendance',
+            'kelola_kehadiran', 'lihat_kehadiran',
             // Schedule management
-            'view.schedule.all', 'view.schedule.own', 'create.schedule',
-            'edit.schedule', 'delete.schedule', 'generate.schedule',
-            'publish.schedule', 'input.availability',
+            'kelola_jadwal', 'lihat_jadwal',
+            'kelola_ketersediaan', 'lihat_ketersediaan',
             // Swap requests
-            'view.swap.all', 'view.swap.own', 'create.swap.request',
-            'approve.swap.target', 'approve.swap.admin',
+            'kelola_tukar_jadwal', 'lihat_tukar_jadwal', 'ajukan_tukar_jadwal',
             // Leave requests
-            'view.leave.all', 'view.leave.own', 'create.leave.request',
-            'approve.leave.request',
+            'kelola_cuti', 'lihat_cuti', 'ajukan_cuti',
             // Penalties
-            'view.penalty.all', 'view.penalty.own', 'create.penalty',
-            'edit.penalty', 'delete.penalty', 'appeal.penalty', 'manage.penalty',
+            'kelola_hukuman', 'lihat_hukuman', 'ajukan_hukuman',
             // Sales/Cashier
-            'view.sales.all', 'view.sales.own', 'create.sales',
-            'edit.sales', 'delete.sales',
+            'kelola_penjualan', 'lihat_penjualan', 'ajukan_penjualan',
             // Products
-            'view.products', 'create.products', 'edit.products', 'delete.products',
+            'kelola_produk', 'lihat_produk',
+            // Stock
+            'kelola_stok', 'lihat_stok',
             // Reports
-            'view.reports',
+            'kelola_laporan', 'lihat_laporan',
+            // SHU Points
+            'kelola_poin_shu', 'lihat_poin_shu',
             // System settings
-            'manage.settings',
+            'kelola_pengaturan',
             // Audit logs
-            'view.audit.logs',
+            'kelola_log_audit', 'lihat_log_audit',
         ];
     }
 
@@ -152,18 +151,17 @@ abstract class AuditTestCase extends TestCase
     {
         $role = Role::firstOrCreate(['name' => 'Ketua']);
         $role->givePermissionTo([
-            'view.users', 'create.users', 'edit.users',
-            'view.attendance.all',
-            'view.schedule.all', 'create.schedule', 'edit.schedule',
-            'generate.schedule', 'publish.schedule',
-            'view.swap.all', 'approve.swap.admin',
-            'view.leave.all', 'approve.leave.request',
-            'view.penalty.all', 'create.penalty', 'manage.penalty',
-            'view.sales.all',
-            'view.products', 'create.products', 'edit.products',
-            'view.reports',
-            'manage.settings',
-            'view.audit.logs',
+            'kelola_pengguna', 'lihat_pengguna',
+            'kelola_kehadiran', 'lihat_kehadiran',
+            'kelola_jadwal', 'lihat_jadwal',
+            'kelola_tukar_jadwal', 'lihat_tukar_jadwal',
+            'kelola_cuti', 'lihat_cuti',
+            'kelola_hukuman', 'lihat_hukuman',
+            'kelola_penjualan', 'lihat_penjualan',
+            'kelola_produk', 'lihat_produk',
+            'kelola_laporan', 'lihat_laporan',
+            'kelola_pengaturan',
+            'lihat_log_audit',
         ]);
 
         return $role;
@@ -176,15 +174,15 @@ abstract class AuditTestCase extends TestCase
     {
         $role = Role::firstOrCreate(['name' => 'Wakil Ketua']);
         $role->givePermissionTo([
-            'view.users', 'edit.users',
-            'view.attendance.all',
-            'view.schedule.all', 'edit.schedule',
-            'view.swap.all', 'approve.swap.admin',
-            'view.leave.all', 'approve.leave.request',
-            'view.penalty.all', 'create.penalty',
-            'view.sales.all',
-            'view.products', 'edit.products',
-            'view.reports',
+            'lihat_pengguna',
+            'kelola_kehadiran', 'lihat_kehadiran',
+            'kelola_jadwal', 'lihat_jadwal',
+            'kelola_tukar_jadwal', 'lihat_tukar_jadwal',
+            'kelola_cuti', 'lihat_cuti',
+            'kelola_hukuman', 'lihat_hukuman',
+            'kelola_penjualan', 'lihat_penjualan',
+            'kelola_produk', 'lihat_produk',
+            'kelola_laporan', 'lihat_laporan',
         ]);
 
         return $role;
@@ -197,14 +195,14 @@ abstract class AuditTestCase extends TestCase
     {
         $role = Role::firstOrCreate(['name' => 'BPH']);
         $role->givePermissionTo([
-            'view.attendance.all',
-            'view.schedule.all', 'edit.schedule',
-            'view.swap.all', 'approve.swap.admin',
-            'view.leave.all', 'approve.leave.request',
-            'view.penalty.all',
-            'view.sales.all',
-            'view.products',
-            'view.reports',
+            'lihat_kehadiran',
+            'kelola_jadwal', 'lihat_jadwal',
+            'kelola_tukar_jadwal', 'lihat_tukar_jadwal',
+            'kelola_cuti', 'lihat_cuti',
+            'lihat_hukuman',
+            'lihat_penjualan',
+            'lihat_produk',
+            'lihat_laporan',
         ]);
 
         return $role;
@@ -217,19 +215,13 @@ abstract class AuditTestCase extends TestCase
     {
         $role = Role::firstOrCreate(['name' => 'Anggota']);
         $role->givePermissionTo([
-            'view.attendance.own',
-            'checkin.attendance',
-            'view.schedule.own',
-            'input.availability',
-            'view.swap.own',
-            'create.swap.request',
-            'approve.swap.target',
-            'view.leave.own',
-            'create.leave.request',
-            'view.penalty.own',
-            'appeal.penalty',
-            'view.sales.own',
-            'create.sales',
+            'lihat_kehadiran',
+            'lihat_jadwal',
+            'lihat_ketersediaan',
+            'lihat_tukar_jadwal', 'ajukan_tukar_jadwal',
+            'lihat_cuti', 'ajukan_cuti',
+            'lihat_hukuman',
+            'lihat_penjualan', 'ajukan_penjualan',
         ]);
 
         return $role;

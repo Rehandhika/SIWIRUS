@@ -123,7 +123,7 @@ class PosEntry extends Component
 
     public function openShuAdjustment(int $saleId): void
     {
-        if (! auth()->user()->can('adjust.shu')) {
+        if (! auth()->user()->can('kelola_poin_shu')) {
             $this->dispatch('toast', message: 'Anda tidak memiliki akses untuk penyesuaian poin.', type: 'error');
             return;
         }
@@ -170,7 +170,7 @@ class PosEntry extends Component
 
     public function saveShuAdjustment(): void
     {
-        if (! auth()->user()->can('adjust.shu')) {
+        if (! auth()->user()->can('kelola_poin_shu')) {
             $this->dispatch('toast', message: 'Anda tidak memiliki akses untuk penyesuaian poin.', type: 'error');
             return;
         }

@@ -1,488 +1,75 @@
-role_name,permission_name
-Super Admin,view.users
-Super Admin,create.users
-Super Admin,edit.users
-Super Admin,delete.users
-Super Admin,view.roles
-Super Admin,create.roles
-Super Admin,edit.roles
-Super Admin,delete.roles
-Super Admin,view.attendance.all
-Super Admin,view.attendance.own
-Super Admin,checkin.attendance
-Super Admin,manage.attendance
-Super Admin,view.schedule.all
-Super Admin,view.schedule.own
-Super Admin,create.schedule
-Super Admin,edit.schedule
-Super Admin,delete.schedule
-Super Admin,generate.schedule
-Super Admin,publish.schedule
-Super Admin,input.availability
-Super Admin,view.swap.all
-Super Admin,view.swap.own
-Super Admin,create.swap.request
-Super Admin,approve.swap.target
-Super Admin,approve.swap.admin
-Super Admin,view.leave.all
-Super Admin,view.leave.own
-Super Admin,create.leave.request
-Super Admin,approve.leave.request
-Super Admin,view.penalty.all
-Super Admin,view.penalty.own
-Super Admin,create.penalty
-Super Admin,edit.penalty
-Super Admin,delete.penalty
-Super Admin,appeal.penalty
-Super Admin,manage.penalty
-Super Admin,view.sales.all
-Super Admin,view.sales.own
-Super Admin,create.sales
-Super Admin,edit.sales
-Super Admin,delete.sales
-Super Admin,view.products
-Super Admin,create.products
-Super Admin,edit.products
-Super Admin,delete.products
-Super Admin,view.purchases
-Super Admin,create.purchases
-Super Admin,edit.purchases
-Super Admin,delete.purchases
-Super Admin,manage.stock
-
-Super Admin,view.reports
-Super Admin,view.reports.finance
-Super Admin,view.reports.sales
-Super Admin,view.reports.attendance
-Super Admin,export.reports
-Super Admin,view.finance
-Super Admin,manage.finance
-Super Admin,approve.finance
-Super Admin,manage.toko
-Super Admin,view.toko.reports
-Super Admin,manage.psda
-Super Admin,view.psda.reports
-Super Admin,manage.humsar
-Super Admin,view.humsar.reports
-Super Admin,manage.produksi
-Super Admin,view.produksi.reports
-Super Admin,manage.it
-Super Admin,manage.system
-Super Admin,view.system.logs
-Super Admin,manage.desain
-Super Admin,view.desain.assets
-Super Admin,manage.settings
-Super Admin,view.audit.logs
-Super Admin,send.notifications
-Super Admin,manage.notifications
-Super Admin,manage.banners
-Super Admin,view.shu
-Super Admin,manage.shu_students
-Super Admin,redeem.shu
-Super Admin,manage.shu_settings
-Ketua,view.users
-Ketua,create.users
-Ketua,edit.users
-Ketua,delete.users
-Ketua,view.roles
-Ketua,view.attendance.all
-Ketua,view.attendance.own
-Ketua,checkin.attendance
-Ketua,manage.attendance
-Ketua,view.schedule.all
-Ketua,view.schedule.own
-Ketua,create.schedule
-Ketua,edit.schedule
-Ketua,delete.schedule
-Ketua,generate.schedule
-Ketua,publish.schedule
-Ketua,input.availability
-Ketua,view.swap.all
-Ketua,view.swap.own
-Ketua,create.swap.request
-Ketua,approve.swap.target
-Ketua,approve.swap.admin
-Ketua,view.leave.all
-Ketua,view.leave.own
-Ketua,create.leave.request
-Ketua,approve.leave.request
-
-Ketua,view.penalty.all
-Ketua,view.penalty.own
-Ketua,create.penalty
-Ketua,edit.penalty
-Ketua,manage.penalty
-Ketua,view.sales.all
-Ketua,view.sales.own
-Ketua,create.sales
-Ketua,edit.sales
-Ketua,view.products
-Ketua,create.products
-Ketua,edit.products
-Ketua,view.purchases
-Ketua,view.reports
-Ketua,view.reports.finance
-Ketua,view.reports.sales
-Ketua,view.reports.attendance
-Ketua,export.reports
-Ketua,view.finance
-Ketua,approve.finance
-Ketua,view.toko.reports
-Ketua,view.psda.reports
-Ketua,view.humsar.reports
-Ketua,view.produksi.reports
-Ketua,manage.settings
-Ketua,view.audit.logs
-Ketua,send.notifications
-Ketua,manage.notifications
-Ketua,manage.banners
-Ketua,view.shu
-Ketua,manage.shu_students
-Ketua,redeem.shu
-Ketua,manage.shu_settings
-Wakil Ketua,view.users
-Wakil Ketua,edit.users
-Wakil Ketua,view.attendance.all
-Wakil Ketua,view.attendance.own
-Wakil Ketua,checkin.attendance
-Wakil Ketua,manage.attendance
-Wakil Ketua,view.schedule.all
-Wakil Ketua,view.schedule.own
-Wakil Ketua,create.schedule
-Wakil Ketua,edit.schedule
-Wakil Ketua,generate.schedule
-Wakil Ketua,input.availability
-Wakil Ketua,view.swap.all
-Wakil Ketua,view.swap.own
-Wakil Ketua,create.swap.request
-Wakil Ketua,approve.swap.target
-Wakil Ketua,approve.swap.admin
-Wakil Ketua,view.leave.all
-Wakil Ketua,view.leave.own
-Wakil Ketua,create.leave.request
-Wakil Ketua,approve.leave.request
-Wakil Ketua,view.penalty.all
-Wakil Ketua,view.penalty.own
-Wakil Ketua,create.penalty
-Wakil Ketua,view.sales.all
-Wakil Ketua,view.sales.own
-Wakil Ketua,view.products
-Wakil Ketua,edit.products
-Wakil Ketua,view.purchases
-Wakil Ketua,view.reports
-Wakil Ketua,view.reports.finance
-Wakil Ketua,view.reports.sales
-Wakil Ketua,view.reports.attendance
-Wakil Ketua,export.reports
-Wakil Ketua,view.finance
-Wakil Ketua,view.toko.reports
-Wakil Ketua,view.psda.reports
-Wakil Ketua,view.humsar.reports
-Wakil Ketua,view.produksi.reports
-Wakil Ketua,view.shu
-Wakil Ketua,manage.shu_students
-Wakil Ketua,redeem.shu
-Wakil Ketua,send.notifications
-
-Sekretaris,view.users
-Sekretaris,create.users
-Sekretaris,edit.users
-Sekretaris,view.attendance.all
-Sekretaris,view.attendance.own
-Sekretaris,checkin.attendance
-Sekretaris,manage.attendance
-Sekretaris,view.schedule.all
-Sekretaris,view.schedule.own
-Sekretaris,create.schedule
-Sekretaris,edit.schedule
-Sekretaris,input.availability
-Sekretaris,view.swap.all
-Sekretaris,view.swap.own
-Sekretaris,create.swap.request
-Sekretaris,approve.swap.target
-Sekretaris,view.leave.all
-Sekretaris,view.leave.own
-Sekretaris,create.leave.request
-Sekretaris,view.penalty.all
-Sekretaris,view.penalty.own
-Sekretaris,appeal.penalty
-Sekretaris,view.sales.all
-Sekretaris,view.sales.own
-Sekretaris,view.products
-Sekretaris,view.reports
-Sekretaris,view.reports.attendance
-Sekretaris,export.reports
-Sekretaris,view.finance
-Sekretaris,send.notifications
-Sekretaris,manage.notifications
-Sekretaris,view.audit.logs
-Bendahara Umum,view.users
-Bendahara Umum,view.attendance.all
-Bendahara Umum,view.attendance.own
-Bendahara Umum,checkin.attendance
-Bendahara Umum,view.schedule.all
-Bendahara Umum,view.schedule.own
-Bendahara Umum,input.availability
-Bendahara Umum,view.swap.own
-Bendahara Umum,create.swap.request
-Bendahara Umum,approve.swap.target
-Bendahara Umum,view.leave.own
-Bendahara Umum,create.leave.request
-Bendahara Umum,view.penalty.own
-Bendahara Umum,appeal.penalty
-Bendahara Umum,view.sales.all
-Bendahara Umum,view.sales.own
-Bendahara Umum,edit.sales
-Bendahara Umum,view.products
-Bendahara Umum,view.purchases
-Bendahara Umum,create.purchases
-Bendahara Umum,edit.purchases
-Bendahara Umum,view.reports
-Bendahara Umum,view.reports.finance
-Bendahara Umum,view.reports.sales
-Bendahara Umum,export.reports
-Bendahara Umum,view.finance
-Bendahara Umum,manage.finance
-Bendahara Umum,approve.finance
-Bendahara Umum,view.toko.reports
-
-Bendahara Kegiatan,view.users
-Bendahara Kegiatan,view.attendance.all
-Bendahara Kegiatan,view.attendance.own
-Bendahara Kegiatan,checkin.attendance
-Bendahara Kegiatan,view.schedule.all
-Bendahara Kegiatan,view.schedule.own
-Bendahara Kegiatan,input.availability
-Bendahara Kegiatan,view.swap.own
-Bendahara Kegiatan,create.swap.request
-Bendahara Kegiatan,approve.swap.target
-Bendahara Kegiatan,view.leave.own
-Bendahara Kegiatan,create.leave.request
-Bendahara Kegiatan,view.penalty.own
-Bendahara Kegiatan,appeal.penalty
-Bendahara Kegiatan,view.sales.all
-Bendahara Kegiatan,view.sales.own
-Bendahara Kegiatan,view.products
-Bendahara Kegiatan,view.purchases
-Bendahara Kegiatan,create.purchases
-Bendahara Kegiatan,view.reports
-Bendahara Kegiatan,view.reports.finance
-Bendahara Kegiatan,export.reports
-Bendahara Kegiatan,view.finance
-Bendahara Kegiatan,manage.finance
-Bendahara Toko,view.users
-Bendahara Toko,view.attendance.own
-Bendahara Toko,checkin.attendance
-Bendahara Toko,view.schedule.all
-Bendahara Toko,view.schedule.own
-Bendahara Toko,input.availability
-Bendahara Toko,view.swap.own
-Bendahara Toko,create.swap.request
-Bendahara Toko,approve.swap.target
-Bendahara Toko,view.leave.own
-Bendahara Toko,create.leave.request
-Bendahara Toko,view.penalty.own
-Bendahara Toko,appeal.penalty
-Bendahara Toko,view.sales.all
-Bendahara Toko,view.sales.own
-Bendahara Toko,create.sales
-Bendahara Toko,edit.sales
-Bendahara Toko,view.products
-Bendahara Toko,edit.products
-Bendahara Toko,view.purchases
-Bendahara Toko,create.purchases
-Bendahara Toko,view.reports
-Bendahara Toko,view.reports.sales
-Bendahara Toko,export.reports
-Bendahara Toko,view.finance
-Bendahara Toko,view.toko.reports
-
-Koordinator Toko,view.users
-Koordinator Toko,view.attendance.all
-Koordinator Toko,view.attendance.own
-Koordinator Toko,checkin.attendance
-Koordinator Toko,manage.attendance
-Koordinator Toko,view.schedule.all
-Koordinator Toko,view.schedule.own
-Koordinator Toko,create.schedule
-Koordinator Toko,edit.schedule
-Koordinator Toko,generate.schedule
-Koordinator Toko,publish.schedule
-Koordinator Toko,input.availability
-Koordinator Toko,view.swap.all
-Koordinator Toko,view.swap.own
-Koordinator Toko,create.swap.request
-Koordinator Toko,approve.swap.target
-Koordinator Toko,approve.swap.admin
-Koordinator Toko,view.leave.all
-Koordinator Toko,view.leave.own
-Koordinator Toko,create.leave.request
-Koordinator Toko,approve.leave.request
-Koordinator Toko,view.penalty.all
-Koordinator Toko,view.penalty.own
-Koordinator Toko,create.penalty
-Koordinator Toko,appeal.penalty
-Koordinator Toko,view.sales.all
-Koordinator Toko,view.sales.own
-Koordinator Toko,create.sales
-Koordinator Toko,edit.sales
-Koordinator Toko,delete.sales
-Koordinator Toko,view.products
-Koordinator Toko,create.products
-Koordinator Toko,edit.products
-Koordinator Toko,delete.products
-Koordinator Toko,view.purchases
-Koordinator Toko,create.purchases
-Koordinator Toko,edit.purchases
-Koordinator Toko,manage.stock
-Koordinator Toko,view.reports
-Koordinator Toko,view.reports.sales
-Koordinator Toko,export.reports
-Koordinator Toko,manage.toko
-Koordinator Toko,view.toko.reports
-
-Koordinator PSDA,view.users
-Koordinator PSDA,edit.users
-Koordinator PSDA,view.attendance.all
-Koordinator PSDA,view.attendance.own
-Koordinator PSDA,checkin.attendance
-Koordinator PSDA,view.schedule.all
-Koordinator PSDA,view.schedule.own
-Koordinator PSDA,input.availability
-Koordinator PSDA,view.swap.all
-Koordinator PSDA,view.swap.own
-Koordinator PSDA,create.swap.request
-Koordinator PSDA,approve.swap.target
-Koordinator PSDA,view.leave.all
-Koordinator PSDA,view.leave.own
-Koordinator PSDA,create.leave.request
-Koordinator PSDA,view.penalty.all
-Koordinator PSDA,view.penalty.own
-Koordinator PSDA,create.penalty
-Koordinator PSDA,edit.penalty
-Koordinator PSDA,appeal.penalty
-Koordinator PSDA,view.sales.own
-Koordinator PSDA,view.products
-Koordinator PSDA,view.reports
-Koordinator PSDA,view.reports.attendance
-Koordinator PSDA,manage.psda
-Koordinator PSDA,view.psda.reports
-Koordinator PSDA,send.notifications
-Koordinator Produksi,view.users
-Koordinator Produksi,view.attendance.own
-Koordinator Produksi,checkin.attendance
-Koordinator Produksi,view.schedule.all
-Koordinator Produksi,view.schedule.own
-Koordinator Produksi,input.availability
-Koordinator Produksi,view.swap.own
-Koordinator Produksi,create.swap.request
-Koordinator Produksi,approve.swap.target
-Koordinator Produksi,view.leave.own
-Koordinator Produksi,create.leave.request
-Koordinator Produksi,view.penalty.own
-Koordinator Produksi,appeal.penalty
-Koordinator Produksi,view.sales.all
-Koordinator Produksi,view.sales.own
-Koordinator Produksi,view.products
-Koordinator Produksi,create.products
-Koordinator Produksi,edit.products
-Koordinator Produksi,view.purchases
-Koordinator Produksi,create.purchases
-Koordinator Produksi,edit.purchases
-Koordinator Produksi,delete.purchases
-Koordinator Produksi,manage.stock
-Koordinator Produksi,view.reports
-Koordinator Produksi,view.produksi.reports
-Koordinator Produksi,manage.produksi
-
-Koordinator Desain,view.users
-Koordinator Desain,view.attendance.own
-Koordinator Desain,checkin.attendance
-Koordinator Desain,view.schedule.all
-Koordinator Desain,view.schedule.own
-Koordinator Desain,input.availability
-Koordinator Desain,view.swap.own
-Koordinator Desain,create.swap.request
-Koordinator Desain,approve.swap.target
-Koordinator Desain,view.leave.own
-Koordinator Desain,create.leave.request
-Koordinator Desain,view.penalty.own
-Koordinator Desain,appeal.penalty
-Koordinator Desain,view.sales.own
-Koordinator Desain,view.products
-Koordinator Desain,manage.desain
-Koordinator Desain,view.desain.assets
-Koordinator Desain,manage.banners
-Anggota,view.attendance.own
-Anggota,checkin.attendance
-Anggota,view.schedule.own
-Anggota,input.availability
-Anggota,view.swap.own
-Anggota,create.swap.request
-Anggota,approve.swap.target
-Anggota,view.leave.own
-Anggota,create.leave.request
-Anggota,view.penalty.own
-Anggota,appeal.penalty
-Anggota,view.sales.own
-Anggota,create.sales
-Anggota,view.products
-Anggota Toko,view.attendance.own
-Anggota Toko,checkin.attendance
-Anggota Toko,view.schedule.own
-Anggota Toko,input.availability
-Anggota Toko,view.swap.own
-Anggota Toko,create.swap.request
-Anggota Toko,approve.swap.target
-Anggota Toko,view.leave.own
-Anggota Toko,create.leave.request
-Anggota Toko,view.penalty.own
-Anggota Toko,appeal.penalty
-Anggota Toko,view.sales.own
-Anggota Toko,create.sales
-Anggota Toko,view.products
-Anggota Toko,view.purchases
-
-Anggota PSDA,view.attendance.own
-Anggota PSDA,checkin.attendance
-Anggota PSDA,view.schedule.own
-Anggota PSDA,input.availability
-Anggota PSDA,view.swap.own
-Anggota PSDA,create.swap.request
-Anggota PSDA,approve.swap.target
-Anggota PSDA,view.leave.own
-Anggota PSDA,create.leave.request
-Anggota PSDA,view.penalty.own
-Anggota PSDA,appeal.penalty
-Anggota PSDA,view.sales.own
-Anggota PSDA,view.products
-Anggota PSDA,view.attendance.all
-Anggota Produksi,view.attendance.own
-Anggota Produksi,checkin.attendance
-Anggota Produksi,view.schedule.own
-Anggota Produksi,input.availability
-Anggota Produksi,view.swap.own
-Anggota Produksi,create.swap.request
-Anggota Produksi,approve.swap.target
-Anggota Produksi,view.leave.own
-Anggota Produksi,create.leave.request
-Anggota Produksi,view.penalty.own
-Anggota Produksi,appeal.penalty
-Anggota Produksi,view.sales.own
-Anggota Produksi,view.products
-Anggota Produksi,view.purchases
-Anggota Produksi,create.purchases
-Anggota Desain,view.attendance.own
-Anggota Desain,checkin.attendance
-Anggota Desain,view.schedule.own
-Anggota Desain,input.availability
-Anggota Desain,view.swap.own
-Anggota Desain,create.swap.request
-Anggota Desain,approve.swap.target
-Anggota Desain,view.leave.own
-Anggota Desain,create.leave.request
-Anggota Desain,view.penalty.own
-Anggota Desain,appeal.penalty
-Anggota Desain,view.sales.own
-Anggota Desain,view.products
-Anggota Desain,view.desain.assets
+role_id,permission_id
+1,1
+1,2
+1,3
+1,4
+1,5
+1,6
+1,7
+1,8
+1,9
+1,10
+1,11
+1,12
+1,13
+1,14
+1,15
+1,16
+1,17
+1,18
+1,19
+1,20
+1,21
+1,22
+1,23
+1,24
+1,25
+1,26
+1,27
+1,28
+1,29
+1,30
+2,2
+2,4
+2,5
+2,6
+2,7
+2,8
+2,9
+2,10
+2,11
+2,12
+2,13
+2,14
+2,15
+2,16
+2,17
+2,18
+2,19
+2,20
+2,21
+2,22
+2,23
+2,25
+2,29
+2,30
+3,2
+3,6
+3,8
+3,10
+3,12
+3,14
+3,16
+3,18
+3,20
+3,23
+3,30
+4,2
+4,6
+4,8
+4,10
+4,12
+4,14
+4,16
+4,18
+4,23

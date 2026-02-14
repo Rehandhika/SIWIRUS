@@ -376,26 +376,6 @@
                                     <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                                 @enderror
                             </div>
-
-                            {{-- Phone --}}
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                                    No. Telepon <span class="text-gray-400 font-normal">(opsional)</span>
-                                </label>
-                                <input type="text" wire:model="phone" 
-                                    placeholder="08xxxxxxxxxx"
-                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white">
-                            </div>
-                        </div>
-
-                        {{-- Address --}}
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                                Alamat <span class="text-gray-400 font-normal">(opsional)</span>
-                            </label>
-                            <textarea wire:model="address" rows="2"
-                                placeholder="Masukkan alamat lengkap"
-                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white resize-none"></textarea>
                         </div>
 
                         {{-- Password Section --}}

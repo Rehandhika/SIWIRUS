@@ -9,37 +9,37 @@ class SchedulePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('view.schedule.all');
+        return $user->can('kelola_jadwal') || $user->can('lihat_jadwal');
     }
 
     public function view(User $user, Schedule $schedule): bool
     {
-        return $user->can('view.schedule.all') || $user->can('view.schedule.own');
+        return $user->can('kelola_jadwal') || $user->can('lihat_jadwal');
     }
 
     public function create(User $user): bool
     {
-        return $user->can('manage.schedule');
+        return $user->can('kelola_jadwal');
     }
 
     public function update(User $user, Schedule $schedule): bool
     {
-        return $user->can('manage.schedule') && $schedule->canEdit();
+        return $user->can('kelola_jadwal') && $schedule->canEdit();
     }
 
     public function delete(User $user, Schedule $schedule): bool
     {
-        return $user->can('manage.schedule') && $schedule->isDraft();
+        return $user->can('kelola_jadwal') && $schedule->isDraft();
     }
 
     public function generate(User $user): bool
     {
-        return $user->can('generate.schedule');
+        return $user->can('kelola_jadwal');
     }
 
     public function publish(User $user, Schedule $schedule): bool
     {
-        return $user->can('manage.schedule') && $schedule->isDraft();
+        return $user->can('kelola_jadwal') && $schedule->isDraft();
     }
 
     /**

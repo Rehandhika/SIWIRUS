@@ -7,37 +7,55 @@ use App\Models\User;
 
 class LeaveRequestPolicy
 {
+    /**
+     * Can view any leave requests
+     */
     public function viewAny(User $user): bool
     {
-        return $user->can('view.leave.own') || $user->can('view.leave.all');
+        return $user->can('kelola_cuti') || $user->can('ajukan_cuti');
     }
 
+    /**
+     * Can view a specific leave request
+     */
     public function view(User $user, LeaveRequest $leaveRequest): bool
     {
         return $user->id === $leaveRequest->user_id ||
-               $user->can('view.leave.all');
+               $user->can('kelola_cuti');
     }
 
+    /**
+     * Can create a leave request
+     */
     public function create(User $user): bool
     {
-        return $user->can('create.leave.request') && $user->isActive();
+        return $user->can('ajukan_cuti') && $user->isActive();
     }
 
+    /**
+     * Can update a leave request
+     */
     public function update(User $user, LeaveRequest $leaveRequest): bool
     {
         return $user->id === $leaveRequest->user_id &&
                $leaveRequest->status === 'pending';
     }
 
+    /**
+     * Can delete a leave request
+     */
     public function delete(User $user, LeaveRequest $leaveRequest): bool
     {
         return $user->id === $leaveRequest->user_id &&
                $leaveRequest->status === 'pending';
     }
 
+    /**
+     * Can approve/reject a leave request
+     */
     public function approve(User $user, LeaveRequest $leaveRequest): bool
     {
-        return $user->can('approve.leave.request') &&
+        return $user->can('kelola_cuti') &&
                $leaveRequest->status === 'pending';
     }
 }

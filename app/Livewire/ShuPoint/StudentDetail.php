@@ -47,7 +47,7 @@ class StudentDetail extends Component
 
     public function mount(Student $student): void
     {
-        if (! auth()->user()->can('view.shu')) {
+        if (! auth()->user()->can('lihat_poin_shu')) {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 
@@ -95,7 +95,7 @@ class StudentDetail extends Component
 
     public function redeem(): void
     {
-        if (! auth()->user()->can('redeem.shu')) {
+        if (! auth()->user()->can('kelola_poin_shu')) {
             $this->dispatch('toast', message: 'Anda tidak memiliki akses untuk pencairan poin.', type: 'error');
             return;
         }
@@ -124,7 +124,7 @@ class StudentDetail extends Component
 
     public function adjust(): void
     {
-        if (! auth()->user()->can('adjust.shu')) {
+        if (! auth()->user()->can('kelola_poin_shu')) {
             $this->dispatch('toast', message: 'Anda tidak memiliki akses untuk penyesuaian poin.', type: 'error');
             return;
         }
@@ -151,7 +151,7 @@ class StudentDetail extends Component
 
     public function exportExcel()
     {
-        if (! auth()->user()->can('export.shu')) {
+        if (! auth()->user()->can('kelola_poin_shu')) {
             $this->dispatch('toast', message: 'Anda tidak memiliki akses untuk export.', type: 'error');
             return;
         }

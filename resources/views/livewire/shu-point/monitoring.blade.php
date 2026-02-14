@@ -46,12 +46,12 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    @can('export.shu')
+                    @can('kelola_poin_shu')
                         <x-ui.button variant="secondary" wire:click="exportStudentsExcel" icon="arrow-down-tray">
                             Export Excel
                         </x-ui.button>
                     @endcan
-                    @can('manage.shu_students')
+                    @can('kelola_poin_shu')
                         <x-ui.button variant="primary" wire:click="createStudent" icon="plus">
                             Tambah Mahasiswa
                         </x-ui.button>
@@ -102,7 +102,7 @@
                                                 <a href="{{ route('admin.poin-shu.student', $student) }}" class="text-primary-600 hover:text-primary-900">
                                                     Detail
                                                 </a>
-                                                @can('manage.shu_students')
+                                                @can('kelola_poin_shu')
                                                     <span class="text-gray-300">|</span>
                                                     <button type="button" wire:click="editStudent({{ $student->id }})" class="text-gray-600 hover:text-gray-900">
                                                         Ubah
@@ -140,7 +140,7 @@
     {{-- Redemptions Tab --}}
     @if($activeTab === 'redemptions')
         {{-- Redemption Form --}}
-        @can('redeem.shu')
+        @can('kelola_poin_shu')
             <x-ui.card>
                 <x-layout.form-section
                     title="Form Pencairan Poin"
@@ -243,7 +243,7 @@
                         </div>
                     </div>
                     <div>
-                        @can('export.shu')
+                        @can('kelola_poin_shu')
                             <x-ui.button variant="secondary" wire:click="exportRedemptionsExcel" icon="arrow-down-tray">
                                 Export Excel
                             </x-ui.button>

@@ -24,7 +24,7 @@
             </div>
 
             <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                @can('redeem.shu')
+                @can('kelola_poin_shu')
                     <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-xl">
                         <div class="font-bold text-gray-900 dark:text-white mb-3">Pencairan (Redeem)</div>
                         <div class="space-y-3">
@@ -50,7 +50,7 @@
                     </div>
                 @endcan
 
-                @can('adjust.shu')
+                @can('kelola_poin_shu')
                     <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-xl">
                         <div class="font-bold text-gray-900 dark:text-white mb-3">Penyesuaian (Adjust)</div>
                         <div class="space-y-3">

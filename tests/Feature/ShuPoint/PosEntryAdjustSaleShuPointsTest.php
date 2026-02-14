@@ -19,12 +19,12 @@ class PosEntryAdjustSaleShuPointsTest extends TestCase
 
     public function test_pos_entry_can_adjust_shu_points_for_a_sale(): void
     {
-        Permission::create(['name' => 'adjust.shu']);
+        Permission::create(['name' => 'kelola_poin_shu']);
         Role::create(['name' => 'Super Admin']);
 
         $user = User::factory()->create();
         $user->assignRole('Super Admin');
-        $user->givePermissionTo('adjust.shu');
+        $user->givePermissionTo('kelola_poin_shu');
         $this->actingAs($user);
 
         $student = Student::factory()->create(['points_balance' => 0]);

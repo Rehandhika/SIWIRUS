@@ -23,8 +23,10 @@ class PosAwardsShuPointsTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        Setting::set('shu_point_percentage_bps', '100');
-        Cache::forget('shu_point_percentage_bps');
+        // Set conversion amount: 10000 rupiah = 1 point
+        // So buying 10000 will earn 1 point
+        Setting::set('shu_point_conversion_amount', '10000');
+        Cache::forget('shu_point_conversion_amount');
 
         $student = Student::factory()->create([
             'nim' => '222413550',
@@ -57,22 +59,23 @@ class PosAwardsShuPointsTest extends TestCase
         $sale = Sale::first();
         $this->assertNotNull($sale);
 
+        // With conversion_amount = 10000, buying 10000 earns 1 point
         $this->assertDatabaseHas('shu_point_transactions', [
             'student_id' => $student->id,
             'sale_id' => $sale->id,
             'type' => 'earn',
             'amount' => 10000,
-            'percentage_bps' => 100,
-            'points' => 100,
+            'percentage_bps' => 10000, // Stores conversion amount, not percentage
+            'points' => 1,
         ]);
 
         $student->refresh();
-        $this->assertSame(100, $student->points_balance);
+        $this->assertSame(1, $student->points_balance);
 
         $this->assertDatabaseHas('sales', [
             'student_id' => $student->id,
-            'shu_points_earned' => 100,
-            'shu_percentage_bps' => 100,
+            'shu_points_earned' => 1,
+            'shu_percentage_bps' => 10000, // Stores conversion amount
         ]);
     }
 
@@ -81,8 +84,9 @@ class PosAwardsShuPointsTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        Setting::set('shu_point_percentage_bps', '100');
-        Cache::forget('shu_point_percentage_bps');
+        // Set conversion amount: 10000 rupiah = 1 point
+        Setting::set('shu_point_conversion_amount', '10000');
+        Cache::forget('shu_point_conversion_amount');
 
         $product = Product::create([
             'name' => 'Produk Test 2',

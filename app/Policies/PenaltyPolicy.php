@@ -7,32 +7,45 @@ use App\Models\User;
 
 class PenaltyPolicy
 {
+    /**
+     * Can view any penalties
+     */
     public function viewAny(User $user): bool
     {
-        return $user->can('view.penalty.own') || $user->can('view.penalty.all');
+        return $user->can('kelola_pelanggaran') || $user->can('lihat_pelanggaran');
     }
 
+    /**
+     * Can view a specific penalty
+     */
     public function view(User $user, Penalty $penalty): bool
     {
         return $user->id === $penalty->user_id ||
-               $user->can('view.penalty.all');
+               $user->can('kelola_pelanggaran') ||
+               $user->can('lihat_pelanggaran');
     }
 
-    public function appeal(User $user, Penalty $penalty): bool
+    /**
+     * Can create a penalty
+     */
+    public function create(User $user): bool
     {
-        return $user->id === $penalty->user_id &&
-               $user->can('appeal.penalty') &&
-               $penalty->status === 'active';
+        return $user->can('kelola_pelanggaran');
     }
 
-    public function reviewAppeal(User $user, Penalty $penalty): bool
+    /**
+     * Can update a penalty
+     */
+    public function update(User $user, Penalty $penalty): bool
     {
-        return $user->can('manage.penalty') &&
-               $penalty->status === 'appealed';
+        return $user->can('kelola_pelanggaran');
     }
 
-    public function dismiss(User $user, Penalty $penalty): bool
+    /**
+     * Can delete a penalty
+     */
+    public function delete(User $user, Penalty $penalty): bool
     {
-        return $user->can('manage.penalty');
+        return $user->can('kelola_pelanggaran');
     }
 }

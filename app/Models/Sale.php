@@ -7,6 +7,30 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Sale Model
+ *
+ * Represents a sales transaction in the system.
+ *
+ * @property int $id
+ * @property int $cashier_id
+ * @property int|null $student_id
+ * @property string $invoice_number
+ * @property \Carbon\Carbon $date
+ * @property string $total_amount
+ * @property string $payment_method
+ * @property string $payment_amount
+ * @property string $change_amount
+ * @property int|null $shu_points_earned Number of SHU points earned from this sale
+ * @property int|null $shu_percentage_bps CONVERSION AMOUNT (not percentage): The rupiah amount required to earn 1 point
+ *                                         e.g., value of 10000 means 1 point per Rp 10,000 purchase
+ *                                         This column was originally named for percentage basis points but
+ *                                         now stores the conversion amount to avoid migration overhead.
+ * @property string|null $notes
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon|null $deleted_at
+ */
 class Sale extends Model
 {
     use HasFactory, SoftDeletes;
@@ -21,7 +45,7 @@ class Sale extends Model
         'payment_amount',
         'change_amount',
         'shu_points_earned',
-        'shu_percentage_bps', // Now stores conversion amount
+        'shu_percentage_bps', // Stores conversion amount (rupiah per point)
         'notes',
     ];
 

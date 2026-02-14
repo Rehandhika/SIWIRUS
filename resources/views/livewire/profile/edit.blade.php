@@ -63,11 +63,12 @@
                             @endif
                         </div>
                         <div class="flex-1">
-                            <label class="cursor-pointer">
-                                <x-ui.button variant="white" type="button" icon="camera">
+                            <label class="cursor-pointer" for="profile-photo-upload">
+                                <div class="inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 px-4 py-2 text-sm">
+                                    <x-ui.icon name="camera" class="w-5 h-5 mr-2" />
                                     Upload Foto
-                                </x-ui.button>
-                                <input type="file" wire:model="photo" accept="image/*" class="hidden">
+                                </div>
+                                <input id="profile-photo-upload" type="file" wire:model="photo" accept="image/*" class="hidden">
                             </label>
                             @if($current_photo)
                                 <x-ui.button 
@@ -122,26 +123,6 @@
                             :required="true"
                             :error="$errors->first('email')"
                         />
-
-                        <x-ui.input
-                            label="No. Telepon"
-                            name="phone"
-                            type="tel"
-                            wire:model="phone"
-                            placeholder="08xxxxxxxxxx"
-                            :error="$errors->first('phone')"
-                        />
-
-                        <div class="md:col-span-2">
-                            <x-ui.textarea
-                                label="Alamat"
-                                name="address"
-                                wire:model="address"
-                                rows="3"
-                                placeholder="Alamat lengkap"
-                                :error="$errors->first('address')"
-                            />
-                        </div>
                     </div>
                 </x-layout.form-section>
 

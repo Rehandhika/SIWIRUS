@@ -16,12 +16,11 @@ class ShuPermissionBehaviorTest extends TestCase
 
     public function test_redeem_and_adjust_actions_show_toast_instead_of_403_when_not_allowed(): void
     {
-        Permission::create(['name' => 'view.shu']);
-        Permission::create(['name' => 'redeem.shu']);
-        Permission::create(['name' => 'adjust.shu']);
+        Permission::create(['name' => 'lihat_poin_shu']);
+        Permission::create(['name' => 'kelola_poin_shu']);
 
         $user = User::factory()->create();
-        $user->givePermissionTo(['view.shu']);
+        $user->givePermissionTo(['lihat_poin_shu']);
         $this->actingAs($user);
 
         $student = Student::factory()->create(['points_balance' => 100]);

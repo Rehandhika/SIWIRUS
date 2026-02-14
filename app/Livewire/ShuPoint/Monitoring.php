@@ -78,7 +78,7 @@ class Monitoring extends Component
 
     public function mount(): void
     {
-        if (! auth()->user()->can('view.shu')) {
+        if (! auth()->user()->can('lihat_poin_shu')) {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
     }
@@ -208,7 +208,7 @@ class Monitoring extends Component
 
     public function exportStudentsExcel()
     {
-        if (! auth()->user()->can('export.shu')) {
+        if (! auth()->user()->can('kelola_poin_shu')) {
             $this->dispatch('toast', message: 'Anda tidak memiliki akses untuk export.', type: 'error');
             return;
         }
@@ -252,7 +252,7 @@ class Monitoring extends Component
 
     public function redeem(): void
     {
-        if (! auth()->user()->can('redeem.shu')) {
+        if (! auth()->user()->can('kelola_poin_shu')) {
             $this->dispatch('toast', message: 'Anda tidak memiliki akses untuk pencairan poin.', type: 'error');
             return;
         }
@@ -279,7 +279,7 @@ class Monitoring extends Component
 
     public function exportRedemptionsExcel()
     {
-        if (! auth()->user()->can('export.shu')) {
+        if (! auth()->user()->can('kelola_poin_shu')) {
             $this->dispatch('toast', message: 'Anda tidak memiliki akses untuk export.', type: 'error');
             return;
         }

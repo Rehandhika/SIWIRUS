@@ -16,10 +16,10 @@ class ShuSettingsAuditTest extends TestCase
 
     public function test_setting_change_creates_audit_log(): void
     {
-        Permission::create(['name' => 'manage.shu_settings']);
+        Permission::create(['name' => 'kelola_pengaturan']);
 
         $user = User::factory()->create();
-        $user->givePermissionTo(['manage.shu_settings']);
+        $user->givePermissionTo(['kelola_pengaturan']);
         $this->actingAs($user);
 
         Setting::set('shu_point_percentage_bps', '100');

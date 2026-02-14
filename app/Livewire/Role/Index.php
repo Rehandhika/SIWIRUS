@@ -68,13 +68,86 @@ class Index extends Component
             ->get();
     }
 
+    /**
+     * Permission groups with consolidated categories for better UX
+     * Maps permission modules to broader category groups
+     */
+    protected array $permissionCategories = [
+        // Pengguna & Akses
+        'pengguna' => 'Pengguna & Akses',
+        'peran' => 'Pengguna & Akses',
+        // Kehadiran
+        'kehadiran' => 'Kehadiran',
+        // Jadwal & Cuti
+        'jadwal' => 'Jadwal & Cuti',
+        'tukar_jadwal' => 'Jadwal & Cuti',
+        'cuti' => 'Jadwal & Cuti',
+        // Pelanggaran
+        'pelanggaran' => 'Pelanggaran',
+        // Transaksi
+        'penjualan' => 'Transaksi',
+        'produk' => 'Transaksi',
+        'pembelian' => 'Transaksi',
+        'stok' => 'Transaksi',
+        // Laporan & Keuangan
+        'laporan' => 'Laporan & Keuangan',
+        'keuangan' => 'Laporan & Keuangan',
+        // Sistem
+        'pengaturan' => 'Sistem',
+        'log_audit' => 'Sistem',
+        'notifikasi' => 'Sistem',
+        'poin_shu' => 'Poin SHU',
+    ];
+
+    /**
+     * Category display order
+     */
+    protected array $categoryOrder = [
+        'Pengguna & Akses',
+        'Kehadiran',
+        'Jadwal & Cuti',
+        'Pelanggaran',
+        'Transaksi',
+        'Laporan & Keuangan',
+        'Sistem',
+        'Poin SHU',
+    ];
+
+    /**
+     * Get the category for a permission
+     */
+    private function getPermissionCategory(string $permissionName): string
+    {
+        // Extract module name from permission (e.g., 'kelola_pengguna' -> 'pengguna')
+        $parts = explode('_', $permissionName, 2);
+        $module = $parts[1] ?? $parts[0];
+
+        return $this->permissionCategories[$module] ?? 'Lainnya';
+    }
+
     #[Computed]
     public function permissions()
     {
-        return Permission::query()
+        $grouped = Permission::query()
             ->orderBy('name')
             ->get()
-            ->groupBy(fn ($p) => explode('.', $p->name)[0] ?? 'other');
+            ->groupBy(fn ($p) => $this->getPermissionCategory($p->name));
+
+        // Sort by predefined order
+        $sorted = collect();
+        foreach ($this->categoryOrder as $category) {
+            if ($grouped->has($category)) {
+                $sorted->put($category, $grouped->get($category));
+            }
+        }
+        // Add any remaining categories
+        foreach ($grouped as $category => $permissions) {
+            if (! $sorted->has($category)) {
+                $sorted->put($category, $permissions);
+            }
+        }
+
+        return $sorted;
     }
 
     public function create(): void

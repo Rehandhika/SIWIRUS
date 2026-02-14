@@ -24,10 +24,6 @@ class Edit extends Component
 
     public $nim;
 
-    public $phone;
-
-    public $address;
-
     public $photo;
 
     public $photoPreview = null;
@@ -56,8 +52,6 @@ class Edit extends Component
         $this->name = $this->user->name;
         $this->email = $this->user->email;
         $this->nim = $this->user->nim;
-        $this->phone = $this->user->phone;
-        $this->address = $this->user->address;
         $this->current_photo = $this->user->photo;
     }
 
@@ -78,8 +72,6 @@ class Edit extends Component
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($this->user->id)],
             'nim' => ['required', 'string', 'max:20', Rule::unique('users')->ignore($this->user->id)],
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
             'photo' => 'nullable|image|max:2048',
         ]);
 
@@ -88,8 +80,6 @@ class Edit extends Component
                 'name' => $this->name,
                 'email' => $this->email,
                 'nim' => $this->nim,
-                'phone' => $this->phone,
-                'address' => $this->address,
             ];
 
             // Handle photo upload using FileStorageService

@@ -166,7 +166,7 @@
     </x-ui.card>
 
     {{-- Poin SHU Settings Section --}}
-    @can('manage.shu_settings')
+    @can('kelola_pengaturan')
         <x-ui.card>
             <x-layout.form-section 
                 title="Pengaturan Poin SHU"

@@ -303,7 +303,7 @@ class StoreSettings extends Component
     // Poin SHU Settings methods
     public function saveShuSettings(): void
     {
-        if (! auth()->user()->can('manage.shu_settings')) {
+        if (! auth()->user()->can('kelola_pengaturan')) {
             $this->dispatch('toast', message: 'Anda tidak memiliki akses untuk mengubah pengaturan Poin SHU.', type: 'error');
             return;
         }

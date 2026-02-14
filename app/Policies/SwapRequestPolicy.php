@@ -13,7 +13,7 @@ class SwapRequestPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('create.swap.request');
+        return $user->can('ajukan_tukar_jadwal') || $user->can('kelola_tukar_jadwal');
     }
 
     /**
@@ -22,7 +22,7 @@ class SwapRequestPolicy
     public function view(User $user, SwapRequest|ScheduleChangeRequest $request): bool
     {
         return $user->id === $request->user_id ||
-               $user->can('view.swap.all');
+               $user->can('kelola_tukar_jadwal');
     }
 
     /**
@@ -30,7 +30,7 @@ class SwapRequestPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create.swap.request') && $user->isActive();
+        return $user->can('ajukan_tukar_jadwal') && $user->isActive();
     }
 
     /**
@@ -38,7 +38,7 @@ class SwapRequestPolicy
      */
     public function adminRespond(User $user, SwapRequest|ScheduleChangeRequest $request): bool
     {
-        return $user->can('approve.swap.admin') &&
+        return $user->can('kelola_tukar_jadwal') &&
                $request->status === 'pending';
     }
 

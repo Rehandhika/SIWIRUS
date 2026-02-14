@@ -15,10 +15,10 @@ class ShuStudentsModalTest extends TestCase
 
     public function test_create_opens_modal_state(): void
     {
-        Permission::create(['name' => 'manage.shu_students']);
+        Permission::create(['name' => 'kelola_poin_shu']);
 
         $user = User::factory()->create();
-        $user->givePermissionTo(['manage.shu_students']);
+        $user->givePermissionTo(['kelola_poin_shu']);
         $this->actingAs($user);
 
         Livewire::actingAs($user)

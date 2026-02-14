@@ -27,14 +27,15 @@ class RouteAccessTest extends TestCase
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Create permissions
+        // Create permissions (using new Indonesian naming convention)
         $permissions = [
-            'view.users', 'create.users', 'edit.users', 'delete.users',
-            'view.products', 'create.products', 'edit.products', 'delete.products',
-            'view.reports', 'manage.settings',
-            'view.sales.all', 'view.sales.own', 'create.sales',
-            'view.attendance.all', 'view.attendance.own',
-            'view.penalty.all', 'view.penalty.own',
+            'kelola_pengguna', 'lihat_pengguna',
+            'kelola_produk', 'lihat_produk',
+            'kelola_laporan', 'lihat_laporan',
+            'kelola_penjualan', 'lihat_penjualan', 'ajukan_penjualan',
+            'kelola_kehadiran', 'lihat_kehadiran',
+            'kelola_hukuman', 'lihat_hukuman',
+            'kelola_pengaturan',
         ];
 
         foreach ($permissions as $permission) {
@@ -44,17 +45,21 @@ class RouteAccessTest extends TestCase
         // Create Ketua role with admin permissions
         $ketuaRole = Role::firstOrCreate(['name' => 'Ketua']);
         $ketuaRole->givePermissionTo([
-            'view.users', 'create.users', 'edit.users',
-            'view.products', 'create.products', 'edit.products',
-            'view.reports', 'manage.settings',
-            'view.sales.all', 'view.attendance.all', 'view.penalty.all',
+            'kelola_pengguna', 'lihat_pengguna',
+            'kelola_produk', 'lihat_produk',
+            'kelola_laporan', 'lihat_laporan',
+            'kelola_penjualan', 'lihat_penjualan',
+            'kelola_kehadiran', 'lihat_kehadiran',
+            'kelola_hukuman', 'lihat_hukuman',
+            'kelola_pengaturan',
         ]);
 
         // Create Anggota role with member permissions
         $anggotaRole = Role::firstOrCreate(['name' => 'Anggota']);
         $anggotaRole->givePermissionTo([
-            'view.sales.own', 'create.sales',
-            'view.attendance.own', 'view.penalty.own',
+            'lihat_penjualan', 'ajukan_penjualan',
+            'lihat_kehadiran',
+            'lihat_hukuman',
         ]);
     }
 
