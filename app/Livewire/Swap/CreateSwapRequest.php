@@ -126,7 +126,7 @@ class CreateSwapRequest extends Component
     private function validateBusinessRules()
     {
         // Check if requester already has a pending swap for the same assignment
-        $existingRequest = SwapRequest::where('requester_id', auth()->id())
+        $existingRequest = SwapRequest::where('user_id', auth()->id())
             ->where('requester_assignment_id', $this->selectedAssignment)
             ->whereIn('status', ['pending', 'target_approved'])
             ->exists();
@@ -189,7 +189,7 @@ class CreateSwapRequest extends Component
             }
 
             $swapRequest = SwapRequest::create([
-                'requester_id' => auth()->id(),
+                'user_id' => auth()->id(),
                 'target_id' => $this->selectedTarget,
                 'requester_assignment_id' => $this->selectedAssignment,
                 'target_assignment_id' => $targetAssignment->id,

@@ -103,7 +103,7 @@ class SwapApprovals extends Component
             ]);
 
             // Create notification for requester
-            $this->createNotification($this->selectedRequest->requester_id, 'swap_response', [
+            $this->createNotification($this->selectedRequest->user_id, 'swap_response', [
                 'title' => $this->responseType === 'approve' ? 'Permintaan Tukar Shift Disetujui' : 'Permintaan Tukar Shift Ditolak',
                 'message' => auth()->user()->name.' telah '.($this->responseType === 'approve' ? 'menyetujui' : 'menolak').' permintaan tukar shift Anda.',
                 'swap_request_id' => $this->selectedRequest->id,

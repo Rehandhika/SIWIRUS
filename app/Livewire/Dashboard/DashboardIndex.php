@@ -18,7 +18,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Title('Dashboard')]
-class Index extends Component
+class DashboardIndex extends Component
 {
     /**
      * Listen for schedule-updated event to refresh dashboard data
@@ -277,6 +277,6 @@ class Index extends Component
 
     public function render()
     {
-        return view('livewire.dashboard.index')->layout('layouts.app');
+        return view('livewire.dashboard.dashboard-index')->layout('layouts.app');
     }
 }

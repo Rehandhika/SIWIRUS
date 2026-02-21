@@ -53,12 +53,12 @@
                 <x-data.table-row>
                     <x-data.table-cell>
                         <div class="text-sm">
-                            <div class="font-medium">{{ $leave->date_from->format('d/m/Y') }}</div>
-                            <div class="text-gray-500">s/d {{ $leave->date_to->format('d/m/Y') }}</div>
+                            <div class="font-medium">{{ $leave->start_date?->format('d/m/Y') }}</div>
+                            <div class="text-gray-500">s/d {{ $leave->end_date?->format('d/m/Y') }}</div>
                         </div>
                     </x-data.table-cell>
-                    <x-data.table-cell>{{ $leave->leaveType->name ?? '-' }}</x-data.table-cell>
-                    <x-data.table-cell>{{ $leave->days }} hari</x-data.table-cell>
+                    <x-data.table-cell>{{ $leave->getLeaveTypeLabel() }}</x-data.table-cell>
+                    <x-data.table-cell>{{ $leave->total_days }} hari</x-data.table-cell>
                     <x-data.table-cell>
                         <div class="max-w-xs truncate">{{ $leave->reason }}</div>
                     </x-data.table-cell>

@@ -28,7 +28,7 @@ class LeaveService
     ): LeaveRequest {
         // Validate date range
         if ($endDate->lt($startDate)) {
-            throw new Exception('End date must be after or equal to start date');
+            throw new Exception('Tanggal selesai harus setelah atau sama dengan tanggal mulai.');
         }
 
         // Calculate total days
@@ -36,7 +36,7 @@ class LeaveService
 
         // Validate sick leave attachment requirement
         if ($leaveType === 'sick' && $totalDays > 1 && empty($attachmentPath)) {
-            throw new Exception('Sick leave longer than 1 day requires attachment (surat keterangan)');
+            throw new Exception('Izin sakit lebih dari 1 hari wajib menyertakan surat keterangan dokter.');
         }
 
         // Create leave request
@@ -78,7 +78,7 @@ class LeaveService
         ?string $notes = null
     ): bool {
         if ($request->status !== 'pending') {
-            throw new Exception('Only pending leave requests can be approved');
+            throw new Exception('Hanya pengajuan status pending yang dapat disetujui.');
         }
 
         // Check if there are any existing attendance records that conflict
@@ -92,7 +92,7 @@ class LeaveService
                 return $date->format('d/m/Y');
             })->join(', ');
 
-            throw new Exception("Cannot approve leave request. User already has attendance records on: {$dates}");
+            throw new Exception("Tidak dapat menyetujui izin. User sudah memiliki absensi pada tanggal: {$dates}");
         }
 
         DB::beginTransaction();
@@ -149,7 +149,7 @@ class LeaveService
         string $notes
     ): bool {
         if ($request->status !== 'pending') {
-            throw new Exception('Only pending leave requests can be rejected');
+            throw new Exception('Hanya pengajuan status pending yang dapat ditolak.');
         }
 
         // Update leave request status
@@ -183,12 +183,12 @@ class LeaveService
     {
         // Only pending or approved requests can be cancelled
         if (! in_array($request->status, ['pending', 'approved'])) {
-            throw new Exception('Only pending or approved leave requests can be cancelled');
+            throw new Exception('Hanya pengajuan pending atau disetujui yang dapat dibatalkan.');
         }
 
         // Check if leave has already started
         if ($request->start_date->isPast()) {
-            throw new Exception('Cannot cancel leave that has already started');
+            throw new Exception('Tidak dapat membatalkan izin yang sudah lewat.');
         }
 
         DB::beginTransaction();

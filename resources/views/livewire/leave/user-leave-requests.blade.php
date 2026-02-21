@@ -118,7 +118,7 @@
                     @if($request->attachment)
                     <div class="flex items-center space-x-2 text-sm text-info-600">
                         <x-ui.icon name="paper-clip" class="w-4 h-4" />
-                        <a href="{{ Storage::url($request->attachment) }}" target="_blank" class="hover:underline">
+                        <a href="{{ $this->getAttachmentUrl($request->attachment) }}" target="_blank" class="hover:underline">
                             Lihat Lampiran
                         </a>
                     </div>

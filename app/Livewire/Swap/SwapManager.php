@@ -112,7 +112,7 @@ class SwapManager extends Component
         }
 
         // Check existing pending request
-        $exists = SwapRequest::where('requester_id', Auth::id())
+        $exists = SwapRequest::where('user_id', Auth::id())
             ->where('requester_assignment_id', $this->selectedAssignment)
             ->whereIn('status', ['pending', 'target_approved'])
             ->exists();
@@ -135,7 +135,7 @@ class SwapManager extends Component
         }
 
         SwapRequest::create([
-            'requester_id' => Auth::id(),
+            'user_id' => Auth::id(),
             'target_id' => $this->selectedTarget,
             'requester_assignment_id' => $this->selectedAssignment,
             'target_assignment_id' => $targetAssignment->id,
@@ -162,7 +162,7 @@ class SwapManager extends Component
     public function cancelRequest(int $id): void
     {
         SwapRequest::where('id', $id)
-            ->where('requester_id', Auth::id())
+            ->where('user_id', Auth::id())
             ->where('status', 'pending')
             ->update(['status' => 'cancelled']);
 
@@ -276,9 +276,9 @@ class SwapManager extends Component
         $stats = Cache::remember("swap_stats_{$userId}_{$this->activeTab}", 60, function () use ($userId) {
             if ($this->activeTab === 'my-requests') {
                 return [
-                    'pending' => SwapRequest::where('requester_id', $userId)->where('status', 'pending')->count(),
-                    'approved' => SwapRequest::where('requester_id', $userId)->whereIn('status', ['target_approved', 'admin_approved'])->count(),
-                    'rejected' => SwapRequest::where('requester_id', $userId)->whereIn('status', ['target_rejected', 'admin_rejected', 'cancelled'])->count(),
+                    'pending' => SwapRequest::where('user_id', $userId)->where('status', 'pending')->count(),
+                    'approved' => SwapRequest::where('user_id', $userId)->whereIn('status', ['target_approved', 'admin_approved'])->count(),
+                    'rejected' => SwapRequest::where('user_id', $userId)->whereIn('status', ['target_rejected', 'admin_rejected', 'cancelled'])->count(),
                 ];
             } elseif ($this->activeTab === 'received') {
                 return [
@@ -297,10 +297,10 @@ class SwapManager extends Component
 
         // Query
         $query = match ($this->activeTab) {
-            'my-requests' => SwapRequest::where('requester_id', $userId),
+            'my-requests' => SwapRequest::where('user_id', $userId),
             'received' => SwapRequest::where('target_id', $userId),
             'admin' => SwapRequest::whereIn('status', ['target_approved', 'admin_approved', 'admin_rejected']),
-            default => SwapRequest::where('requester_id', $userId),
+            default => SwapRequest::where('user_id', $userId),
         };
 
         if ($this->statusFilter !== 'all') {

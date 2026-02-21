@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Livewire\Dashboard\Index as DashboardIndex;
+use App\Livewire\Dashboard\DashboardIndex;
 
 /*
 |--------------------------------------------------------------------------
@@ -9,7 +9,7 @@ use App\Livewire\Dashboard\Index as DashboardIndex;
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(function () {
     
     // ============================================================
     // SELF-SERVICE ROUTES (All authenticated users)
@@ -20,7 +20,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Profile (Profil) - All authenticated users (ubah_profil)
     Route::prefix('profil')->name('profile.')->group(function () {
-        Route::get('/ubah', \App\Livewire\Profile\Edit::class)->name('edit');
+        Route::get('/ubah', \App\Livewire\Profile\EditProfile::class)->name('edit');
     });
 
     // Notifications (Notifikasi) - All authenticated users

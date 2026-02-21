@@ -78,7 +78,6 @@ return [
      * Leave request settings
      */
     'leave' => [
-        'max_days_per_month' => 5,
         'min_advance_notice_days' => 3,  // Must request leave at least this many days in advance
         'require_document' => true,  // Require supporting document for leave
     ],

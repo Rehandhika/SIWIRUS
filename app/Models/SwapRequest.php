@@ -17,12 +17,16 @@ class SwapRequest extends Model
 
     protected $fillable = [
         'user_id',
+        'target_id',
         'original_assignment_id',
+        'target_assignment_id',
         'requested_date',
         'requested_session',
         'change_type',
         'reason',
         'status',
+        'target_response',
+        'target_responded_at',
         'admin_response',
         'admin_responded_by',
         'admin_responded_at',
@@ -37,7 +41,16 @@ class SwapRequest extends Model
         'updated_at' => 'datetime',
     ];
 
-    // Alias for backward compatibility
+    public function target()
+    {
+        return $this->belongsTo(User::class, 'target_id');
+    }
+
+    public function targetAssignment()
+    {
+        return $this->belongsTo(ScheduleAssignment::class, 'target_assignment_id');
+    }
+
     public function requester()
     {
         return $this->belongsTo(User::class, 'user_id');

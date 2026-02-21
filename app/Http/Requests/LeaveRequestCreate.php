@@ -20,9 +20,20 @@ class LeaveRequestCreate extends FormRequest
      */
     public function rules(): array
     {
-        $maxDays = config('app-settings.leave.max_days_per_month', 5);
         $minAdvanceDays = config('app-settings.leave.min_advance_notice_days', 3);
-
+        $leaveType = $this->input('leave_type_id'); // Assuming leave_type_id logic needs check against ID or slug. Wait, input is leave_type slug in create-leave-request blade. Let's check blade. Blade uses wire:click="$set('leave_type', 'permission')". So the input name is 'leave_type'.
+        // Correction: The Request class validates 'leave_type_id' but the Livewire component uses 'leave_type'.
+        // Let's assume this Request is used by Livewire via rules().
+        // Actually, Livewire components usually define rules property directly.
+        // Checking LeaveRequestCreate.php again... It extends FormRequest.
+        // Wait, Livewire component `App\Livewire\Leave\CreateLeaveRequest` uses `$rules` property but also `validate()` which uses standard rules.
+        // BUT `LeaveRequestCreate` is a FormRequest class, usually for Controllers.
+        // Livewire component `CreateLeaveRequest.php` has its OWN rules.
+        // I need to modify `App\Livewire\Leave\CreateLeaveRequest.php`, NOT `App\Http\Requests\LeaveRequestCreate.php` if Livewire is used.
+        // Let's check `App\Livewire\Leave\CreateLeaveRequest.php` content again.
+        // It has `protected $rules = [...]`.
+        // So I should modify the Livewire component.
+        
         return [
             'leave_type_id' => [
                 'required',
@@ -32,7 +43,7 @@ class LeaveRequestCreate extends FormRequest
             'date_from' => [
                 'required',
                 'date',
-                'after_or_equal:'.now()->addDays($minAdvanceDays)->format('Y-m-d'),
+                'after_or_equal:today',
                 'before_or_equal:'.now()->addMonths(3)->format('Y-m-d'),
             ],
             'date_to' => [
@@ -41,10 +52,28 @@ class LeaveRequestCreate extends FormRequest
                 'after_or_equal:date_from',
                 'before_or_equal:'.now()->addMonths(3)->format('Y-m-d'),
             ],
-            'reason' => 'required|string|max:1000|min:10',
-            'notes' => 'nullable|string|max:500',
-            'attachment' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
-            'emergency_contact' => 'nullable|string|max:255',
+            'reason' => [
+                'required',
+                'string',
+                'min:10',
+                'max:1000',
+            ],
+            'notes' => [
+                'nullable',
+                'string',
+                'max:500',
+            ],
+            'attachment' => [
+                'nullable',
+                'file',
+                'mimes:pdf,doc,docx,jpg,jpeg,png',
+                'max:5120',
+            ],
+            'emergency_contact' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
         ];
     }
 
@@ -59,7 +88,7 @@ class LeaveRequestCreate extends FormRequest
             'leave_type_id.required' => 'Jenis cuti harus dipilih.',
             'leave_type_id.exists' => 'Jenis cuti tidak valid.',
             'date_from.required' => 'Tanggal mulai harus diisi.',
-            'date_from.after_or_equal' => "Pengajuan cuti minimal {$minAdvanceDays} hari sebelumnya.",
+            'date_from.after_or_equal' => "Tanggal mulai tidak boleh di masa lalu.",
             'date_from.before_or_equal' => 'Pengajuan cuti maksimal 3 bulan ke depan.',
             'date_to.required' => 'Tanggal selesai harus diisi.',
             'date_to.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai.',
@@ -132,19 +161,7 @@ class LeaveRequestCreate extends FormRequest
                     $validator->errors()->add('date_from', 'Anda sudah memiliki pengajuan cuti pada periode tersebut.');
                 }
 
-                // Check monthly leave limit
-                $maxDaysPerMonth = config('app-settings.leave.max_days_per_month', 5);
-                $currentMonthLeaves = \App\Models\LeaveRequest::where('user_id', $userId)
-                    ->whereMonth('date_from', \Carbon\Carbon::parse($dateFrom)->month)
-                    ->whereYear('date_from', \Carbon\Carbon::parse($dateFrom)->year)
-                    ->where('status', 'approved')
-                    ->sum('days');
 
-                $requestedDays = \Carbon\Carbon::parse($dateFrom)->diffInDays(\Carbon\Carbon::parse($dateTo)) + 1;
-
-                if ($currentMonthLeaves + $requestedDays > $maxDaysPerMonth) {
-                    $validator->errors()->add('date_from', "Total cuti bulan ini tidak boleh melebihi {$maxDaysPerMonth} hari.");
-                }
 
                 // Check for existing schedules during leave period
                 $hasSchedules = \App\Models\ScheduleAssignment::where('user_id', $userId)

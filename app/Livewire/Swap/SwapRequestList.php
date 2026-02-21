@@ -20,7 +20,7 @@ class SwapRequestList extends Component
     {
         $swap = SwapRequest::with(['requesterAssignment', 'targetAssignment'])->find($id);
 
-        if ($swap && $swap->requester_id === auth()->id() && $swap->status === 'pending') {
+        if ($swap && $swap->user_id === auth()->id() && $swap->status === 'pending') {
             $swap->update(['status' => 'cancelled']);
 
             // Log activity
@@ -43,7 +43,7 @@ class SwapRequestList extends Component
             ActivityLogService::logSwapApproved($swap->requester->name, $date);
 
             // Create notification for requester
-            $this->createNotification($swap->requester_id, 'swap_accepted', [
+            $this->createNotification($swap->user_id, 'swap_accepted', [
                 'title' => 'Permintaan Tukar Shift Disetujui',
                 'message' => auth()->user()->name.' menyetujui permintaan tukar shift Anda.',
                 'swap_request_id' => $swap->id,
@@ -72,7 +72,7 @@ class SwapRequestList extends Component
             ActivityLogService::logSwapRejected($swap->requester->name, $date);
 
             // Create notification for requester
-            $this->createNotification($swap->requester_id, 'swap_rejected', [
+            $this->createNotification($swap->user_id, 'swap_rejected', [
                 'title' => 'Permintaan Tukar Shift Ditolak',
                 'message' => auth()->user()->name.' menolak permintaan tukar shift Anda.',
                 'swap_request_id' => $swap->id,
@@ -85,7 +85,7 @@ class SwapRequestList extends Component
     public function render()
     {
         $query = SwapRequest::query()
-            ->when($this->tab === 'my-requests', fn ($q) => $q->where('requester_id', auth()->id()))
+            ->when($this->tab === 'my-requests', fn ($q) => $q->where('user_id', auth()->id()))
             ->when($this->tab === 'received', fn ($q) => $q->where('target_id', auth()->id()))
             ->with([
                 'requester:id,name,nim',
@@ -125,7 +125,7 @@ class SwapRequestList extends Component
         $query = SwapRequest::query();
 
         if ($this->tab === 'my-requests') {
-            $query->where('requester_id', auth()->id());
+            $query->where('user_id', auth()->id());
         } elseif ($this->tab === 'received') {
             $query->where('target_id', auth()->id());
         }

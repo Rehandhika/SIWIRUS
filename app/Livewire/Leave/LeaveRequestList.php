@@ -3,6 +3,7 @@
 namespace App\Livewire\Leave;
 
 use App\Models\LeaveRequest;
+use App\Services\LeaveService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -16,9 +17,13 @@ class LeaveRequestList extends Component
     {
         $leave = LeaveRequest::find($id);
 
-        if ($leave && $leave->user_id === auth()->id() && $leave->status === 'pending') {
-            $leave->update(['status' => 'cancelled']);
-            $this->dispatch('toast', message: 'Permintaan cuti dibatalkan', type: 'success');
+        if ($leave && $leave->user_id === auth()->id()) {
+            try {
+                app(LeaveService::class)->cancel($leave);
+                $this->dispatch('toast', message: 'Permintaan cuti dibatalkan', type: 'success');
+            } catch (\Exception $e) {
+                $this->dispatch('toast', message: $e->getMessage(), type: 'error');
+            }
         }
     }
 

@@ -11,7 +11,7 @@ use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-class Edit extends Component
+class EditProfile extends Component
 {
     use WithFileUploads;
 
@@ -268,7 +268,7 @@ class Edit extends Component
 
     public function render()
     {
-        return view('livewire.profile.edit', [
+        return view('livewire.profile.edit-profile', [
             'profilePhotoUrl' => $this->getProfilePhotoUrl(),
             'profilePhotoThumbnailUrl' => $this->getProfilePhotoThumbnailUrl(),
         ])

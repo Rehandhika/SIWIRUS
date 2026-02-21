@@ -33,7 +33,7 @@ class PenaltyService
                 ->first();
 
             if ($existingPenalty) {
-                throw new \Exception("Penalty already exists for this reference ({$referenceType}:{$referenceId})");
+                throw new \Exception("Penalti sudah ada untuk referensi ini ({$referenceType}:{$referenceId})");
             }
         }
 

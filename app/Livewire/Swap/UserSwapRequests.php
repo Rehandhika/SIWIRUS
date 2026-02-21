@@ -30,7 +30,7 @@ class UserSwapRequests extends Component
 
     public function getStatsProperty()
     {
-        return SwapRequest::where('requester_id', auth()->id())
+        return SwapRequest::where('user_id', auth()->id())
             ->selectRaw('
                 COUNT(*) as total,
                 SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) as pending,
@@ -45,7 +45,7 @@ class UserSwapRequests extends Component
     public function cancelRequest($id)
     {
         $request = SwapRequest::where('id', $id)
-            ->where('requester_id', auth()->id())
+            ->where('user_id', auth()->id())
             ->where('status', 'pending')
             ->first();
 
@@ -114,7 +114,7 @@ class UserSwapRequests extends Component
             'adminResponder:id,name',
         ])->find($id);
 
-        if ($this->selectedRequest && $this->selectedRequest->requester_id === auth()->id()) {
+        if ($this->selectedRequest && $this->selectedRequest->user_id === auth()->id()) {
             $this->showDetailModal = true;
         } else {
             $this->dispatch('toast', message: 'Permintaan tidak ditemukan.', type: 'error');
@@ -153,7 +153,7 @@ class UserSwapRequests extends Component
 
     public function render()
     {
-        $query = SwapRequest::where('requester_id', auth()->id())
+        $query = SwapRequest::where('user_id', auth()->id())
             ->with([
                 'target:id,name,nim',
                 'requesterAssignment.schedule',

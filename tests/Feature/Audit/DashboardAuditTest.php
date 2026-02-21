@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Audit;
 
-use App\Livewire\Dashboard\Index as DashboardIndex;
+use App\Livewire\Dashboard\DashboardIndex;
 use App\Models\Attendance;
 use App\Models\Notification;
 use App\Models\Penalty;

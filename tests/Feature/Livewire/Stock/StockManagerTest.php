@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Livewire\Stock;
 
-use App\Livewire\Stock\Index;
+use App\Livewire\Stock\StockManager;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

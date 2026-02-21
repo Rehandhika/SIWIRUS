@@ -13,7 +13,7 @@ class SwapRepository
      */
     public function getUserSwapRequests(int $userId, ?string $status = null): Collection
     {
-        $query = SwapRequest::where('requester_id', $userId)
+        $query = SwapRequest::where('user_id', $userId)
             ->with([
                 'requester:id,name,nim',
                 'target:id,name,nim',
@@ -113,7 +113,7 @@ class SwapRepository
      */
     public function getUserStats(int $userId): array
     {
-        $requests = SwapRequest::where('requester_id', $userId);
+        $requests = SwapRequest::where('user_id', $userId);
         $received = SwapRequest::where('target_id', $userId);
 
         return [

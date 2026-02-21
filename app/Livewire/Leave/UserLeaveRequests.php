@@ -3,6 +3,9 @@
 namespace App\Livewire\Leave;
 
 use App\Models\LeaveRequest;
+use App\Services\LeaveService;
+use App\Services\Storage\FileStorageServiceInterface;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -15,20 +18,41 @@ class UserLeaveRequests extends Component
 
     public $statusFilter = 'all';
 
+    protected FileStorageServiceInterface $fileStorageService;
+
+    public function boot(FileStorageServiceInterface $fileStorageService)
+    {
+        $this->fileStorageService = $fileStorageService;
+    }
+
+    public function getAttachmentUrl(?string $path): ?string
+    {
+        if (empty($path)) {
+            return null;
+        }
+
+        try {
+            return $this->fileStorageService->getUrl($path);
+        } catch (\Exception $e) {
+            if (Storage::disk('public')->exists($path)) {
+                return Storage::disk('public')->url($path);
+            }
+            return null;
+        }
+    }
+
     public function cancel($id)
     {
         $request = LeaveRequest::where('user_id', auth()->id())
             ->where('id', $id)
             ->firstOrFail();
 
-        if (! $request->canCancel()) {
-            $this->dispatch('toast', message: 'Tidak dapat membatalkan permohonan ini', type: 'error');
-
-            return;
+        try {
+            app(LeaveService::class)->cancel($request);
+            $this->dispatch('toast', message: 'Permohonan berhasil dibatalkan', type: 'success');
+        } catch (\Exception $e) {
+            $this->dispatch('toast', message: $e->getMessage(), type: 'error');
         }
-
-        $request->update(['status' => 'cancelled']);
-        $this->dispatch('toast', message: 'Permohonan berhasil dibatalkan', type: 'success');
     }
 
     #[On('leave-request-created')]

@@ -3,9 +3,12 @@
 namespace App\Livewire\Leave;
 
 use App\Models\LeaveRequest;
+use App\Services\LeaveService;
+use App\Services\Storage\FileStorageServiceInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
@@ -48,6 +51,31 @@ class LeaveManager extends Component
     public string $reviewAction = '';
 
     public string $reviewNotes = '';
+
+    protected FileStorageServiceInterface $fileStorageService;
+    protected LeaveService $leaveService;
+
+    public function boot(FileStorageServiceInterface $fileStorageService, LeaveService $leaveService)
+    {
+        $this->fileStorageService = $fileStorageService;
+        $this->leaveService = $leaveService;
+    }
+
+    public function getAttachmentUrl(?string $path): ?string
+    {
+        if (empty($path)) {
+            return null;
+        }
+
+        try {
+            return $this->fileStorageService->getUrl($path);
+        } catch (\Exception $e) {
+            if (Storage::disk('public')->exists($path)) {
+                return Storage::disk('public')->url($path);
+            }
+            return null;
+        }
+    }
 
     public function mount(): void
     {
@@ -100,21 +128,27 @@ class LeaveManager extends Component
         $start = Carbon::parse($this->start_date);
         $end = Carbon::parse($this->end_date);
 
-        $path = $this->attachment?->store('leave-attachments', 'public');
+        try {
+            $path = null;
+            if ($this->attachment) {
+                $result = $this->fileStorageService->upload($this->attachment, 'leave', ['user_id' => Auth::id()]);
+                $path = $result->path;
+            }
 
-        LeaveRequest::create([
-            'user_id' => Auth::id(),
-            'leave_type' => $this->leave_type,
-            'start_date' => $this->start_date,
-            'end_date' => $this->end_date,
-            'total_days' => $start->diffInDays($end) + 1,
-            'reason' => $this->reason,
-            'attachment' => $path,
-            'status' => 'pending',
-        ]);
+            $this->leaveService->submitRequest(
+                Auth::id(),
+                $this->leave_type,
+                $start,
+                $end,
+                $this->reason,
+                $path
+            );
 
-        $this->closeForm();
-        $this->dispatch('toast', message: 'Pengajuan berhasil dikirim', type: 'success');
+            $this->closeForm();
+            $this->dispatch('toast', message: 'Pengajuan berhasil dikirim', type: 'success');
+        } catch (\Exception $e) {
+            $this->dispatch('toast', message: 'Gagal mengirim pengajuan: ' . $e->getMessage(), type: 'error');
+        }
     }
 
     public function viewRequest(int $id): void
@@ -129,13 +163,19 @@ class LeaveManager extends Component
 
     public function cancelRequest(int $id): void
     {
-        LeaveRequest::where('id', $id)
+        $leave = LeaveRequest::where('id', $id)
             ->where('user_id', Auth::id())
-            ->where('status', 'pending')
-            ->update(['status' => 'cancelled']);
+            ->first();
 
-        $this->viewingId = null;
-        $this->dispatch('toast', message: 'Pengajuan dibatalkan', type: 'success');
+        if ($leave) {
+            try {
+                $this->leaveService->cancel($leave);
+                $this->viewingId = null;
+                $this->dispatch('toast', message: 'Pengajuan dibatalkan', type: 'success');
+            } catch (\Exception $e) {
+                $this->dispatch('toast', message: 'Gagal membatalkan: ' . $e->getMessage(), type: 'error');
+            }
+        }
     }
 
     public function openReview(int $id, string $action): void
@@ -154,18 +194,28 @@ class LeaveManager extends Component
 
     public function submitReview(): void
     {
-        LeaveRequest::where('id', $this->reviewingId)
-            ->update([
-                'status' => $this->reviewAction,
-                'reviewed_by' => Auth::id(),
-                'reviewed_at' => now(),
-                'review_notes' => $this->reviewNotes,
-            ]);
+        $leave = LeaveRequest::find($this->reviewingId);
+        
+        if (!$leave) {
+            $this->closeReview();
+            return;
+        }
 
-        $msg = $this->reviewAction === 'approved' ? 'Pengajuan disetujui' : 'Pengajuan ditolak';
-        $this->closeReview();
-        $this->viewingId = null;
-        $this->dispatch('toast', message: $msg, type: 'success');
+        try {
+            if ($this->reviewAction === 'approved') {
+                $this->leaveService->approve($leave, Auth::id(), $this->reviewNotes);
+                $msg = 'Pengajuan disetujui';
+            } else {
+                $this->leaveService->reject($leave, Auth::id(), $this->reviewNotes);
+                $msg = 'Pengajuan ditolak';
+            }
+
+            $this->closeReview();
+            $this->viewingId = null;
+            $this->dispatch('toast', message: $msg, type: 'success');
+        } catch (\Exception $e) {
+            $this->dispatch('toast', message: 'Gagal memproses review: ' . $e->getMessage(), type: 'error');
+        }
     }
 
     public function render()

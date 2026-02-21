@@ -158,7 +158,7 @@ class CheckPermission
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthenticated.',
+                'message' => 'Sesi Anda telah berakhir. Silakan login kembali.',
                 'error' => 'unauthenticated',
             ], 401);
         }

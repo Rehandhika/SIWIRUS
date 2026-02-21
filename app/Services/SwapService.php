@@ -21,9 +21,9 @@ class SwapService
         $this->validateSwapRequest($requesterAssignment, $targetAssignment);
 
         $swapRequest = SwapRequest::create([
-            'requester_id' => $requesterAssignment->user_id,
+            'user_id' => $requesterAssignment->user_id,
             'target_id' => $targetAssignment->user_id,
-            'requester_assignment_id' => $requesterAssignment->id,
+            'original_assignment_id' => $requesterAssignment->id,
             'target_assignment_id' => $targetAssignment->id,
             'reason' => $reason,
             'status' => 'pending',
@@ -51,25 +51,34 @@ class SwapService
     ): void {
         // Check both are scheduled
         if (! $requesterAssignment->isScheduled() || ! $targetAssignment->isScheduled()) {
-            throw new \Exception('Both schedules must be in scheduled status');
+            throw new \Exception('Kedua jadwal harus berstatus "scheduled" (terjadwal).');
         }
 
         // Check minimum notice time (24 hours)
         $minNoticeHours = (int) setting('swap.min_notice_hours', 24);
         if ($requesterAssignment->date->diffInHours(now()) < $minNoticeHours) {
-            throw new \Exception("Swap request must be made at least {$minNoticeHours} hours before schedule");
+            throw new \Exception("Permintaan tukar jadwal harus diajukan minimal {$minNoticeHours} jam sebelum jadwal dimulai.");
         }
 
-        // Check monthly limit
+        // Check if requester has another assignment at the target time (Double Booking Check)
+        $conflictingAssignment = ScheduleAssignment::where('user_id', $requesterAssignment->user_id)
+            ->where('date', $targetAssignment->date)
+            ->where('session', $targetAssignment->session)
+            ->where('id', '!=', $requesterAssignment->id)
+            ->exists();
+
+        if ($conflictingAssignment) {
+            throw new \Exception('Anda sudah memiliki jadwal lain pada waktu target tukar jadwal ini.');
+        }
         $maxPerMonth = (int) setting('swap.max_per_month', 2);
-        $thisMonthCount = SwapRequest::where('requester_id', $requesterAssignment->user_id)
+        $thisMonthCount = SwapRequest::where('user_id', $requesterAssignment->user_id)
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->whereIn('status', ['admin_approved'])
             ->count();
 
         if ($thisMonthCount >= $maxPerMonth) {
-            throw new \Exception("Maximum {$maxPerMonth} swap requests per month reached");
+            throw new \Exception("Batas maksimal {$maxPerMonth} kali tukar jadwal per bulan telah tercapai.");
         }
     }
 

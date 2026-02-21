@@ -91,7 +91,7 @@ class SwapDashboard extends Component
         ])
             ->orderBy('created_at', 'desc')
             ->take(10)
-            ->get(['id', 'requester_id', 'target_id', 'status', 'created_at', 'admin_responded_at'])
+            ->get(['id', 'user_id', 'target_id', 'status', 'created_at', 'admin_responded_at'])
             ->map(function ($request) {
                 return [
                     'id' => $request->id,
@@ -109,10 +109,10 @@ class SwapDashboard extends Component
     {
         $dateRange = $this->getDateRange();
 
-        return SwapRequest::selectRaw('requester_id, COUNT(*) as request_count')
+        return SwapRequest::selectRaw('user_id, COUNT(*) as request_count')
             ->selectRaw('SUM(CASE WHEN status = "admin_approved" THEN 1 ELSE 0 END) as successful_swaps')
             ->whereBetween('created_at', $dateRange)
-            ->groupBy('requester_id')
+            ->groupBy('user_id')
             ->orderBy('successful_swaps', 'desc')
             ->take(5)
             ->with('requester:id,name,nim')

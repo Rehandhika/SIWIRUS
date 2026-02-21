@@ -4,7 +4,7 @@ namespace Tests\Feature\Audit;
 
 use App\Livewire\Schedule\CreateSchedule;
 use App\Livewire\Schedule\EditSchedule;
-use App\Livewire\Schedule\Index;
+use App\Livewire\Schedule\ScheduleList;
 use App\Livewire\Schedule\MySchedule;
 use App\Livewire\Schedule\ScheduleCalendar;
 use App\Models\Schedule;

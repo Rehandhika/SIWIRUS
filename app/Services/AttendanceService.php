@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\AttendanceStatus;
 use App\Exceptions\BusinessException;
 use App\Models\Attendance;
 use App\Models\LeaveRequest;
@@ -123,39 +124,46 @@ class AttendanceService
             }
 
             // Create attendance record within transaction
-            return DB::transaction(function () use ($userId, $scheduleAssignmentId, $notes, $checkInTime, $status, $lateMinutes, $schedule) {
-                $attendance = $this->repository->create([
-                    'user_id' => $userId,
-                    'schedule_assignment_id' => $scheduleAssignmentId,
-                    'date' => today(),
-                    'check_in' => $checkInTime,
-                    'status' => $status,
-                    'notes' => $notes,
-                ]);
+            try {
+                return DB::transaction(function () use ($userId, $scheduleAssignmentId, $notes, $checkInTime, $status, $lateMinutes, $schedule) {
+                    $attendance = $this->repository->create([
+                        'user_id' => $userId,
+                        'schedule_assignment_id' => $scheduleAssignmentId,
+                        'date' => today(),
+                        'check_in' => $checkInTime,
+                        'status' => $status,
+                        'notes' => $notes,
+                    ]);
 
-                // Apply penalty if late and schedule exists
-                if ($schedule && $status === 'late' && $lateMinutes > 0) {
-                    $this->applyLatePenalty($userId, $attendance, $lateMinutes);
+                    // Apply penalty if late and schedule exists
+                    if ($schedule && $status === 'late' && $lateMinutes > 0) {
+                        $this->applyLatePenalty($userId, $attendance, $lateMinutes);
+                    }
+
+                    // Update schedule assignment status if exists
+                    if ($schedule && ($status === 'present' || $status === 'late')) {
+                        $schedule->update(['status' => 'completed']);
+                    }
+
+                    // Log audit
+                    log_audit('check_in', $attendance);
+
+                    Log::info('User checked in successfully', [
+                        'user_id' => $userId,
+                        'attendance_id' => $attendance->id,
+                        'status' => $status,
+                        'late_minutes' => $lateMinutes,
+                        'is_override' => is_null($scheduleAssignmentId),
+                    ]);
+
+                    return $attendance;
+                });
+            } catch (\Illuminate\Database\QueryException $e) {
+                if ($e->errorInfo[1] == 1062) { // Duplicate entry error code
+                    throw new BusinessException('Anda sudah melakukan absensi hari ini.', 'DUPLICATE_ATTENDANCE');
                 }
-
-                // Update schedule assignment status if exists
-                if ($schedule && ($status === 'present' || $status === 'late')) {
-                    $schedule->update(['status' => 'completed']);
-                }
-
-                // Log audit
-                log_audit('check_in', $attendance);
-
-                Log::info('User checked in successfully', [
-                    'user_id' => $userId,
-                    'attendance_id' => $attendance->id,
-                    'status' => $status,
-                    'late_minutes' => $lateMinutes,
-                    'is_override' => is_null($scheduleAssignmentId),
-                ]);
-
-                return $attendance;
-            });
+                throw $e;
+            }
 
         } catch (BusinessException $e) {
             throw $e;
@@ -192,25 +200,27 @@ class AttendanceService
      *
      * @return array ['status' => string, 'late_minutes' => int]
      */
+
+
     public function determineStatus(Carbon $checkInTime, ScheduleAssignment $schedule): array
     {
         $scheduleStart = $this->getScheduleStartTime($schedule);
-        $gracePeriod = 5; // 5 minutes grace period
+        $lateThreshold = (int) config('app-settings.late_threshold_minutes', 15);
 
         // Calculate minutes late (negative if early)
         $minutesLate = $checkInTime->diffInMinutes($scheduleStart, false);
 
         // Within grace period (0-5 minutes late)
-        if ($minutesLate <= $gracePeriod) {
+        if ($minutesLate <= $lateThreshold) {
             return [
-                'status' => 'present',
+                'status' => AttendanceStatus::PRESENT->value,
                 'late_minutes' => 0,
             ];
         }
 
-        // Late (more than 5 minutes)
+        // Late (more than threshold)
         return [
-            'status' => 'late',
+            'status' => AttendanceStatus::LATE->value,
             'late_minutes' => (int) $minutesLate,
         ];
     }

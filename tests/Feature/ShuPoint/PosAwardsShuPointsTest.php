@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\ShuPoint;
 
-use App\Livewire\Cashier\Pos;
+use App\Livewire\Cashier\PointOfSale;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Models\Sale;

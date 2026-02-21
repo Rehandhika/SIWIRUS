@@ -54,7 +54,7 @@ class User extends Authenticatable
 
     public function swapRequestsAsSender()
     {
-        return $this->hasMany(SwapRequest::class, 'requester_id');
+        return $this->hasMany(SwapRequest::class, 'user_id');
     }
 
     public function swapRequestsAsReceiver()
