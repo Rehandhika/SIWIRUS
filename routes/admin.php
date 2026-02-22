@@ -35,11 +35,6 @@ Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(fu
         Route::get('/check-in-out', \App\Livewire\Attendance\CheckInOut::class)->name('check-in-out');
         // Self-service - view own attendance history
         Route::get('/riwayat', \App\Livewire\Attendance\AttendanceHistory::class)->name('history');
-        
-        // Management - requires kelola_absensi permission
-        Route::middleware('can:kelola_absensi')->group(function () {
-            Route::get('/', \App\Livewire\Admin\AttendanceManagement::class)->name('index');
-        });
     });
 
     // Schedule Self-Service (lihat_jadwal_sendiri, input_ketersediaan)
@@ -154,7 +149,7 @@ Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(fu
 
     // Reports (lihat_laporan)
     Route::prefix('laporan')->name('reports.')->middleware('can:lihat_laporan')->group(function () {
-        Route::get('/absensi', \App\Livewire\Report\AttendanceReport::class)->name('attendance');
+        Route::get('/absensi', \App\Livewire\Admin\AttendanceManagement::class)->name('attendance');
         Route::get('/penjualan', \App\Livewire\Report\SalesReport::class)->name('sales');
         Route::get('/penalti', \App\Livewire\Report\PenaltyReport::class)->name('penalties');
     });

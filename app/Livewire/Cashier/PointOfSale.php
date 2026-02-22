@@ -64,12 +64,12 @@ class PointOfSale extends Component
     public function products()
     {
         return Product::query()
-            ->select(['id', 'name', 'sku', 'price', 'stock', 'category', 'image', 'has_variants'])
-            ->with(['activeVariants' => function ($q) {
-                $q->select(['id', 'product_id', 'variant_name', 'price', 'stock', 'option_values'])
+            ->select(['id', 'name', 'sku', 'price', 'stock', 'category', 'image', 'has_variants', 'status']) // Add status to select
+            ->with(['variants' => function ($q) {
+                $q->select(['id', 'product_id', 'variant_name', 'price', 'stock', 'option_values', 'is_active'])
                     ->where('stock', '>', 0);
             }])
-            ->where('status', 'active')
+            // Removed ->where('status', 'active') to allow inactive products to be searched/scanned
             ->where(function ($q) {
                 // Products without variants must have stock > 0
                 // Products with variants must have at least one variant with stock > 0
@@ -77,7 +77,7 @@ class PointOfSale extends Component
                     $query->where('has_variants', false)->where('stock', '>', 0);
                 })->orWhere(function ($query) {
                     $query->where('has_variants', true)
-                        ->whereHas('activeVariants', fn ($v) => $v->where('stock', '>', 0));
+                        ->whereHas('variants', fn ($v) => $v->where('stock', '>', 0));
                 });
             })
             ->when($this->search, function ($q) {
@@ -86,6 +86,7 @@ class PointOfSale extends Component
                         ->orWhere('sku', 'like', "%{$this->search}%");
                 });
             })
+            // Category filter - allow inactive products
             ->when($this->category, fn ($q) => $q->where('category', $this->category))
             ->orderBy('name')
             ->limit(30)
@@ -98,7 +99,6 @@ class PointOfSale extends Component
         return Cache::remember('pos_categories', 300, function () {
             return Product::query()
                 ->where('stock', '>', 0)
-                ->where('status', 'active')
                 ->whereNotNull('category')
                 ->where('category', '!=', '')
                 ->distinct()
@@ -154,6 +154,7 @@ class PointOfSale extends Component
 
     public function handleBarcode(string $barcode): void
     {
+        // Removed status check to allow inactive products
         $product = Product::where('sku', trim($barcode))->first();
 
         if ($product) {
@@ -165,8 +166,8 @@ class PointOfSale extends Component
 
     public function addToCart(int $productId): void
     {
-        $product = Product::select(['id', 'name', 'price', 'stock', 'image', 'has_variants'])
-            ->with(['activeVariants' => fn ($q) => $q->where('stock', '>', 0)])
+        $product = Product::select(['id', 'name', 'sku', 'price', 'stock', 'image', 'has_variants', 'status']) // Add status to select
+            ->with(['variants' => fn ($q) => $q->where('stock', '>', 0)])
             ->find($productId);
 
         if (! $product) {
@@ -175,11 +176,13 @@ class PointOfSale extends Component
             return;
         }
 
+        // Removed status check - allow inactive products to be added
+
         // If product has variants, show variant selection modal
         if ($product->has_variants) {
             $this->selectedProductId = $productId;
             $this->selectedProductName = $product->name;
-            $this->productVariants = $product->activeVariants->toArray();
+            $this->productVariants = $product->variants->toArray();
             $this->groupedVariants = $this->getGroupedVariantsData($this->productVariants);
             $this->showVariantModal = true;
 

@@ -1,106 +1,110 @@
-<div class="space-y-4 sm:space-y-6" wire:init="$refresh">
+<div class="space-y-6">
     {{-- Header --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Laporan Penjualan</h1>
-            <p class="text-xs sm:text-sm text-gray-500 mt-0.5">
-                {{ \Carbon\Carbon::parse($dateFrom)->translatedFormat('d M Y') }} -
-                {{ \Carbon\Carbon::parse($dateTo)->translatedFormat('d M Y') }}
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Laporan Penjualan</h1>
+            <p class="text-sm text-gray-500 mt-1">
+                {{ \Carbon\Carbon::parse($dateFrom)->translatedFormat('d M Y') }}
+                @if($dateFrom !== $dateTo) - {{ \Carbon\Carbon::parse($dateTo)->translatedFormat('d M Y') }} @endif
             </p>
         </div>
         <div class="flex gap-2">
-            <x-ui.button variant="secondary" wire:click="exportSales" wire:loading.attr="disabled" size="sm">
-                <x-ui.icon name="arrow-down-tray" class="w-4 h-4 mr-1.5" />
+            <x-ui.button variant="secondary" wire:click="exportSales" wire:loading.attr="disabled">
+                <x-ui.icon name="arrow-down-tray" class="w-4 h-4 mr-2" />
                 <span wire:loading.remove wire:target="exportSales">Export Transaksi</span>
                 <span wire:loading wire:target="exportSales">Mengunduh...</span>
             </x-ui.button>
-            <x-ui.button variant="secondary" wire:click="exportSaleItems" wire:loading.attr="disabled" size="sm">
-                <x-ui.icon name="arrow-down-tray" class="w-4 h-4 mr-1.5" />
+            <x-ui.button variant="secondary" wire:click="exportSaleItems" wire:loading.attr="disabled">
+                <x-ui.icon name="arrow-down-tray" class="w-4 h-4 mr-2" />
                 <span wire:loading.remove wire:target="exportSaleItems">Export Item</span>
                 <span wire:loading wire:target="exportSaleItems">Mengunduh...</span>
             </x-ui.button>
         </div>
     </div>
 
-    {{-- Period Selector --}}
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-            <div class="flex flex-wrap gap-2">
-                @foreach(['today' => 'Hari Ini', 'week' => 'Minggu', 'month' => 'Bulan'] as $key => $label)
-                    <button wire:click="setPeriod('{{ $key }}')"
-                        @class([
-                            'px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition',
-                            'bg-primary-600 text-white' => $period === $key,
-                            'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300' => $period !== $key,
-                        ])>
-                        {{ $label }}
-                    </button>
-                @endforeach
-            </div>
-            
-            <div class="flex items-center gap-2 sm:ml-auto">
-                <input type="date" wire:model.live.debounce.500ms="dateFrom" 
-                    class="flex-1 sm:flex-none px-2 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                <span class="text-gray-400 text-xs">—</span>
-                <input type="date" wire:model.live.debounce.500ms="dateTo" 
-                    class="flex-1 sm:flex-none px-2 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-            </div>
-        </div>
+    {{-- Date Presets --}}
+    <div class="flex flex-wrap gap-2">
+        @foreach(['today' => 'Hari Ini', 'yesterday' => 'Kemarin', 'week' => 'Minggu Ini', 'month' => 'Bulan Ini'] as $key => $label)
+            <button wire:click="setPeriod('{{ $key }}')" 
+                class="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors {{ $period === $key ? 'bg-primary-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700' }}">
+                {{ $label }}
+            </button>
+        @endforeach
     </div>
 
     {{-- Stats Cards --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg p-3 sm:p-4 text-white">
-            <p class="text-emerald-100 text-xs font-medium">Pendapatan</p>
-            <p class="text-lg sm:text-xl font-bold mt-1">{{ format_currency($this->reportData->revenue) }}</p>
-            <p class="text-emerald-200 text-xs mt-0.5">{{ number_format($this->reportData->total) }} transaksi</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Pendapatan</p>
+                    <p class="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{{ format_currency($this->reportData->revenue) }}</p>
+                </div>
+                <div class="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                    <x-ui.icon name="banknotes" class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+            </div>
         </div>
         
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-3 sm:p-4 text-white">
-            <p class="text-blue-100 text-xs font-medium">Rata-rata</p>
-            <p class="text-lg sm:text-xl font-bold mt-1">{{ format_currency($this->reportData->avg_amount) }}</p>
-            <p class="text-blue-200 text-xs mt-0.5">per transaksi</p>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Rata-rata</p>
+                    <p class="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">{{ format_currency($this->reportData->avg_amount) }}</p>
+                </div>
+                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                    <x-ui.icon name="calculator" class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+            </div>
         </div>
         
-        <div class="bg-gradient-to-br from-violet-500 to-violet-600 rounded-lg p-3 sm:p-4 text-white">
-            <p class="text-violet-100 text-xs font-medium">Terbesar</p>
-            <p class="text-lg sm:text-xl font-bold mt-1">{{ format_currency($this->reportData->max_amount) }}</p>
-            <p class="text-violet-200 text-xs mt-0.5">nilai tertinggi</p>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Terbesar</p>
+                    <p class="text-xl sm:text-2xl font-bold text-violet-600 dark:text-violet-400 mt-1">{{ format_currency($this->reportData->max_amount) }}</p>
+                </div>
+                <div class="w-10 h-10 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center">
+                    <x-ui.icon name="arrow-trending-up" class="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                </div>
+            </div>
         </div>
         
-        <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg p-3 sm:p-4 text-white">
-            <p class="text-amber-100 text-xs font-medium">Transaksi</p>
-            <p class="text-lg sm:text-xl font-bold mt-1">{{ number_format($this->reportData->total) }}</p>
-            <p class="text-amber-200 text-xs mt-0.5">total</p>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Transaksi</p>
+                    <p class="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{{ number_format($this->reportData->total) }}</p>
+                </div>
+                <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+                    <x-ui.icon name="shopping-bag" class="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                </div>
+            </div>
         </div>
     </div>
 
+    {{-- Filters --}}
+    <x-ui.card>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <x-ui.input type="date" name="dateFrom" label="Dari Tanggal" wire:model.live.debounce.500ms="dateFrom" />
+            <x-ui.input type="date" name="dateTo" label="Sampai Tanggal" wire:model.live.debounce.500ms="dateTo" />
+        </div>
+    </x-ui.card>
+
     {{-- Charts & Payment --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" x-data="salesCharts()" wire:ignore>
+        
         {{-- Revenue Chart --}}
         <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
             <h3 class="font-semibold text-sm text-gray-900 dark:text-white mb-3">Grafik Penjualan</h3>
-            <div class="h-48 sm:h-56" wire:ignore>
-                <canvas id="revenueChart"></canvas>
-            </div>
+            <div x-ref="revenueChart"></div>
         </div>
 
         {{-- Payment Methods --}}
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
             <h3 class="font-semibold text-sm text-gray-900 dark:text-white mb-3">Metode Pembayaran</h3>
-            <div class="space-y-3">
-                @foreach($this->paymentSummary as $method)
-                    <div>
-                        <div class="flex justify-between text-xs mb-1">
-                            <span class="text-gray-700 dark:text-gray-300">{{ $method['name'] }}</span>
-                            <span class="font-semibold">{{ $method['count'] }} ({{ $method['percentage'] }}%)</span>
-                        </div>
-                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                            <div class="bg-{{ $method['color'] }}-500 h-2 rounded-full" style="width: {{ $method['percentage'] }}%"></div>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-0.5">{{ format_currency($method['amount']) }}</p>
-                    </div>
-                @endforeach
+            <div class="h-64 flex items-center justify-center">
+                <div x-ref="paymentChart" class="w-full"></div>
             </div>
         </div>
     </div>
@@ -137,9 +141,7 @@
         {{-- Hourly Distribution --}}
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
             <h3 class="font-semibold text-sm text-gray-900 dark:text-white mb-3">Distribusi Jam</h3>
-            <div class="h-36" wire:ignore>
-                <canvas id="hourlyChart"></canvas>
-            </div>
+            <div x-ref="hourlyChart"></div>
             @if($this->peakHour)
                 <div class="mt-3 p-2 bg-primary-50 dark:bg-primary-900/20 rounded text-center">
                     <p class="text-xs text-gray-600 dark:text-gray-400">
@@ -155,12 +157,7 @@
     </div>
 
     {{-- Transactions Table --}}
-    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <h3 class="font-semibold text-sm text-gray-900 dark:text-white">Detail Transaksi</h3>
-            <span class="text-xs text-gray-500">{{ $sales->total() }} data</span>
-        </div>
-        
+    <x-ui.card padding="false">
         {{-- Mobile Cards --}}
         <div class="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
             @forelse($sales as $sale)
@@ -173,9 +170,7 @@
                             <span class="font-semibold text-sm text-gray-900 dark:text-white">{{ format_currency($sale->total_amount) }}</span>
                                                         @can('kelola_penjualan')
                             <button wire:click="confirmDelete({{ $sale->id }})" class="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded" title="Hapus">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
+                                <x-ui.icon name="trash" class="w-4 h-4" />
                             </button>
                             @endcan
                         </div>
@@ -203,29 +198,29 @@
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 dark:bg-gray-900/50 text-xs text-gray-500 uppercase">
                     <tr>
-                        <th class="px-4 py-2.5 text-left">Invoice</th>
-                        <th class="px-4 py-2.5 text-left">Tanggal</th>
-                        <th class="px-4 py-2.5 text-left">Kasir</th>
-                        <th class="px-4 py-2.5 text-center">Item</th>
-                        <th class="px-4 py-2.5 text-center">Metode</th>
-                        <th class="px-4 py-2.5 text-right">Total</th>
+                        <th class="px-4 py-3 text-left">Invoice</th>
+                        <th class="px-4 py-3 text-left">Tanggal</th>
+                        <th class="px-4 py-3 text-left">Kasir</th>
+                        <th class="px-4 py-3 text-center">Item</th>
+                        <th class="px-4 py-3 text-center">Metode</th>
+                        <th class="px-4 py-3 text-right">Total</th>
                                                     @can('kelola_penjualan')
-                        <th class="px-4 py-2.5 text-center w-16">Aksi</th>
+                        <th class="px-4 py-3 text-center w-16">Aksi</th>
                         @endcan
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                     @forelse($sales as $sale)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/30">
-                            <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-2.5 cursor-pointer">
+                            <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-3 cursor-pointer">
                                 <span class="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">{{ $sale->invoice_number }}</span>
                             </td>
-                            <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-2.5 text-gray-600 dark:text-gray-400 text-xs cursor-pointer">
+                            <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs cursor-pointer">
                                 {{ $sale->created_at->format('d/m/Y H:i') }}
                             </td>
-                            <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-2.5 text-gray-900 dark:text-white cursor-pointer">{{ $sale->cashier->name ?? '-' }}</td>
-                            <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-2.5 text-center text-xs cursor-pointer">{{ $sale->items_count }}</td>
-                            <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-2.5 text-center cursor-pointer">
+                            <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-3 text-gray-900 dark:text-white cursor-pointer">{{ $sale->cashier->name ?? '-' }}</td>
+                            <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-3 text-center text-xs cursor-pointer">{{ $sale->items_count }}</td>
+                            <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-3 text-center cursor-pointer">
                                 <span class="px-1.5 py-0.5 rounded text-xs font-medium
                                     {{ $sale->payment_method === 'cash' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400' : '' }}
                                     {{ $sale->payment_method === 'transfer' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400' : '' }}
@@ -233,15 +228,13 @@
                                     {{ strtoupper($sale->payment_method) }}
                                 </span>
                             </td>
-                            <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-2.5 text-right font-semibold text-gray-900 dark:text-white cursor-pointer">
+                            <td wire:click="showDetail({{ $sale->id }})" class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white cursor-pointer">
                                 {{ format_currency($sale->total_amount) }}
                             </td>
                                                         @can('kelola_penjualan')
-                            <td class="px-4 py-2.5 text-center">
+                            <td class="px-4 py-3 text-center">
                                 <button wire:click="confirmDelete({{ $sale->id }})" class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition" title="Hapus transaksi">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
+                                    <x-ui.icon name="trash" class="w-4 h-4" />
                                 </button>
                             </td>
                             @endcan
@@ -260,7 +253,7 @@
                 {{ $sales->links() }}
             </div>
         @endif
-    </div>
+    </x-ui.card>
 
     {{-- Loading --}}
     <div wire:loading.delay class="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
@@ -432,97 +425,284 @@
         </div>
     @endif
 
-    {{-- Chart Data --}}
-    <div id="chartData" class="hidden"
-        data-labels='@json($this->chartData["labels"])'
-        data-revenue='@json($this->chartData["revenue"])'
-        data-hourly='@json(array_values($this->hourlySales))'>
-    </div>
 </div>
+
+@assets
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+@endassets
 
 @script
 <script>
-(function() {
-    let charts = {};
-    const colors = { emerald: '#10b981', blue: '#3b82f6' };
+    Alpine.data('salesCharts', () => ({
+        revenueChart: null,
+        hourlyChart: null,
+        paymentChart: null,
 
-    function fmt(v) {
-        return v >= 1e6 ? (v/1e6).toFixed(1)+'jt' : v >= 1e3 ? (v/1e3).toFixed(0)+'rb' : v;
-    }
+        init() {
+            this.initRevenueChart();
+            this.initHourlyChart();
+            this.initPaymentChart();
 
-    function init() {
-        if (typeof Chart === 'undefined') return;
-        
-        const el = document.getElementById('chartData');
-        if (!el) return;
+            // Listen for chart updates from Livewire
+            this.$wire.on('update-charts', (event) => {
+                this.updateCharts(event.data, event.hourly, event.payment);
+            });
+        },
 
-        const d = {
-            labels: JSON.parse(el.dataset.labels || '[]'),
-            revenue: JSON.parse(el.dataset.revenue || '[]'),
-            hourly: JSON.parse(el.dataset.hourly || '[]')
-        };
-
-        Object.values(charts).forEach(c => c?.destroy?.());
-        charts = {};
-
-        const rc = document.getElementById('revenueChart');
-        if (rc) {
-            charts.r = new Chart(rc, {
-                type: 'line',
-                data: {
-                    labels: d.labels,
-                    datasets: [{
-                        data: d.revenue,
-                        borderColor: colors.emerald,
-                        backgroundColor: 'rgba(16,185,129,0.1)',
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: d.labels.length > 20 ? 0 : 3,
-                        borderWidth: 2
-                    }]
+        initRevenueChart() {
+            const initialData = @json($this->chartData);
+            
+            const options = {
+                series: [{
+                    name: 'Pendapatan',
+                    data: initialData.revenue
+                }],
+                chart: {
+                    type: 'area',
+                    height: 300,
+                    fontFamily: 'inherit',
+                    toolbar: { show: false },
+                    zoom: { enabled: false }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: { duration: 300 },
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { maxTicksLimit: 10, font: { size: 10 } } },
-                        y: { beginAtZero: true, ticks: { callback: v => fmt(v), font: { size: 10 } } }
+                dataLabels: { enabled: false },
+                stroke: { curve: 'smooth', width: 2 },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.45,
+                        opacityTo: 0.05,
+                        stops: [50, 100, 100]
+                    }
+                },
+                colors: ['#10b981'],
+                xaxis: {
+                    categories: initialData.labels,
+                    labels: { 
+                        show: true,
+                        style: { colors: '#9ca3af', fontSize: '10px' },
+                        rotate: -45,
+                        rotateAlways: false
+                    },
+                    axisBorder: { show: false },
+                    axisTicks: { show: false },
+                    tooltip: { enabled: false }
+                },
+                yaxis: {
+                    labels: {
+                        formatter: function (value) {
+                            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
+                        },
+                        style: { colors: '#9ca3af', fontSize: '10px' }
+                    }
+                },
+                grid: {
+                    show: true,
+                    borderColor: '#f3f4f6',
+                    strokeDashArray: 4,
+                    padding: { left: 10, right: 0 }
+                },
+                tooltip: {
+                    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+                    y: {
+                        formatter: function (value) {
+                            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
+                        }
                     }
                 }
-            });
-        }
+            };
 
-        const hc = document.getElementById('hourlyChart');
-        if (hc) {
-            const hrs = Array.from({length:24}, (_,i) => i+'h');
-            charts.h = new Chart(hc, {
-                type: 'bar',
-                data: {
-                    labels: hrs,
-                    datasets: [{
-                        data: d.hourly,
-                        backgroundColor: 'rgba(59,130,246,0.6)',
-                        borderRadius: 2
-                    }]
+            this.revenueChart = new ApexCharts(this.$refs.revenueChart, options);
+            this.revenueChart.render();
+        },
+
+        initHourlyChart() {
+            const initialData = @json(array_values($this->hourlySales));
+            
+            const options = {
+                series: [{
+                    name: 'Transaksi',
+                    data: initialData
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 250,
+                    fontFamily: 'inherit',
+                    toolbar: { show: false }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: { duration: 300 },
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { callback: (_,i) => i%6===0 ? i+'h' : '', font: { size: 9 } } },
-                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } } }
+                plotOptions: {
+                    bar: {
+                        borderRadius: 4,
+                        columnWidth: '60%',
+                        distributed: false
                     }
+                },
+                dataLabels: { enabled: false },
+                colors: ['#3b82f6'],
+                xaxis: {
+                    categories: Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0') + ':00'),
+                    labels: {
+                        show: true,
+                        style: { colors: '#9ca3af', fontSize: '9px' },
+                        rotate: -45,
+                        hideOverlappingLabels: true
+                    },
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
+                },
+                yaxis: { 
+                    show: true,
+                    labels: {
+                        style: { colors: '#9ca3af', fontSize: '10px' },
+                        formatter: (val) => Math.floor(val)
+                    }
+                },
+                grid: { 
+                    show: true,
+                    borderColor: '#f3f4f6',
+                    strokeDashArray: 4,
+                    padding: { left: 10, right: 0 }
+                },
+                tooltip: {
+                    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
                 }
-            });
-        }
-    }
+            };
 
-    init();
-    Livewire.hook('morph.updated', () => setTimeout(init, 50));
-})();
+            this.hourlyChart = new ApexCharts(this.$refs.hourlyChart, options);
+            this.hourlyChart.render();
+        },
+
+        initPaymentChart() {
+            const paymentData = @json($this->paymentSummary);
+            
+            // Map colors from Tailwind names to Hex
+            const colorMap = {
+                'emerald': '#10b981',
+                'blue': '#3b82f6',
+                'violet': '#8b5cf6',
+                'amber': '#f59e0b',
+                'gray': '#6b7280'
+            };
+
+            // Use amount instead of count for series
+            const series = paymentData.map(item => item.amount);
+            const labels = paymentData.map(item => item.name);
+            const colors = paymentData.map(item => colorMap[item.color] || '#6b7280');
+
+            const options = {
+                series: series,
+                labels: labels,
+                colors: colors,
+                chart: {
+                    type: 'donut',
+                    height: 280,
+                    fontFamily: 'inherit',
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '65%',
+                            labels: {
+                                show: true,
+                                value: {
+                                    formatter: function (val) {
+                                        return new Intl.NumberFormat('id-ID', { 
+                                            style: 'currency', 
+                                            currency: 'IDR',
+                                            maximumFractionDigits: 0
+                                        }).format(val);
+                                    }
+                                },
+                                total: {
+                                    show: true,
+                                    label: 'Total',
+                                    formatter: function (w) {
+                                        const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                        return new Intl.NumberFormat('id-ID', { 
+                                            style: 'currency', 
+                                            currency: 'IDR',
+                                            maximumFractionDigits: 0
+                                        }).format(total);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                dataLabels: { enabled: false },
+                legend: {
+                    position: 'bottom',
+                    fontSize: '12px',
+                    markers: { radius: 12 },
+                    itemMargin: { horizontal: 10, vertical: 5 }
+                },
+                tooltip: {
+                    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+                    y: {
+                        formatter: function(val) {
+                            return new Intl.NumberFormat('id-ID', { 
+                                style: 'currency', 
+                                currency: 'IDR',
+                                maximumFractionDigits: 0
+                            }).format(val);
+                        }
+                    }
+                },
+                stroke: { show: false }
+            };
+
+            // Only render if there is data
+            if (series.length > 0) {
+                this.paymentChart = new ApexCharts(this.$refs.paymentChart, options);
+                this.paymentChart.render();
+            } else {
+                this.$refs.paymentChart.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400 text-sm">Tidak ada data pembayaran</div>';
+            }
+        },
+
+        updateCharts(revenueData, hourlyData, paymentData) {
+            if (this.revenueChart) {
+                this.revenueChart.updateOptions({
+                    xaxis: { categories: revenueData.labels }
+                });
+                this.revenueChart.updateSeries([{
+                    name: 'Pendapatan',
+                    data: revenueData.revenue
+                }]);
+            }
+
+            if (this.hourlyChart) {
+                this.hourlyChart.updateSeries([{
+                    name: 'Transaksi',
+                    data: Object.values(hourlyData)
+                }]);
+            }
+            
+            if (this.paymentChart && paymentData) {
+                const colorMap = {
+                    'emerald': '#10b981',
+                    'blue': '#3b82f6',
+                    'violet': '#8b5cf6',
+                    'amber': '#f59e0b',
+                    'gray': '#6b7280'
+                };
+
+                const series = paymentData.map(item => item.amount);
+                const labels = paymentData.map(item => item.name);
+                const colors = paymentData.map(item => colorMap[item.color] || '#6b7280');
+
+                if (series.length > 0) {
+                    this.paymentChart.updateOptions({
+                        labels: labels,
+                        colors: colors
+                    });
+                    this.paymentChart.updateSeries(series);
+                } else {
+                    // Handle empty data case if needed, or just clear
+                    this.paymentChart.updateSeries([]);
+                }
+            }
+        }
+    }));
 </script>
 @endscript

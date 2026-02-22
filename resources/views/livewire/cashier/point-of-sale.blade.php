@@ -76,7 +76,9 @@
                                 @endif
                                 @if($product->has_variants)
                                     <span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded bg-primary-500 text-white">Varian</span>
-                                    <span class="absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded bg-black/60 text-white">{{ $product->activeVariants->sum('stock') }}</span>
+                                @endif
+                                @if($product->has_variants)
+                                    <span class="absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded bg-black/60 text-white">{{ $product->variants->sum('stock') }}</span>
                                 @else
                                     <span class="absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded {{ $product->stock <= 5 ? 'bg-red-500 text-white' : 'bg-black/60 text-white' }}">{{ $product->stock }}</span>
                                 @endif

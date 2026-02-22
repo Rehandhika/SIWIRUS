@@ -2,7 +2,7 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Manajemen Absensi</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Laporan Absensi</h1>
             <p class="text-sm text-gray-500 mt-1">
                 {{ Carbon\Carbon::parse($dateFrom)->format('d M Y') }}
                 @if($dateFrom !== $dateTo) - {{ Carbon\Carbon::parse($dateTo)->format('d M Y') }} @endif

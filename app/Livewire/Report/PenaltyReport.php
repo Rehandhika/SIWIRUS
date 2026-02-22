@@ -36,6 +36,7 @@ class PenaltyReport extends Component
 
         [$this->dateFrom, $this->dateTo] = match ($period) {
             'today' => [$now->format('Y-m-d'), $now->format('Y-m-d')],
+            'yesterday' => [$now->copy()->subDay()->format('Y-m-d'), $now->copy()->subDay()->format('Y-m-d')],
             'week' => [$now->copy()->startOfWeek()->format('Y-m-d'), $now->copy()->endOfWeek()->format('Y-m-d')],
             'month' => [$now->copy()->startOfMonth()->format('Y-m-d'), $now->copy()->endOfMonth()->format('Y-m-d')],
             'year' => [$now->copy()->startOfYear()->format('Y-m-d'), $now->copy()->endOfYear()->format('Y-m-d')],
@@ -73,6 +74,9 @@ class PenaltyReport extends Component
         if ($dateFrom->format('Y-m-d') === $now->format('Y-m-d') &&
             $dateTo->format('Y-m-d') === $now->format('Y-m-d')) {
             $this->period = 'today';
+        } elseif ($dateFrom->format('Y-m-d') === $now->copy()->subDay()->format('Y-m-d') &&
+                  $dateTo->format('Y-m-d') === $now->copy()->subDay()->format('Y-m-d')) {
+            $this->period = 'yesterday';
         } elseif ($dateFrom->format('Y-m-d') === $now->copy()->startOfWeek()->format('Y-m-d') &&
                   $dateTo->format('Y-m-d') === $now->copy()->endOfWeek()->format('Y-m-d')) {
             $this->period = 'week';

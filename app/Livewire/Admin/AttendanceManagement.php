@@ -170,7 +170,7 @@ class AttendanceManagement extends Component
     // === Detail Modal ===
     public function showDetail(int $id): void
     {
-        $attendance = Attendance::with(['user:id,name,nim,email,phone,photo', 'scheduleAssignment.schedule'])
+        $attendance = Attendance::with(['user:id,name,nim,email,photo', 'scheduleAssignment.schedule'])
             ->select(['id', 'user_id', 'schedule_assignment_id', 'date', 'check_in', 'check_in_photo', 'check_out', 'work_hours', 'status', 'notes', 'created_at'])
             ->find($id);
 
@@ -185,7 +185,6 @@ class AttendanceManagement extends Component
             'user_name' => $attendance->user?->name ?? '-',
             'user_nim' => $attendance->user?->nim ?? '-',
             'user_email' => $attendance->user?->email ?? '-',
-            'user_phone' => $attendance->user?->phone ?? '-',
             'user_photo' => $attendance->user?->photo ? \Storage::url($attendance->user->photo) : null,
             'date' => $attendance->date->format('d M Y'),
             'day' => $attendance->date->locale('id')->dayName,

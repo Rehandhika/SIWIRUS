@@ -51,6 +51,7 @@ class SalesReport extends Component
 
         [$this->dateFrom, $this->dateTo] = match ($period) {
             'today' => [$now->format('Y-m-d'), $now->format('Y-m-d')],
+            'yesterday' => [$now->copy()->subDay()->format('Y-m-d'), $now->copy()->subDay()->format('Y-m-d')],
             'week' => [$now->copy()->startOfWeek()->format('Y-m-d'), $now->copy()->endOfWeek()->format('Y-m-d')],
             'month' => [$now->copy()->startOfMonth()->format('Y-m-d'), $now->copy()->endOfMonth()->format('Y-m-d')],
             'year' => [$now->copy()->startOfYear()->format('Y-m-d'), $now->copy()->endOfYear()->format('Y-m-d')],
@@ -59,6 +60,12 @@ class SalesReport extends Component
 
         $this->updateCacheKey();
         $this->resetPage();
+        
+        $this->dispatch('update-charts', 
+            data: $this->chartData, 
+            hourly: array_values($this->hourlySales),
+            payment: $this->paymentSummary
+        );
     }
 
     public function updatedDateFrom()
@@ -66,6 +73,12 @@ class SalesReport extends Component
         $this->updatePeriodBasedOnDates();
         $this->updateCacheKey();
         $this->resetPage();
+        
+        $this->dispatch('update-charts', 
+            data: $this->chartData, 
+            hourly: array_values($this->hourlySales),
+            payment: $this->paymentSummary
+        );
     }
 
     public function updatedDateTo()
@@ -73,6 +86,12 @@ class SalesReport extends Component
         $this->updatePeriodBasedOnDates();
         $this->updateCacheKey();
         $this->resetPage();
+        
+        $this->dispatch('update-charts', 
+            data: $this->chartData, 
+            hourly: array_values($this->hourlySales),
+            payment: $this->paymentSummary
+        );
     }
 
     private function updatePeriodBasedOnDates()
@@ -91,6 +110,9 @@ class SalesReport extends Component
         if ($dateFrom->format('Y-m-d') === $now->format('Y-m-d') &&
             $dateTo->format('Y-m-d') === $now->format('Y-m-d')) {
             $this->period = 'today';
+        } elseif ($dateFrom->format('Y-m-d') === $now->copy()->subDay()->format('Y-m-d') &&
+                  $dateTo->format('Y-m-d') === $now->copy()->subDay()->format('Y-m-d')) {
+            $this->period = 'yesterday';
         } elseif ($dateFrom->format('Y-m-d') === $now->copy()->startOfWeek()->format('Y-m-d') &&
                   $dateTo->format('Y-m-d') === $now->copy()->endOfWeek()->format('Y-m-d')) {
             $this->period = 'week';
@@ -196,7 +218,7 @@ class SalesReport extends Component
             return null;
         }
 
-        return Sale::with(['items:id,sale_id,product_id,product_name,quantity,price,subtotal', 'items.product:id,name', 'cashier:id,name'])
+        return Sale::with(['items:id,sale_id,product_id,product_name,quantity,price,subtotal', 'items.product:id,name', 'cashier'])
             ->select('id', 'invoice_number', 'cashier_id', 'payment_method', 'total_amount', 'payment_amount', 'change_amount', 'notes', 'created_at')
             ->find($this->selectedSaleId);
     }
@@ -363,7 +385,7 @@ class SalesReport extends Component
         // Query paginated dengan optimasi
         $sales = Sale::query()
             ->whereBetween('date', [$this->dateFrom, $this->dateTo])
-            ->with('cashier:id,name')
+            ->with('cashier')
             ->withCount('items')
             ->withSum('items', 'quantity')
             ->select('id', 'invoice_number', 'cashier_id', 'payment_method', 'total_amount', 'created_at')

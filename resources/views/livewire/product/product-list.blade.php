@@ -107,7 +107,7 @@
         </x-layout.grid>
     </x-ui.card>
 
-    <x-data.table :headers="['Produk', 'SKU', 'Kategori', 'Harga', 'Stok', 'Status', 'Aksi']">
+    <x-data.table :headers="['Produk', 'Kategori', 'Harga', 'Stok', 'Status', 'Aksi']">
         @forelse ($products as $product)
             <x-data.table-row>
                 <x-data.table-cell>
@@ -145,9 +145,6 @@
                     @elseif($product->description)
                         <div class="text-sm text-gray-500 truncate max-w-xs">{{ Str::limit($product->description, 50) }}</div>
                     @endif
-                </x-data.table-cell>
-                <x-data.table-cell>
-                    {{ $product->sku ?? '-' }}
                 </x-data.table-cell>
                 <x-data.table-cell>
                     @if($product->category)
@@ -215,7 +212,7 @@
             </x-data.table-row>
         @empty
             <tr>
-                <td colspan="7">
+                <td colspan="6">
                     <x-layout.empty-state 
                         icon="cube"
                         title="Tidak ada produk ditemukan"

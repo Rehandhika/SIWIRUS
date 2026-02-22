@@ -254,7 +254,7 @@ function ProductsSection({ initialCategories, initialProducts }) {
                     Katalog Produk
                 </h1>
                 <p className="text-sm sm:text-base text-muted-foreground">
-                    Temukan kebutuhan harianmu dengan harga terbaik.
+                    Temukan kebutuhan kampus dan harianmu
                 </p>
             </div>
 

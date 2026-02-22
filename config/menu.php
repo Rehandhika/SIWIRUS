@@ -44,7 +44,6 @@ return [
             'children' => [
                 ['key' => 'attendance.checkin', 'label' => 'Check In/Out', 'route' => 'admin.attendance.check-in-out', 'permissions' => []],
                 ['key' => 'attendance.history', 'label' => 'Riwayat Saya', 'route' => 'admin.attendance.history', 'permissions' => []],
-                ['key' => 'attendance.list', 'label' => 'Kelola Absensi', 'route' => 'admin.attendance.index', 'permissions' => ['kelola_absensi']],
             ],
         ],
         [

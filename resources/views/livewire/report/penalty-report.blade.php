@@ -1,37 +1,84 @@
-<div class="space-y-4 sm:space-y-6">
+<div class="space-y-6">
     {{-- Header --}}
-    <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Laporan Penalti</h1>
-        <p class="text-xs sm:text-sm text-gray-500 mt-0.5">
-            {{ \Carbon\Carbon::parse($dateFrom)->translatedFormat('d M Y') }} - 
-            {{ \Carbon\Carbon::parse($dateTo)->translatedFormat('d M Y') }}
-        </p>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Laporan Penalti</h1>
+            <p class="text-sm text-gray-500 mt-1">
+                {{ \Carbon\Carbon::parse($dateFrom)->translatedFormat('d M Y') }}
+                @if($dateFrom !== $dateTo) - {{ \Carbon\Carbon::parse($dateTo)->translatedFormat('d M Y') }} @endif
+            </p>
+        </div>
     </div>
 
-    {{-- Period & Filters --}}
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700 space-y-3">
-        {{-- Period Buttons --}}
-        <div class="flex flex-wrap gap-2">
-            @foreach(['today' => 'Hari Ini', 'week' => 'Minggu', 'month' => 'Bulan'] as $key => $label)
-                <button wire:click="setPeriod('{{ $key }}')"
-                    @class([
-                        'px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition',
-                        'bg-primary-600 text-white' => $period === $key,
-                        'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300' => $period !== $key,
-                    ])>
-                    {{ $label }}
-                </button>
-            @endforeach
-        </div>
+    {{-- Date Presets --}}
+    <div class="flex flex-wrap gap-2">
+        @foreach(['today' => 'Hari Ini', 'yesterday' => 'Kemarin', 'week' => 'Minggu Ini', 'month' => 'Bulan Ini'] as $key => $label)
+            <button wire:click="setPeriod('{{ $key }}')" 
+                class="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors {{ $period === $key ? 'bg-primary-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700' }}">
+                {{ $label }}
+            </button>
+        @endforeach
+    </div>
 
-        {{-- Filters --}}
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-            <input type="date" wire:model.live.debounce.500ms="dateFrom" 
-                class="px-2 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-            <input type="date" wire:model.live.debounce.500ms="dateTo" 
-                class="px-2 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+    {{-- Stats Cards --}}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Penalti</p>
+                    <p class="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400 mt-1">{{ number_format($this->stats->total ?? 0) }}</p>
+                </div>
+                <div class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                    <x-ui.icon name="exclamation-triangle" class="w-5 h-5 text-red-600 dark:text-red-400" />
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Aktif</p>
+                    <p class="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{{ number_format($this->stats->active ?? 0) }}</p>
+                </div>
+                <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+                    <x-ui.icon name="clock" class="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Banding</p>
+                    <p class="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">{{ number_format($this->stats->appealed ?? 0) }}</p>
+                </div>
+                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                    <x-ui.icon name="scale" class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Poin</p>
+                    <p class="text-xl sm:text-2xl font-bold text-violet-600 dark:text-violet-400 mt-1">{{ number_format($this->stats->total_points ?? 0) }}</p>
+                </div>
+                <div class="w-10 h-10 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center">
+                    <x-ui.icon name="chart-bar" class="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Filters --}}
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <x-ui.input type="date" name="dateFrom" label="Dari Tanggal" wire:model.live.debounce.500ms="dateFrom" />
+            <x-ui.input type="date" name="dateTo" label="Sampai Tanggal" wire:model.live.debounce.500ms="dateTo" />
             
             <x-ui.dropdown-select 
+                label="User"
                 wire="userFilter"
                 :options="array_merge(
                     [['value' => 'all', 'label' => 'Semua User']],
@@ -42,6 +89,7 @@
             />
             
             <x-ui.dropdown-select 
+                label="Status"
                 wire="statusFilter"
                 :options="[
                     ['value' => 'all', 'label' => 'Semua Status'],
@@ -55,40 +103,8 @@
         </div>
     </div>
 
-    {{-- Stats Cards --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-3 sm:p-4 text-white">
-            <p class="text-red-100 text-xs font-medium">Total Penalti</p>
-            <p class="text-lg sm:text-xl font-bold mt-1">{{ number_format($this->stats->total ?? 0) }}</p>
-            <p class="text-red-200 text-xs mt-0.5">kasus</p>
-        </div>
-        
-        <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg p-3 sm:p-4 text-white">
-            <p class="text-amber-100 text-xs font-medium">Aktif</p>
-            <p class="text-lg sm:text-xl font-bold mt-1">{{ number_format($this->stats->active ?? 0) }}</p>
-            <p class="text-amber-200 text-xs mt-0.5">penalti</p>
-        </div>
-        
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-3 sm:p-4 text-white">
-            <p class="text-blue-100 text-xs font-medium">Banding</p>
-            <p class="text-lg sm:text-xl font-bold mt-1">{{ number_format($this->stats->appealed ?? 0) }}</p>
-            <p class="text-blue-200 text-xs mt-0.5">pengajuan</p>
-        </div>
-        
-        <div class="bg-gradient-to-br from-violet-500 to-violet-600 rounded-lg p-3 sm:p-4 text-white">
-            <p class="text-violet-100 text-xs font-medium">Total Poin</p>
-            <p class="text-lg sm:text-xl font-bold mt-1">{{ number_format($this->stats->total_points ?? 0) }}</p>
-            <p class="text-violet-200 text-xs mt-0.5">poin penalti</p>
-        </div>
-    </div>
-
     {{-- Data Table --}}
-    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <h3 class="font-semibold text-sm text-gray-900 dark:text-white">Detail Penalti</h3>
-            <span class="text-xs text-gray-500">{{ $penalties->total() }} data</span>
-        </div>
-
+    <x-ui.card padding="false">
         {{-- Mobile Cards --}}
         <div class="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
             @forelse($penalties as $penalty)
@@ -133,12 +149,12 @@
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 dark:bg-gray-900/50 text-xs text-gray-500 uppercase">
                     <tr>
-                        <th class="px-4 py-2.5 text-left">Tanggal</th>
-                        <th class="px-4 py-2.5 text-left">Nama</th>
-                        <th class="px-4 py-2.5 text-left">Jenis</th>
-                        <th class="px-4 py-2.5 text-center">Poin</th>
-                        <th class="px-4 py-2.5 text-left">Deskripsi</th>
-                        <th class="px-4 py-2.5 text-center">Status</th>
+                        <th class="px-4 py-3 text-left">Tanggal</th>
+                        <th class="px-4 py-3 text-left">Nama</th>
+                        <th class="px-4 py-3 text-left">Jenis</th>
+                        <th class="px-4 py-3 text-center">Poin</th>
+                        <th class="px-4 py-3 text-left">Deskripsi</th>
+                        <th class="px-4 py-3 text-center">Status</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -153,22 +169,22 @@
                             };
                         @endphp
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/30">
-                            <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">{{ $penalty->date->format('d/m/Y') }}</td>
-                            <td class="px-4 py-2.5">
+                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $penalty->date->format('d/m/Y') }}</td>
+                            <td class="px-4 py-3">
                                 <p class="font-medium text-gray-900 dark:text-white">{{ $penalty->user->name ?? '-' }}</p>
                                 <p class="text-xs text-gray-500">{{ $penalty->user->nim ?? '-' }}</p>
                             </td>
-                            <td class="px-4 py-2.5">
+                            <td class="px-4 py-3">
                                 <p class="text-gray-900 dark:text-white">{{ $penalty->penaltyType->name ?? '-' }}</p>
                                 <p class="text-xs text-gray-500">{{ $penalty->penaltyType->code ?? '-' }}</p>
                             </td>
-                            <td class="px-4 py-2.5 text-center">
+                            <td class="px-4 py-3 text-center">
                                 <span class="font-semibold text-red-600 dark:text-red-400">{{ $penalty->points }}</span>
                             </td>
-                            <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400 max-w-xs truncate">
+                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400 max-w-xs truncate">
                                 {{ $penalty->description ?? '-' }}
                             </td>
-                            <td class="px-4 py-2.5 text-center">
+                            <td class="px-4 py-3 text-center">
                                 <span class="px-2 py-0.5 rounded text-xs font-medium {{ $statusConfig['class'] }}">
                                     {{ $statusConfig['label'] }}
                                 </span>
@@ -188,7 +204,7 @@
                 {{ $penalties->links() }}
             </div>
         @endif
-    </div>
+    </x-ui.card>
 
     {{-- Loading --}}
     <div wire:loading.delay class="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
