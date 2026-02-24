@@ -106,20 +106,7 @@ Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(fu
     });
 
     // Penalties Self-Service (lihat_penalti_sendiri)
-    Route::prefix('penalti')->name('penalties.')->group(function () {
-        // Self-service - view own penalties
-        Route::get('/penalti-saya', \App\Livewire\Penalty\UserPenalties::class)->name('my-penalties');
-        
-        // View all penalties - requires lihat_semua_penalti permission
-        Route::middleware('can:lihat_semua_penalti')->group(function () {
-            Route::get('/', \App\Livewire\Penalty\PenaltyList::class)->name('index');
-        });
-        
-        // Manage penalties - requires kelola_penalti permission
-        Route::get('/kelola', \App\Livewire\Penalty\ManagePenalties::class)
-            ->middleware('can:kelola_penalti')
-            ->name('manage');
-    });
+    Route::get('/penalti-saya', \App\Livewire\Penalty\UserPenalties::class)->name('my-penalties');
 
     // ============================================================
     // MANAGEMENT ROUTES (Require specific permissions)

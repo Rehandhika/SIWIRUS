@@ -524,9 +524,9 @@ abstract class AuditTestCase extends TestCase
     protected function seedSwapRequest(User $requester, User $target, ScheduleAssignment $requesterAssignment, ScheduleAssignment $targetAssignment, array $attributes = []): SwapRequest
     {
         $defaults = [
-            'requester_id' => $requester->id,
+            'user_id' => $requester->id,
             'target_id' => $target->id,
-            'requester_assignment_id' => $requesterAssignment->id,
+            'original_assignment_id' => $requesterAssignment->id,
             'target_assignment_id' => $targetAssignment->id,
             'reason' => fake()->sentence(),
             'status' => 'pending',

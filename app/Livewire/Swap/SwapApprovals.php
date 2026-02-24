@@ -109,9 +109,36 @@ class SwapApprovals extends Component
                 'swap_request_id' => $this->selectedRequest->id,
             ]);
 
-            // If approved, notify admins for final approval
-            if ($this->responseType === 'approve') {
-                $this->notifyAdmins($this->selectedRequest);
+            // If approved and it's a swap, perform the actual schedule change
+            if ($status === 'target_approved' && $this->selectedRequest->change_type === 'swap') {
+                $reqAssignment = $this->selectedRequest->requesterAssignment;
+                $tgtAssignment = $this->selectedRequest->targetAssignment;
+
+                if ($reqAssignment && $tgtAssignment) {
+                    $reqUserId = $reqAssignment->user_id;
+                    $tgtUserId = $tgtAssignment->user_id;
+
+                    // Swap the user assignments
+                    $reqAssignment->update([
+                        'user_id' => $tgtUserId,
+                        'swapped_to_user_id' => $reqUserId,
+                    ]);
+
+                    $tgtAssignment->update([
+                        'user_id' => $reqUserId,
+                        'swapped_to_user_id' => $tgtUserId,
+                    ]);
+
+                    // Mark as completed since target approval for peer-to-peer swap
+                    // might be the final step depending on your business rules, 
+                    // or keep it for admin. Here we'll mark as completed if admin.
+                    if (auth()->user()->hasAnyRole(['Super Admin', 'Ketua', 'Wakil Ketua', 'BPH'])) {
+                        $this->selectedRequest->update([
+                            'status' => 'admin_approved',
+                            'completed_at' => now(),
+                        ]);
+                    }
+                }
             }
 
             DB::commit();

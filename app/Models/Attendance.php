@@ -19,6 +19,8 @@ class Attendance extends Model
         'check_out',
         'work_hours',
         'status',
+        'late_minutes',
+        'late_category',
         'notes',
     ];
 
@@ -27,6 +29,7 @@ class Attendance extends Model
         'check_in' => 'datetime',
         'check_out' => 'datetime',
         'work_hours' => 'decimal:2',
+        'late_minutes' => 'integer',
     ];
 
     protected $appends = [
@@ -70,6 +73,14 @@ class Attendance extends Model
     public function scheduleAssignment()
     {
         return $this->belongsTo(ScheduleAssignment::class);
+    }
+
+    /**
+     * Get all of the attendance's penalties.
+     */
+    public function penalties()
+    {
+        return $this->morphMany(Penalty::class, 'reference');
     }
 
     public function scopePresent($query)

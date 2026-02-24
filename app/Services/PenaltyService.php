@@ -55,7 +55,7 @@ class PenaltyService
             'Penalti Baru',
             "Anda mendapat penalti: {$penaltyType->name} ({$penaltyType->points} poin). {$description}",
             ['penalty_id' => $penalty->id],
-            route('admin.penalties.my-penalties')
+            route('admin.my-penalties')
         );
 
         // Log activity
@@ -99,7 +99,7 @@ class PenaltyService
                 'Peringatan Kritis Penalti',
                 "Total poin penalti Anda: {$totalPoints}. Anda telah mencapai batas kritis. Harap segera hubungi administrator.",
                 null,
-                route('admin.penalties.my-penalties')
+                route('admin.my-penalties')
             );
 
             // Notify admins about critical threshold
@@ -125,7 +125,7 @@ class PenaltyService
                 'Peringatan: Mendekati Batas Kritis',
                 "Total poin penalti Anda: {$totalPoints}. Anda mendekati batas kritis ({$criticalThreshold} poin). Harap segera perbaiki kedisiplinan Anda.",
                 null,
-                route('admin.penalties.my-penalties')
+                route('admin.my-penalties')
             );
 
             return 'approaching_critical';
@@ -138,7 +138,7 @@ class PenaltyService
                 'Peringatan Penalti',
                 "Total poin penalti Anda: {$totalPoints}. Batas kritis: {$criticalThreshold} poin. Harap perhatikan kedisiplinan Anda.",
                 null,
-                route('admin.penalties.my-penalties')
+                route('admin.my-penalties')
             );
 
             return 'warning';
@@ -168,7 +168,7 @@ class PenaltyService
                 'Banding Penalti',
                 "{$penalty->user->name} mengajukan banding untuk penalti {$penalty->penaltyType->name}.",
                 ['penalty_id' => $penalty->id],
-                route('admin.penalties.manage')
+                route('admin.reports.penalties')
             );
         }
 
@@ -194,6 +194,19 @@ class PenaltyService
                 'review_notes' => $notes,
             ]);
 
+            // Sync with related attendance if exists
+            if ($penalty->reference_type === 'attendance' && $penalty->reference_id) {
+                $attendance = \App\Models\Attendance::find($penalty->reference_id);
+                if ($attendance) {
+                    $attendance->update(['status' => 'excused']);
+                    
+                    // Also sync with schedule assignment
+                    if ($attendance->schedule_assignment_id) {
+                        $attendance->scheduleAssignment->update(['status' => 'excused']);
+                    }
+                }
+            }
+
             // Recalculate and check thresholds
             $this->checkThresholds($penalty->user_id);
 
@@ -203,7 +216,7 @@ class PenaltyService
                 'Banding Disetujui',
                 'Banding penalti Anda telah disetujui. Penalti telah dibatalkan.',
                 ['penalty_id' => $penalty->id],
-                route('admin.penalties.my-penalties')
+                route('admin.my-penalties')
             );
         } else {
             // Rejected: keep penalty active
@@ -221,7 +234,7 @@ class PenaltyService
                 'Banding Ditolak',
                 'Banding penalti Anda telah ditolak. Penalti tetap aktif.',
                 ['penalty_id' => $penalty->id],
-                route('admin.penalties.my-penalties')
+                route('admin.my-penalties')
             );
         }
 

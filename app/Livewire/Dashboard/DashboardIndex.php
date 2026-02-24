@@ -125,46 +125,47 @@ class DashboardIndex extends Component
     #[Computed]
     public function activeShifts(): \Illuminate\Support\Collection
     {
-        // if (! $this->isAdmin) {
-        //     return collect();
-        // }
+        $today = now()->toDateString();
 
-        $today = now()->format('Y-m-d');
-
-        // 1. Get Scheduled Shifts for Today
-        $scheduledShifts = ScheduleAssignment::where('date', $today)
-            ->with(['user:id,name,photo', 'schedule'])
-            ->orderBy('session')
-            ->get()
-            ->map(function ($assignment) {
-                $assignment->type = 'scheduled';
-                return $assignment;
-            });
-
-        // 2. Get Override Check-ins (Unscheduled but Active)
-        // Active means: check_in is NOT NULL, check_out is NULL, and schedule_assignment_id is NULL
-        $overrideAttendances = Attendance::whereDate('date', $today)
-            ->whereNull('schedule_assignment_id') // Only overrides
+        // Ambil semua attendance aktif (sudah check-in, belum check-out) hari ini
+        $activeAttendances = Attendance::whereDate('date', $today)
             ->whereNotNull('check_in')
-            ->whereNull('check_out') // Still active
-            ->with('user:id,name,photo')
-            ->get()
-            ->map(function ($attendance) {
-                // Transform to match structure or handle in view
+            ->whereNull('check_out')
+            ->with([
+                'user:id,name,photo',
+                'scheduleAssignment.schedule',
+            ])
+            ->get();
+
+        // Petakan ke struktur yang digunakan view
+        return $activeAttendances->map(function ($attendance) {
+            if ($attendance->schedule_assignment_id) {
+                $assignment = $attendance->scheduleAssignment;
+
                 return (object) [
                     'user' => $attendance->user,
-                    'session' => 'Override', // Special label
+                    'session' => $assignment?->session ?? '-',
                     'schedule' => (object) [
-                        'name' => 'Luar Jadwal (Override)',
-                        'start_time' => \Carbon\Carbon::parse($attendance->check_in)->format('H:i'),
-                        'end_time' => '-',
+                        'name' => $assignment?->schedule?->name ?? 'Jadwal',
+                        'start_time' => $assignment?->time_start ?? null,
+                        'end_time' => $assignment?->time_end ?? null,
                     ],
-                    'type' => 'override',
+                    'type' => 'scheduled',
                 ];
-            });
+            }
 
-        // Merge both collections
-        return $scheduledShifts->concat($overrideAttendances);
+            // Override (tanpa schedule)
+            return (object) [
+                'user' => $attendance->user,
+                'session' => 'Override',
+                'schedule' => (object) [
+                    'name' => 'Luar Jadwal (Override)',
+                    'start_time' => optional($attendance->check_in)->format('H:i'),
+                    'end_time' => '-',
+                ],
+                'type' => 'override',
+            ];
+        })->values();
     }
 
     #[Computed]

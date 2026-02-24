@@ -184,7 +184,7 @@ class PermissionTest extends TestCase
         $anggota = User::factory()->create();
         $anggota->assignRole('Anggota');
 
-        $response = $this->actingAs($anggota)->get(route('admin.penalties.my-penalties'));
+        $response = $this->actingAs($anggota)->get(route('admin.my-penalties'));
         
         $response->assertStatus(200);
     }

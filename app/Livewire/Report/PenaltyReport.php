@@ -3,7 +3,9 @@
 namespace App\Livewire\Report;
 
 use App\Models\Penalty;
+use App\Services\PenaltyService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -13,6 +15,7 @@ use Livewire\WithPagination;
 class PenaltyReport extends Component
 {
     use WithPagination;
+    use \App\Traits\AuthorizesLivewireRequests;
 
     public string $dateFrom = '';
 
@@ -24,9 +27,115 @@ class PenaltyReport extends Component
 
     public string $period = 'month';
 
+    public $selectedPenalty;
+
+    public $reviewNotes = '';
+
+    public $showReviewModal = false;
+
+    protected PenaltyService $penaltyService;
+
+    protected $rules = [
+        'reviewNotes' => 'required|string|min:10|max:500',
+    ];
+
+    public function boot(PenaltyService $penaltyService)
+    {
+        $this->penaltyService = $penaltyService;
+    }
+
     public function mount()
     {
+        $this->authorizePermission('lihat_laporan');
         $this->setPeriod('month');
+    }
+
+    /**
+     * Open review modal for an appealed penalty
+     */
+    public function openReviewModal($penaltyId)
+    {
+        $this->selectedPenalty = Penalty::with(['user', 'penaltyType', 'reference'])
+            ->findOrFail($penaltyId);
+
+        if ($this->selectedPenalty->status !== 'appealed') {
+            $this->dispatch('toast', message: 'Penalti ini tidak dalam status banding', type: 'error');
+
+            return;
+        }
+
+        $this->showReviewModal = true;
+        $this->reviewNotes = '';
+    }
+
+    /**
+     * Approve penalty appeal
+     */
+    public function approveAppeal()
+    {
+        // Ensure user has permission to manage penalties
+        if (!auth()->user()->can('kelola_penalti')) {
+            $this->dispatch('toast', message: 'Anda tidak memiliki izin untuk mengelola penalti', type: 'error');
+            return;
+        }
+
+        $this->validate();
+
+        try {
+            $this->penaltyService->reviewAppeal(
+                $this->selectedPenalty,
+                true,
+                $this->reviewNotes,
+                auth()->id()
+            );
+
+            $this->dispatch('toast', message: 'Banding disetujui, penalti telah dibatalkan', type: 'success');
+            $this->reset(['showReviewModal', 'reviewNotes', 'selectedPenalty']);
+
+            // Refresh the page data
+            $this->resetPage();
+        } catch (\Exception $e) {
+            Log::error('Error approving penalty appeal', [
+                'penalty_id' => $this->selectedPenalty->id,
+                'error' => $e->getMessage(),
+            ]);
+            $this->dispatch('toast', message: 'Gagal menyetujui banding: '.$e->getMessage(), type: 'error');
+        }
+    }
+
+    /**
+     * Reject penalty appeal
+     */
+    public function rejectAppeal()
+    {
+        // Ensure user has permission to manage penalties
+        if (!auth()->user()->can('kelola_penalti')) {
+            $this->dispatch('toast', message: 'Anda tidak memiliki izin untuk mengelola penalti', type: 'error');
+            return;
+        }
+
+        $this->validate();
+
+        try {
+            $this->penaltyService->reviewAppeal(
+                $this->selectedPenalty,
+                false,
+                $this->reviewNotes,
+                auth()->id()
+            );
+
+            $this->dispatch('toast', message: 'Banding ditolak, penalti tetap aktif', type: 'success');
+            $this->reset(['showReviewModal', 'reviewNotes', 'selectedPenalty']);
+
+            // Refresh the page data
+            $this->resetPage();
+        } catch (\Exception $e) {
+            Log::error('Error rejecting penalty appeal', [
+                'penalty_id' => $this->selectedPenalty->id,
+                'error' => $e->getMessage(),
+            ]);
+            $this->dispatch('toast', message: 'Gagal menolak banding: '.$e->getMessage(), type: 'error');
+        }
     }
 
     public function setPeriod(string $period)
@@ -117,10 +226,10 @@ class PenaltyReport extends Component
         $result = DB::select("
             SELECT 
                 COUNT(*) as total,
-                SUM(status = 'active') as active,
-                SUM(status = 'appealed') as appealed,
-                SUM(status = 'dismissed') as dismissed,
-                SUM(status = 'expired') as expired,
+                SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
+                SUM(CASE WHEN status = 'appealed' THEN 1 ELSE 0 END) as appealed,
+                SUM(CASE WHEN status = 'dismissed' THEN 1 ELSE 0 END) as dismissed,
+                SUM(CASE WHEN status = 'expired' THEN 1 ELSE 0 END) as expired,
                 COALESCE(SUM(points), 0) as total_points
             FROM penalties 
             WHERE date BETWEEN ? AND ? {$userCondition}
@@ -148,7 +257,7 @@ class PenaltyReport extends Component
             ->when($this->userFilter !== 'all', fn ($q) => $q->where('user_id', $this->userFilter))
             ->when($this->statusFilter !== 'all', fn ($q) => $q->where('status', $this->statusFilter))
             ->with(['user:id,name,nim', 'penaltyType:id,name,code'])
-            ->select('id', 'user_id', 'penalty_type_id', 'date', 'points', 'description', 'status')
+            ->select('id', 'user_id', 'penalty_type_id', 'date', 'points', 'description', 'status', 'reference_type', 'reference_id')
             ->latest('date')
             ->paginate(15);
 

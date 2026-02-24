@@ -44,6 +44,28 @@ class PenaltyTypeSeeder extends Seeder
     private function getPenaltyTypes(): array
     {
         return [
+            // Unified late categories (A/B/C)
+            [
+                'code' => 'LATE_A',
+                'name' => 'Terlambat A (10-30 menit)',
+                'description' => 'Terlambat antara 10 sampai 30 menit',
+                'points' => 5,
+                'is_active' => true,
+            ],
+            [
+                'code' => 'LATE_B',
+                'name' => 'Terlambat B (31-60 menit)',
+                'description' => 'Terlambat antara 31 sampai 60 menit',
+                'points' => 10,
+                'is_active' => true,
+            ],
+            [
+                'code' => 'LATE_C',
+                'name' => 'Terlambat C (>60 menit)',
+                'description' => 'Terlambat lebih dari 60 menit',
+                'points' => 15,
+                'is_active' => true,
+            ],
             // New integrated penalty types
             [
                 'code' => 'LATE_MINOR',

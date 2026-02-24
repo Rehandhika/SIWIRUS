@@ -113,7 +113,7 @@ class SwapManager extends Component
 
         // Check existing pending request
         $exists = SwapRequest::where('user_id', Auth::id())
-            ->where('requester_assignment_id', $this->selectedAssignment)
+            ->where('original_assignment_id', $this->selectedAssignment)
             ->whereIn('status', ['pending', 'target_approved'])
             ->exists();
         if ($exists) {
@@ -137,7 +137,7 @@ class SwapManager extends Component
         SwapRequest::create([
             'user_id' => Auth::id(),
             'target_id' => $this->selectedTarget,
-            'requester_assignment_id' => $this->selectedAssignment,
+            'original_assignment_id' => $this->selectedAssignment,
             'target_assignment_id' => $targetAssignment->id,
             'reason' => $this->reason,
             'status' => 'pending',
@@ -241,10 +241,21 @@ class SwapManager extends Component
                 $reqAssignment = $swap->requesterAssignment;
                 $tgtAssignment = $swap->targetAssignment;
 
-                // Swap user_id
-                $tempUserId = $reqAssignment->user_id;
-                $reqAssignment->update(['user_id' => $tgtAssignment->user_id]);
-                $tgtAssignment->update(['user_id' => $tempUserId]);
+                $reqUserId = $reqAssignment->user_id;
+                $tgtUserId = $tgtAssignment->user_id;
+
+                // Swap user_id and track original owners
+                $reqAssignment->update([
+                    'user_id' => $tgtUserId,
+                    'swapped_to_user_id' => $reqUserId, // Track who was here originally
+                    'status' => 'scheduled'
+                ]);
+
+                $tgtAssignment->update([
+                    'user_id' => $reqUserId,
+                    'swapped_to_user_id' => $tgtUserId, // Track who was here originally
+                    'status' => 'scheduled'
+                ]);
             }
 
             DB::commit();

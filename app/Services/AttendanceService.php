@@ -124,32 +124,36 @@ class AttendanceService
             }
 
             // Determine status and late minutes only if schedule exists
+            $lateCategory = null;
             if ($schedule) {
                 $statusData = $this->determineStatus($checkInTime, $schedule);
                 $status = $statusData['status'];
                 $lateMinutes = $statusData['late_minutes'];
+                $lateCategory = $statusData['late_category'];
             }
 
             // Create attendance record within transaction
             try {
-                return DB::transaction(function () use ($userId, $scheduleAssignmentId, $notes, $checkInTime, $status, $lateMinutes, $schedule) {
+                return DB::transaction(function () use ($userId, $scheduleAssignmentId, $notes, $checkInTime, $status, $lateMinutes, $lateCategory, $schedule) {
                     $attendance = $this->repository->create([
                         'user_id' => $userId,
                         'schedule_assignment_id' => $scheduleAssignmentId,
                         'date' => today(),
                         'check_in' => $checkInTime,
                         'status' => $status,
+                        'late_minutes' => $lateMinutes,
+                        'late_category' => $lateCategory,
                         'notes' => $notes,
                     ]);
 
                     // Apply penalty if late and schedule exists
                     if ($schedule && $status === 'late' && $lateMinutes > 0) {
-                        $this->applyLatePenalty($userId, $attendance, $lateMinutes);
+                        $this->applyLatePenalty($userId, $attendance, $lateMinutes, $lateCategory);
                     }
 
-                    // Update schedule assignment status if exists
-                    if ($schedule && ($status === 'present' || $status === 'late')) {
-                        $schedule->update(['status' => 'completed']);
+                    // Update schedule assignment status to in_progress if exists
+                    if ($schedule) {
+                        $schedule->update(['status' => 'in_progress']);
                     }
 
                     // Log audit
@@ -212,46 +216,56 @@ class AttendanceService
     public function determineStatus(Carbon $checkInTime, ScheduleAssignment $schedule): array
     {
         $scheduleStart = $this->getScheduleStartTime($schedule);
-        $lateThreshold = (int) config('app-settings.late_threshold_minutes', 15);
+        $graceMinutes = (int) config('app-settings.attendance.grace_minutes', 9);
 
-        // Calculate minutes late (negative if early)
-        $minutesLate = $checkInTime->diffInMinutes($scheduleStart, false);
+        // Minutes late: clamp to >= 0
+        $minutesLate = (int) max(0, $scheduleStart->diffInMinutes($checkInTime, false));
 
-        // Within grace period (0-5 minutes late)
-        if ($minutesLate <= $lateThreshold) {
+        if ($minutesLate <= $graceMinutes) {
             return [
-                'status' => AttendanceStatus::PRESENT->value,
+                'status' => 'present',
                 'late_minutes' => 0,
+                'late_category' => null,
             ];
         }
 
-        // Late (more than threshold)
+        // Determine category from config
+        $lateCategory = 'C'; // Default
+        $ranges = config('app-settings.attendance.late_ranges', [
+            'A' => [10, 30],
+            'B' => [31, 60],
+            'C' => [61, null],
+        ]);
+        
+        foreach ($ranges as $cat => $range) {
+            $min = $range[0];
+            $max = $range[1];
+            
+            if ($max === null) {
+                if ($minutesLate >= $min) {
+                    $lateCategory = $cat;
+                    break;
+                }
+            } elseif ($minutesLate >= $min && $minutesLate <= $max) {
+                $lateCategory = $cat;
+                break;
+            }
+        }
+
         return [
-            'status' => AttendanceStatus::LATE->value,
-            'late_minutes' => (int) $minutesLate,
+            'status' => 'late',
+            'late_minutes' => $minutesLate,
+            'late_category' => $lateCategory,
         ];
     }
 
     /**
-     * Apply penalty for late attendance based on late minutes
-     * Grace period 5 menit = present, no penalty
-     * 6-15 menit = late, 5 poin
-     * 16-30 menit = late, 10 poin
-     * >30 menit = late, 15 poin
+     * Apply penalty for late attendance based on late category
      */
-    protected function applyLatePenalty(int $userId, Attendance $attendance, int $lateMinutes): void
+    protected function applyLatePenalty(int $userId, Attendance $attendance, int $lateMinutes, string $lateCategory): void
     {
-        // Determine penalty type and points based on late minutes
-        if ($lateMinutes >= 6 && $lateMinutes <= 15) {
-            $penaltyTypeCode = 'LATE_MINOR';
-            $description = "Terlambat {$lateMinutes} menit pada ".$attendance->check_in->format('d/m/Y H:i');
-        } elseif ($lateMinutes >= 16 && $lateMinutes <= 30) {
-            $penaltyTypeCode = 'LATE_MODERATE';
-            $description = "Terlambat {$lateMinutes} menit pada ".$attendance->check_in->format('d/m/Y H:i');
-        } else { // > 30 minutes
-            $penaltyTypeCode = 'LATE_SEVERE';
-            $description = "Terlambat {$lateMinutes} menit pada ".$attendance->check_in->format('d/m/Y H:i');
-        }
+        $penaltyTypeCode = 'LATE_' . $lateCategory;
+        $description = "Terlambat {$lateMinutes} menit (Kategori {$lateCategory}) pada " . $attendance->check_in->format('d/m/Y H:i');
 
         // Create penalty using PenaltyService with automatic threshold checking
         $this->penaltyService->createPenalty(
@@ -281,13 +295,23 @@ class AttendanceService
             throw new \Exception('Sudah check-out.');
         }
 
-        $attendance->update([
-            'check_out' => now(),
-            'notes' => $notes ?? $attendance->notes,
-        ]);
+        DB::transaction(function () use ($attendance, $notes) {
+            $attendance->update([
+                'check_out' => now(),
+                'notes' => $notes ?? $attendance->notes,
+            ]);
 
-        // Log audit
-        log_audit('check_out', $attendance);
+            // Update schedule assignment status to completed if it was in_progress
+            if ($attendance->schedule_assignment_id) {
+                $assignment = $attendance->scheduleAssignment;
+                if ($assignment && $assignment->status === 'in_progress') {
+                    $assignment->update(['status' => 'completed']);
+                }
+            }
+
+            // Log audit
+            log_audit('check_out', $attendance);
+        });
 
         return $attendance->fresh();
     }
@@ -359,6 +383,12 @@ class AttendanceService
      */
     protected function getScheduleStartTime(ScheduleAssignment $schedule): Carbon
     {
+        // Prefer exact assignment time if available
+        if (!empty($schedule->time_start)) {
+            return $schedule->date->copy()->setTimeFromTimeString($schedule->time_start);
+        }
+
+        // Fallback to session mapping
         $sessionTimes = [
             1 => '07:30',
             2 => '10:20',
@@ -376,6 +406,7 @@ class AttendanceService
     public function getAttendanceAnalytics(Carbon $startDate, Carbon $endDate, ?int $userId = null): array
     {
         $query = $this->repository->query()
+            ->with(['penalties'])
             ->whereBetween('date', [$startDate, $endDate]);
 
         if ($userId) {
@@ -394,7 +425,7 @@ class AttendanceService
                 ? round(($attendances->whereIn('status', ['present', 'late'])->count() / $attendances->count()) * 100, 2)
                 : 0,
             'total_penalties' => $attendances->sum(function ($attendance) {
-                return $attendance->penalties()->sum('amount');
+                return $attendance->penalties()->sum('points');
             }),
             'average_late_minutes' => $attendances->where('status', 'late')->avg('late_minutes') ?? 0,
         ];

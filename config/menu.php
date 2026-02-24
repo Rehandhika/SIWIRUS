@@ -72,16 +72,11 @@ return [
             ],
         ],
         [
-            'key' => 'penalties',
-            'label' => 'Penalti',
+            'key' => 'penalties.my',
+            'label' => 'Penalti Saya',
             'icon' => 'exclamation-triangle',
-            'route' => null,
+            'route' => 'admin.my-penalties',
             'permissions' => [], // All authenticated users (self-service)
-            'children' => [
-                ['key' => 'penalties.my', 'label' => 'Penalti Saya', 'route' => 'admin.penalties.my-penalties', 'permissions' => []],
-                ['key' => 'penalties.list', 'label' => 'Daftar Penalti', 'route' => 'admin.penalties.index', 'permissions' => ['lihat_semua_penalti']],
-                ['key' => 'penalties.manage', 'label' => 'Kelola Penalti', 'route' => 'admin.penalties.manage', 'permissions' => ['kelola_penalti']],
-            ],
         ],
         
         // ============================================================

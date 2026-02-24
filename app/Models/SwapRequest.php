@@ -111,6 +111,7 @@ class SwapRequest extends Model
     public function getChangeTypeLabel(): string
     {
         return match ($this->change_type) {
+            'swap' => 'Tukar Shift',
             'reschedule' => 'Pindah Jadwal',
             'cancel' => 'Batalkan Jadwal',
             default => $this->change_type ?? '-',

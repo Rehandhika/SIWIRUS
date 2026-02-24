@@ -32,9 +32,66 @@
                 </div>
                 <div class="w-px h-8 bg-white/20"></div>
                 <div class="text-center px-2">
-                    <p class="text-xs text-primary-200 uppercase tracking-wider font-medium">Poin Penalti</p>
-                    <p class="text-xl font-bold {{ $this->userStats['penalty'] > 0 ? 'text-red-300' : 'text-emerald-300' }}">
-                        {{ $this->userStats['penalty'] }}
+                    <p class="text-xs font-bold text-emerald-300 italic max-w-[200px] leading-tight" 
+                       x-data="{ 
+                           quotes: [
+                               'Many of life\'s failures are people who did not realize how close they were to success when they gave up. ~Thomas Edison',
+                               'It does not matter how slowly you go as long as you do not stop. ~Confucius',
+                               'It\'s fine to celebrate success but it is more important to heed the lessons of failure. ~Bill Gates',
+                               'Start where you are. Use what you have. Do what you can. ~Arthur Ashe',
+                               'Do what you can, with what you have, where you are. ~Theodore Roosevelt',
+                               'If you cannot do great things, do small things in a great way. ~Napoleon Hill',
+                               'The journey of a thousand miles begins with one step. ~Lao Tzu',
+                               'Hard work never betrays results. ~Chairul Tanjung',
+                               'Keep your spirit high, today is yours! ~Merry Riana',
+                               'Opportunity knocks but once. ~Proverb',
+                               'Be the best possible version of yourself. ~Oprah Winfrey',
+                               'All our dreams can come true, if we have the courage to pursue them. ~Walt Disney',
+                               'Success is a journey, not a destination. ~Ben Sweetland',
+                               'Don\'t find fault, find a remedy. ~Henry Ford',
+                               'Time is money. ~Benjamin Franklin',
+                               'Discipline is the bridge between goals and accomplishment. ~Jim Rohn',
+                               'Learn from yesterday, live for today, hope for tomorrow. ~Albert Einstein',
+                               'Today must be better than yesterday. ~B.J. Habibie',
+                               'Consistency beats intensity. ~Simon Sinek',
+                               'Do not fear failure but rather fear not trying. ~Roy T. Bennett',
+                               'Once you replace negative thoughts with positive ones, you\'ll start having positive results. ~Willie Nelson',
+                               'You have to expect things of yourself before you can do them. ~Michael Jordan',
+                               'Patience is a key element of success. ~Bill Gates',
+                               'Do not spoil what you have by desiring what you have not. ~Epicurus',
+                               'Life is a never-ending struggle. ~Soekarno',
+                               'If you cannot stand the fatigue of study, you will feel the poignant of stupidity. ~Imam Syafi\'i',
+                               'The future depends on what you do today. ~Mahatma Gandhi',
+                               'Never leave that till tomorrow which you can do today. ~Benjamin Franklin',
+                               'The most precious resource we all have is time. ~Steve Jobs',
+                               'Commit yourself to lifelong learning. ~Brian Tracy',
+                               'Challenges are opportunities to grow. ~John C. Maxwell',
+                               'Believe you can and you\'re halfway there. ~Theodore Roosevelt',
+                               'I think it is possible for ordinary people to choose to be extraordinary. ~Elon Musk',
+                               'Setting goals is the first step in turning the invisible into the visible. ~Tony Robbins',
+                               'The biggest risk is not taking any risk. ~Mark Zuckerberg',
+                               'Success requires sacrifice. ~Tung Desem Waringin',
+                               'I can accept failure, everyone fails at something. But I can\'t accept not trying. ~Michael Jordan',
+                               'Success is a lousy teacher. It seduces smart people into thinking they can\'t lose. ~Bill Gates',
+                               'Stay humble when successful. ~Bob Sadino',
+                               'Carry out a random act of kindness, with no expectation of reward. ~Princess Diana',
+                               'Respect the process, enjoy the result. ~Deddy Corbuzier',
+                               'Don\'t compare yourself with anyone in this world. ~Bill Gates',
+                               'In order to be irreplaceable one must always be different. ~Coco Chanel',
+                               'Innovation distinguishes between a leader and a follower. ~Steve Jobs',
+                               'Quality is more important than quantity. ~Steve Jobs',
+                               'Simplicity is the ultimate sophistication. ~Leonardo da Vinci',
+                               'Happiness depends upon ourselves. ~Aristotle',
+                               'Smiling is charity. ~Hadith',
+                               'Good morning, keep up the good work! ~Mario Teguh'
+                           ],
+                           currentQuote: ''
+                       }" 
+                       x-init="currentQuote = quotes[Math.floor(Math.random() * quotes.length)]; setInterval(() => currentQuote = quotes[Math.floor(Math.random() * quotes.length)], 10000)"
+                       x-text="currentQuote"
+                       x-transition:enter="transition ease-out duration-500"
+                       x-transition:enter-start="opacity-0 transform scale-90"
+                       x-transition:enter-end="opacity-100 transform scale-100">
                     </p>
                 </div>
             </div>

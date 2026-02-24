@@ -58,7 +58,7 @@ class ScheduleAssignment extends Model
 
     public function swapRequests()
     {
-        return $this->hasMany(SwapRequest::class, 'requester_assignment_id');
+        return $this->hasMany(SwapRequest::class, 'original_assignment_id');
     }
 
     public function targetSwapRequests()
@@ -119,6 +119,11 @@ class ScheduleAssignment extends Model
         return $query->where('status', 'scheduled');
     }
 
+    public function scopeInProgress($query)
+    {
+        return $query->where('status', 'in_progress');
+    }
+
     public function scopeCompleted($query)
     {
         return $query->where('status', 'completed');
@@ -144,6 +149,11 @@ class ScheduleAssignment extends Model
     public function isScheduled(): bool
     {
         return $this->status === 'scheduled';
+    }
+
+    public function isInProgress(): bool
+    {
+        return $this->status === 'in_progress';
     }
 
     public function isCompleted(): bool

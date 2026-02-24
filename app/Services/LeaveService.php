@@ -117,6 +117,13 @@ class LeaveService
                     'leave_request_id' => $request->id,
                     'schedule_assignment_id' => $assignment->id,
                 ]);
+
+                // Cleanup any existing penalties for this shift (e.g. if user was marked absent before leave was approved)
+                \App\Models\Penalty::where('reference_type', 'attendance')
+                    ->whereHas('reference', function ($query) use ($assignment) {
+                        $query->where('schedule_assignment_id', $assignment->id);
+                    })
+                    ->delete();
             }
 
             // Send notification to user
@@ -126,7 +133,7 @@ class LeaveService
                 'Pengajuan Izin Disetujui',
                 "Pengajuan izin Anda dari {$request->start_date->format('d/m/Y')} sampai {$request->end_date->format('d/m/Y')} telah disetujui.",
                 ['leave_request_id' => $request->id],
-                route('leave.my-requests')
+                route('admin.leave.my-requests')
             );
 
             DB::commit();
@@ -167,7 +174,7 @@ class LeaveService
             'Pengajuan Izin Ditolak',
             "Pengajuan izin Anda dari {$request->start_date->format('d/m/Y')} sampai {$request->end_date->format('d/m/Y')} telah ditolak. Alasan: {$notes}",
             ['leave_request_id' => $request->id],
-            route('leave.my-requests')
+            route('admin.leave.my-requests')
         );
 
         // Keep schedule assignments unchanged
@@ -220,7 +227,7 @@ class LeaveService
                 'Pengajuan Izin Dibatalkan',
                 "Pengajuan izin Anda dari {$request->start_date->format('d/m/Y')} sampai {$request->end_date->format('d/m/Y')} telah dibatalkan.",
                 ['leave_request_id' => $request->id],
-                route('leave.my-requests')
+                route('admin.leave.my-requests')
             );
 
             DB::commit();

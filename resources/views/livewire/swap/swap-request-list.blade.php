@@ -87,10 +87,10 @@
                                         <div class="text-xs font-medium text-gray-500 uppercase mb-1">Dari</div>
                                         <div class="font-semibold text-gray-900">{{ $swap->requester->name }}</div>
                                         <div class="text-sm text-gray-500">{{ $swap->requester->nim }}</div>
-                                        @if($swap->requesterAssignment && $swap->requesterAssignment->schedule)
+                                        @if($swap->requesterAssignment)
                                             <div class="text-sm text-gray-600 mt-1">
-                                                {{ $swap->requesterAssignment->schedule->date->format('d/m/Y') }} - 
-                                                Sesi {{ $swap->requesterAssignment->schedule->session }}
+                                                {{ $swap->requesterAssignment->date->format('d/m/Y') }} - 
+                                                Sesi {{ $swap->requesterAssignment->session }}
                                             </div>
                                         @endif
                                     </div>
@@ -98,10 +98,10 @@
                                         <div class="text-xs font-medium text-gray-500 uppercase mb-1">Ke</div>
                                         <div class="font-semibold text-gray-900">{{ $swap->target->name }}</div>
                                         <div class="text-sm text-gray-500">{{ $swap->target->nim }}</div>
-                                        @if($swap->targetAssignment && $swap->targetAssignment->schedule)
+                                        @if($swap->targetAssignment)
                                             <div class="text-sm text-gray-600 mt-1">
-                                                {{ $swap->targetAssignment->schedule->date->format('d/m/Y') }} - 
-                                                Sesi {{ $swap->targetAssignment->schedule->session }}
+                                                {{ $swap->targetAssignment->date->format('d/m/Y') }} - 
+                                                Sesi {{ $swap->targetAssignment->session }}
                                             </div>
                                         @endif
                                     </div>

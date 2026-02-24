@@ -140,14 +140,36 @@ class CheckInOut extends Component
                 ->first();
         } else {
             $this->scheduleStatus = null;
-            
-            // Check for override attendance (no schedule)
-            // Get the latest one to handle multiple sessions correctly
-            $this->currentAttendance = Attendance::where('user_id', $user->id)
-                ->where('date', $today)
-                ->whereNull('schedule_assignment_id')
-                ->latest()
+
+            // Fallback A: User has checked-in for a published schedule that was marked completed on check-in (no checkout yet)
+            $activeAttendance = Attendance::where('user_id', $user->id)
+                ->whereDate('date', $today)
+                ->whereNotNull('schedule_assignment_id')
+                ->whereNull('check_out')
+                ->latest('check_in')
                 ->first();
+
+            if ($activeAttendance) {
+                // Load the related schedule assignment even if status already moved from 'scheduled'
+                $assignment = ScheduleAssignment::with(['schedule', 'user'])
+                    ->find($activeAttendance->schedule_assignment_id);
+
+                if ($assignment) {
+                    $this->currentSchedule = $assignment;
+                    $this->currentAttendance = $activeAttendance;
+                    $this->scheduleStatus = 'active';
+                }
+            }
+
+            // Fallback B: Override attendance (no schedule)
+            if (! $this->currentSchedule && ! $this->currentAttendance) {
+                // Get the latest one to handle multiple sessions correctly
+                $this->currentAttendance = Attendance::where('user_id', $user->id)
+                    ->where('date', $today)
+                    ->whereNull('schedule_assignment_id')
+                    ->latest()
+                    ->first();
+            }
         }
 
         if ($this->currentAttendance) {
@@ -232,13 +254,24 @@ class CheckInOut extends Component
                 $notifMessage
             );
 
-            $this->dispatch('toast', message: 'Check-in berhasil! Waktu: '.$now->format('H:i'), type: 'success');
+            // Create toast message with late details if applicable
+            $toastMessage = 'Check-in berhasil!';
+            if ($this->currentAttendance->status === 'late') {
+                $toastMessage .= " Terlambat {$this->currentAttendance->late_category} ({$this->currentAttendance->late_minutes} menit)";
+            } else {
+                $toastMessage .= ' Waktu: '.$now->format('H:i');
+            }
+
+            $this->dispatch('toast', message: $toastMessage, type: $this->currentAttendance->status === 'late' ? 'warning' : 'success');
 
             // Reset form
             $this->reset(['checkInPhoto', 'checkInPhotoPreview', 'showPhotoPreview']);
 
             // Reload schedule data
             $this->loadCurrentSchedule();
+
+            // Notify dashboards/widgets to refresh
+            $this->dispatch('attendance-updated');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Re-throw validation exceptions to show field errors
@@ -292,20 +325,12 @@ class CheckInOut extends Component
                 throw new \Exception('Anda sudah check-out.');
             }
 
-            $now = now();
+            // Use AttendanceService to process check-out (handles work hours and schedule status)
+            $this->currentAttendance = $this->attendanceService->checkOut($this->currentAttendance->id);
 
-            // Calculate work hours
-            $checkIn = Carbon::parse($this->currentAttendance->check_in);
-            $workingMinutes = $checkIn->diffInMinutes($now);
-            $workingHours = $workingMinutes / 60;
-
-            // Update attendance record
-            $this->currentAttendance->update([
-                'check_out' => $now,
-                'work_hours' => $workingHours,
-            ]);
-
+            $now = $this->currentAttendance->check_out;
             $this->checkOutTime = $now->format('H:i');
+            $workingHours = $this->currentAttendance->work_hours;
 
             // Log activity
             $sessionLabel = $this->currentSchedule ? ($this->currentSchedule->session_label ?? 'Sesi '.$this->currentSchedule->session) : 'Check-in Luar Jadwal';
@@ -323,6 +348,9 @@ class CheckInOut extends Component
 
             // Reload schedule data
             $this->loadCurrentSchedule();
+
+            // Notify dashboards/widgets to refresh
+            $this->dispatch('attendance-updated');
 
         } catch (\Exception $e) {
             $this->dispatch('toast', message: $e->getMessage(), type: 'error');
@@ -354,25 +382,6 @@ class CheckInOut extends Component
     public function removePhoto()
     {
         $this->reset(['checkInPhoto', 'checkInPhotoPreview', 'showPhotoPreview']);
-    }
-
-    /**
-     * Determine attendance status based on check-in time
-     */
-    private function determineAttendanceStatus(Carbon $checkInTime): string
-    {
-        if (! $this->currentSchedule) {
-            return 'present'; // Override mode always present
-        }
-
-        $scheduleStart = $this->currentSchedule->date->copy()->setTimeFromTimeString($this->currentSchedule->time_start);
-        $lateThreshold = config('app-settings.late_threshold_minutes', 15);
-
-        if ($checkInTime->greaterThan($scheduleStart->copy()->addMinutes($lateThreshold))) {
-            return 'late';
-        }
-
-        return 'present';
     }
 
     /**

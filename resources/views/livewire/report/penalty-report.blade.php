@@ -138,6 +138,16 @@
                     @if($penalty->description)
                         <p class="text-xs text-gray-500 truncate">{{ $penalty->description }}</p>
                     @endif
+                    @if($penalty->status === 'appealed' && auth()->user()->can('kelola_penalti'))
+                        <div class="mt-2 flex justify-end">
+                            <x-ui.button 
+                                variant="ghost" 
+                                size="sm"
+                                wire:click="openReviewModal({{ $penalty->id }})">
+                                Review Banding
+                            </x-ui.button>
+                        </div>
+                    @endif
                 </div>
             @empty
                 <div class="p-8 text-center text-gray-400 text-sm">Tidak ada data penalti</div>
@@ -155,6 +165,7 @@
                         <th class="px-4 py-3 text-center">Poin</th>
                         <th class="px-4 py-3 text-left">Deskripsi</th>
                         <th class="px-4 py-3 text-center">Status</th>
+                        <th class="px-4 py-3 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -182,12 +193,31 @@
                                 <span class="font-semibold text-red-600 dark:text-red-400">{{ $penalty->points }}</span>
                             </td>
                             <td class="px-4 py-3 text-gray-600 dark:text-gray-400 max-w-xs truncate">
-                                {{ $penalty->description ?? '-' }}
+                                <div class="flex flex-col">
+                                    <span>{{ $penalty->description ?? '-' }}</span>
+                                </div>
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <span class="px-2 py-0.5 rounded text-xs font-medium {{ $statusConfig['class'] }}">
                                     {{ $statusConfig['label'] }}
                                 </span>
+                                @if($penalty->status === 'appealed' && $penalty->appeal_reason)
+                                    <div class="text-xs text-gray-500 mt-1 text-left max-w-xs mx-auto truncate" title="{{ $penalty->appeal_reason }}">
+                                        Ref: {{ Str::limit($penalty->appeal_reason, 20) }}
+                                    </div>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                @if($penalty->status === 'appealed' && auth()->user()->can('kelola_penalti'))
+                                    <x-ui.button 
+                                        variant="ghost" 
+                                        size="sm"
+                                        wire:click="openReviewModal({{ $penalty->id }})">
+                                        Review Banding
+                                    </x-ui.button>
+                                @else
+                                    <span class="text-sm text-gray-500">-</span>
+                                @endif
                             </td>
                         </tr>
                     @empty
@@ -216,4 +246,114 @@
             <span class="text-sm text-gray-700 dark:text-gray-300">Memuat...</span>
         </div>
     </div>
+
+    <!-- Review Appeal Modal -->
+    @if($showReviewModal && $selectedPenalty)
+        <div class="fixed inset-0 z-50 overflow-y-auto" x-data x-on:keydown.escape.window="$wire.set('showReviewModal', false)">
+            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" wire:click="$set('showReviewModal', false)"></div>
+            
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
+                    <!-- Header -->
+                    <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Review Banding Penalti</h3>
+                        <button wire:click="$set('showReviewModal', false)" class="text-gray-400 hover:text-gray-500 transition-colors">
+                            <x-ui.icon name="x" class="w-6 h-6" />
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="px-6 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
+                        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Anggota</label>
+                                    <div class="mt-1 font-bold text-gray-900 dark:text-white">{{ $selectedPenalty->user->name }}</div>
+                                    <div class="text-xs text-gray-500">{{ $selectedPenalty->user->nim }}</div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Jenis Penalti</label>
+                                    <div class="mt-1 font-bold text-gray-900 dark:text-white">{{ $selectedPenalty->penaltyType->name }}</div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Poin</label>
+                                    <div class="mt-1 font-extrabold text-red-600 dark:text-red-400">{{ $selectedPenalty->points }}</div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</label>
+                                    <div class="mt-1 text-gray-900 dark:text-gray-200">{{ $selectedPenalty->date->format('d/m/Y') }}</div>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Deskripsi Penalti</label>
+                                    <div class="mt-1 text-gray-700 dark:text-gray-300 leading-relaxed italic">"{{ $selectedPenalty->description }}"</div>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Alasan Banding</label>
+                                    <div class="mt-1 text-gray-900 dark:text-gray-200 bg-amber-50 dark:bg-amber-900/20 p-3 rounded border border-amber-100 dark:border-amber-800/30 leading-relaxed">
+                                        {{ $selectedPenalty->appeal_reason }}
+                                    </div>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal Banding</label>
+                                    <div class="mt-1 text-gray-900 dark:text-gray-200">{{ $selectedPenalty->appealed_at->format('d/m/Y H:i') }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <x-ui.alert variant="info" :icon="true">
+                            <strong>Setujui Banding:</strong> Penalti akan dibatalkan (Dismissed).<br>
+                            <strong>Tolak Banding:</strong> Penalti tetap aktif (Active).
+                        </x-ui.alert>
+
+                        <x-ui.textarea 
+                            name="reviewNotes"
+                            label="Catatan Review Admin"
+                            wire:model="reviewNotes"
+                            rows="3"
+                            placeholder="Berikan alasan keputusan Anda (minimal 10 karakter)..."
+                            required
+                            :error="$errors->first('reviewNotes')"
+                            help="{{ strlen($reviewNotes) }}/500 karakter" />
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-end gap-3">
+                        <x-ui.button 
+                            variant="white" 
+                            wire:click="$set('showReviewModal', false)">
+                            Batal
+                        </x-ui.button>
+                        <div class="flex gap-3">
+                            <x-ui.button 
+                                variant="danger" 
+                                wire:click="rejectAppeal"
+                                wire:loading.attr="disabled">
+                                <span wire:loading.remove wire:target="rejectAppeal">Tolak Banding</span>
+                                <span wire:loading wire:target="rejectAppeal" class="flex items-center">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    </svg>
+                                    Memproses...
+                                </span>
+                            </x-ui.button>
+                            <x-ui.button 
+                                variant="success" 
+                                wire:click="approveAppeal"
+                                wire:loading.attr="disabled">
+                                <span wire:loading.remove wire:target="approveAppeal">Setujui Banding</span>
+                                <span wire:loading wire:target="approveAppeal" class="flex items-center">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    </svg>
+                                    Memproses...
+                                </span>
+                            </x-ui.button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

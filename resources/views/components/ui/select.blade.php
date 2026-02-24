@@ -52,6 +52,8 @@
             {{ $optionLabel }}
         </option>
         @endforeach
+
+        {{ $slot }}
     </select>
 
     @if($help && !$error)

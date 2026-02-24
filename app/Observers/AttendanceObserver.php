@@ -43,4 +43,24 @@ class AttendanceObserver
             $this->storeStatusService->forceUpdate();
         }
     }
+
+    /**
+     * Handle the Attendance "deleted" event.
+     * Clean up associated penalties and revert schedule status.
+     */
+    public function deleted(Attendance $attendance): void
+    {
+        // Remove associated penalties
+        $attendance->penalties()->delete();
+
+        // Revert schedule assignment to 'scheduled' if it was linked
+        if ($attendance->schedule_assignment_id) {
+            $attendance->scheduleAssignment->update(['status' => 'scheduled']);
+        }
+        
+        Log::info('Attendance DELETED - Associated penalties cleaned up and schedule reverted', [
+            'user' => $attendance->user->name,
+            'date' => $attendance->date?->toDateString(),
+        ]);
+    }
 }

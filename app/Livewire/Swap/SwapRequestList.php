@@ -5,6 +5,7 @@ namespace App\Livewire\Swap;
 use App\Models\SwapRequest;
 use App\Models\User;
 use App\Services\ActivityLogService;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -36,23 +37,61 @@ class SwapRequestList extends Component
         $swap = SwapRequest::with(['requester', 'requesterAssignment'])->find($id);
 
         if ($swap && $swap->target_id === auth()->id() && $swap->status === 'pending') {
-            $swap->update(['status' => 'target_approved', 'target_responded_at' => now()]);
+            DB::beginTransaction();
+            try {
+                $swap->update(['status' => 'target_approved', 'target_responded_at' => now()]);
 
-            // Log activity
-            $date = $swap->requesterAssignment?->date?->format('d/m/Y') ?? 'N/A';
-            ActivityLogService::logSwapApproved($swap->requester->name, $date);
+                // If it's a direct swap request, perform the swap on assignments
+                if ($swap->change_type === 'swap') {
+                    $reqAssignment = $swap->requesterAssignment;
+                    $tgtAssignment = $swap->targetAssignment;
 
-            // Create notification for requester
-            $this->createNotification($swap->user_id, 'swap_accepted', [
-                'title' => 'Permintaan Tukar Shift Disetujui',
-                'message' => auth()->user()->name.' menyetujui permintaan tukar shift Anda.',
-                'swap_request_id' => $swap->id,
-            ]);
+                    if ($reqAssignment && $tgtAssignment) {
+                        $reqUserId = $reqAssignment->user_id;
+                        $tgtUserId = $tgtAssignment->user_id;
 
-            // Notify admins for final approval
-            $this->notifyAdminsForApproval($swap);
+                        // Swap assignments
+                        $reqAssignment->update([
+                            'user_id' => $tgtUserId,
+                            'swapped_to_user_id' => $reqUserId,
+                        ]);
 
-            $this->dispatch('toast', message: 'Permintaan tukar shift diterima', type: 'success');
+                        $tgtAssignment->update([
+                            'user_id' => $reqUserId,
+                            'swapped_to_user_id' => $tgtUserId,
+                        ]);
+
+                        // Automatically mark as admin_approved for peer-to-peer agreement
+                        // (Adjust if admin final review is strictly required)
+                        $swap->update([
+                            'status' => 'admin_approved',
+                            'completed_at' => now(),
+                        ]);
+                    }
+                }
+
+                DB::commit();
+
+                // Log activity
+                $date = $swap->requesterAssignment?->date?->format('d/m/Y') ?? 'N/A';
+                ActivityLogService::logSwapApproved($swap->requester->name, $date);
+
+                // Create notification for requester
+                $this->createNotification($swap->user_id, 'swap_accepted', [
+                    'title' => 'Permintaan Tukar Shift Disetujui',
+                    'message' => auth()->user()->name.' menyetujui permintaan tukar shift Anda.',
+                    'swap_request_id' => $swap->id,
+                ]);
+
+                // Notify admins for record
+                $this->notifyAdminsForApproval($swap);
+
+                $this->dispatch('toast', message: 'Permintaan tukar shift diterima dan jadwal diperbarui.', type: 'success');
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                $this->dispatch('toast', message: 'Gagal memperbarui jadwal: '.$e->getMessage(), type: 'error');
+            }
         }
     }
 
@@ -90,8 +129,8 @@ class SwapRequestList extends Component
             ->with([
                 'requester:id,name,nim',
                 'target:id,name,nim',
-                'requesterAssignment.schedule',
-                'targetAssignment.schedule',
+                'requesterAssignment',
+                'targetAssignment',
             ])
             ->orderBy('created_at', 'desc');
 

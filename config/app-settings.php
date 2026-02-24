@@ -40,25 +40,31 @@ return [
     ],
 
     /**
-     * Late threshold in minutes
-     * If check-in is more than this many minutes after session start, mark as late
-     */
-    'late_threshold_minutes' => 15,
-
-    /**
-     * Penalty point thresholds
+     * Penalty point settings
      */
     'penalty' => [
         'warning_threshold' => 50,
         'suspension_threshold' => 100,
         'expiry_months' => 6,  // Penalty points expire after this many months
+        'points' => [
+            'LATE_A' => 5,
+            'LATE_B' => 10,
+            'LATE_C' => 15,
+            'ABSENT' => 20,
+        ],
     ],
 
     /**
      * Attendance settings
-     * Note: These are loaded from system_settings table. Defaults provided here.
+     * Note: Some settings are loaded from system_settings table. Defaults provided here.
      */
     'attendance' => [
+        'grace_minutes' => 9, // <= 9 minutes is present, >= 10 is late
+        'late_ranges' => [
+            'A' => [10, 30],
+            'B' => [31, 60],
+            'C' => [61, null],
+        ],
         'override_mode' => env('ATTENDANCE_OVERRIDE_MODE', false), // Allow check-in without schedule
         'auto_absent_after_hours' => env('ATTENDANCE_AUTO_ABSENT_HOURS', 2),
         'allow_early_checkin_minutes' => env('ATTENDANCE_ALLOW_EARLY_CHECKIN_MINUTES', 30),

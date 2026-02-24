@@ -5,8 +5,10 @@ namespace App\Providers;
 use App\Listeners\InvalidatePermissionCacheOnPermissionChange;
 use App\Listeners\InvalidatePermissionCacheOnRoleChange;
 use App\Models\Attendance;
+use App\Models\Penalty;
 use App\Observers\AttendanceObserver;
 use App\Helpers\DateTimeHelper;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -30,6 +32,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register morph map for polymorphic relations
+        Relation::morphMap([
+            'attendance' => \App\Models\Attendance::class,
+            'attendances' => \App\Models\Attendance::class,
+        ]);
+
         // Force HTTPS in production
         if ($this->app->environment('production')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');

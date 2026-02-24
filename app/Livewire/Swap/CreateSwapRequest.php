@@ -33,6 +33,8 @@ class CreateSwapRequest extends Component
 
     public $searchTarget = '';
 
+    public $sessionOptions = [];
+
     protected $rules = [
         'selectedAssignment' => 'required|integer|exists:schedule_assignments,id',
         'targetDate' => 'required|date|after_or_equal:today',
@@ -52,6 +54,11 @@ class CreateSwapRequest extends Component
 
     public function mount()
     {
+        $this->sessionOptions = [
+            1 => 'Sesi 1 (Pagi)',
+            2 => 'Sesi 2 (Siang)',
+            3 => 'Sesi 3 (Sore)',
+        ];
         $this->loadMyAssignments();
     }
 
@@ -127,12 +134,12 @@ class CreateSwapRequest extends Component
     {
         // Check if requester already has a pending swap for the same assignment
         $existingRequest = SwapRequest::where('user_id', auth()->id())
-            ->where('requester_assignment_id', $this->selectedAssignment)
+            ->where('original_assignment_id', $this->selectedAssignment)
             ->whereIn('status', ['pending', 'target_approved'])
             ->exists();
 
         if ($existingRequest) {
-            throw new \Illuminate\Validation\ValidationException([
+            throw \Illuminate\Validation\ValidationException::withMessages([
                 'selectedAssignment' => 'Anda sudah memiliki permintaan tukar shift untuk jadwal ini.',
             ]);
         }
@@ -150,7 +157,7 @@ class CreateSwapRequest extends Component
                 ->exists();
 
             if ($existingTargetRequest) {
-                throw new \Illuminate\Validation\ValidationException([
+                throw \Illuminate\Validation\ValidationException::withMessages([
                     'selectedTarget' => 'Target pengguna sudah memiliki permintaan tukar shift untuk jadwal ini.',
                 ]);
             }
@@ -164,7 +171,7 @@ class CreateSwapRequest extends Component
                 ->subHours(24);
 
             if (now()->greaterThan($deadline)) {
-                throw new \Illuminate\Validation\ValidationException([
+                throw \Illuminate\Validation\ValidationException::withMessages([
                     'selectedAssignment' => 'Permintaan tukar shift harus diajukan minimal 24 jam sebelum shift dimulai.',
                 ]);
             }
@@ -191,8 +198,9 @@ class CreateSwapRequest extends Component
             $swapRequest = SwapRequest::create([
                 'user_id' => auth()->id(),
                 'target_id' => $this->selectedTarget,
-                'requester_assignment_id' => $this->selectedAssignment,
+                'original_assignment_id' => $this->selectedAssignment,
                 'target_assignment_id' => $targetAssignment->id,
+                'change_type' => 'swap',
                 'reason' => $this->reason,
                 'status' => 'pending',
             ]);
@@ -248,11 +256,6 @@ class CreateSwapRequest extends Component
         return view('livewire.swap.create-swap-request', [
             'myAssignments' => $this->myAssignments,
             'availableTargets' => $this->availableTargets,
-            'sessionOptions' => [
-                1 => 'Sesi 1 (Pagi)',
-                2 => 'Sesi 2 (Siang)',
-                3 => 'Sesi 3 (Sore)',
-            ],
         ])->layout('layouts.app')->title('Buat Permintaan Tukar Shift');
     }
 }
