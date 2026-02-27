@@ -3,6 +3,8 @@
 namespace App\Livewire\Auth;
 
 use App\Jobs\LogLoginActivity;
+use App\Models\LoginHistory;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -60,13 +62,17 @@ class LoginForm extends Component
             // Regenerate session
             session()->regenerate();
 
-            // Dispatch async logging job (non-blocking)
-            LogLoginActivity::dispatch(
-                Auth::id(),
-                request()->ip(),
-                request()->userAgent() ?? 'Unknown',
-                'success'
-            );
+            // Log login activity synchronously (ensure it's recorded)
+            ActivityLogService::logLogin();
+
+            // Create login history record
+            LoginHistory::create([
+                'user_id' => Auth::id(),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent() ?? 'Unknown',
+                'logged_in_at' => now(),
+                'status' => 'success',
+            ]);
 
             // Redirect to dashboard immediately
             return redirect()->intended(route('admin.dashboard'));
