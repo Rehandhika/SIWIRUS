@@ -361,6 +361,8 @@ class SalesReport extends Component
     {
         $filename = 'laporan_penjualan_' . $this->dateFrom . '_' . $this->dateTo . '.xlsx';
 
+        ActivityLogService::logReportExported('Laporan Penjualan Ringkasan', "{$this->dateFrom} s/d {$this->dateTo}");
+
         return Excel::download(
             new SalesExport($this->dateFrom, $this->dateTo),
             $filename
@@ -373,6 +375,8 @@ class SalesReport extends Component
     public function exportSaleItems()
     {
         $filename = 'detail_item_penjualan_' . $this->dateFrom . '_' . $this->dateTo . '.xlsx';
+
+        ActivityLogService::logReportExported('Laporan Penjualan Detail', "{$this->dateFrom} s/d {$this->dateTo}");
 
         return Excel::download(
             new SaleItemsExport($this->dateFrom, $this->dateTo),

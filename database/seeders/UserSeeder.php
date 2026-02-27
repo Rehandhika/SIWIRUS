@@ -26,45 +26,61 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $members = $this->getMembers();
+        $csvPath = database_path('Data/kredensial.csv');
+        
+        if (!file_exists($csvPath)) {
+            $this->command->error("❌ File CSV kredensial tidak ditemukan di: $csvPath");
+            return;
+        }
 
-        // Bulk upsert users for performance
-        $now = now();
-        $users = collect($members)->map(fn($member) => [
-            'name' => $member['name'],
-            'nim' => $member['nim'],
-            'email' => $member['email'],
-            'password' => Hash::make('password'), // Default password
-            'status' => 'active',
-            'email_verified_at' => $now,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ])->toArray();
+        $csvData = array_map('str_getcsv', file($csvPath));
+        $header = array_shift($csvData);
+        
+        $count = 0;
+        foreach ($csvData as $row) {
+            $data = array_combine($header, $row);
+            
+            // Cari role dari data statis lama atau default ke 'Anggota'
+            $oldMembers = collect($this->getMembers());
+            $oldMember = $oldMembers->where('nim', $data['nim'])->first();
+            $role = $oldMember['role'] ?? 'Anggota';
 
-        // Upsert users - update existing or insert new
-        DB::table('users')->upsert(
-            $users,
-            ['nim'], // Unique constraint to match on
-            ['name', 'email', 'password', 'status', 'email_verified_at', 'updated_at'] // Fields to update
-        );
-
-        // Sync roles in batch
-        collect($members)->each(function ($member) {
-            $user = User::where('nim', $member['nim'])->first();
+            // Create or Update User
+            $nim = trim((string) $data['nim']);
+            $user = User::withTrashed()->where('nim', $nim)->first();
+            
             if ($user) {
-                $user->syncRoles([$member['role']]);
+                $user->restore(); // Restore if soft-deleted
+                $user->update([
+                    'name' => trim($data['nama']),
+                    'email' => trim($data['email']),
+                    'password' => Hash::make($data['password']),
+                    'status' => 'active',
+                    'email_verified_at' => now(),
+                ]);
+            } else {
+                $user = User::create([
+                    'nim' => $nim,
+                    'name' => trim($data['nama']),
+                    'email' => trim($data['email']),
+                    'password' => Hash::make($data['password']),
+                    'status' => 'active',
+                    'email_verified_at' => now(),
+                ]);
             }
-        });
 
-        $this->command->info('✅ Wirus Angkatan 66 - ' . count($members) . ' anggota berhasil di-seed!');
-        $this->command->info('');
-        $this->command->info('📋 Struktur Organisasi:');
-        $this->command->info('   Ketua: Diva Afdholia R.');
-        $this->command->info('   Wakil Ketua: Fikri Adi Nugraha');
-        $this->command->info('   Super Admin (IT): Rehandhika Arya Pratama');
-        $this->command->info('');
-        $this->command->info('🔐 Default Password: password');
-        $this->command->info('📧 Login menggunakan NIM atau Email');
+            // Sync Role
+            $user->syncRoles([$role]);
+
+            // Dispatch Email Job
+            \App\Jobs\SendInitialCredentialsJob::dispatch($user, $data['password']);
+            
+            $count++;
+        }
+
+        $this->command->info("✅ Berhasil memproses $count anggota dari CSV.");
+        $this->command->info("📧 Email kredensial telah masuk ke antrean (queue).");
+        $this->command->info("🚀 Jalankan 'php artisan queue:work --queue=emails,default' untuk mengirim.");
     }
 
     /**

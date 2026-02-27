@@ -94,6 +94,7 @@ class StockManager extends Component
 
     public function exportHistory()
     {
+        ActivityLogService::log("Mengekspor data histori stok produk");
         return \Maatwebsite\Excel\Facades\Excel::download(
             new \App\Exports\StockHistoryExport($this->historySearch, $this->historyType),
             'riwayat-stok-' . date('Y-m-d-His') . '.xlsx'
@@ -102,6 +103,7 @@ class StockManager extends Component
 
     public function exportProducts()
     {
+        ActivityLogService::log("Mengekspor data histori stok produk");
         return \Maatwebsite\Excel\Facades\Excel::download(
             new \App\Exports\StockProductsExport($this->search, $this->categoryFilter, $this->stockFilter),
             'stok-produk-' . date('Y-m-d-His') . '.xlsx'

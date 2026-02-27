@@ -97,32 +97,6 @@ class DashboardIndex extends Component
     }
 
     #[Computed]
-    public function salesChartData(): array
-    {
-        if (! $this->isAdmin) {
-            return [];
-        }
-
-        // Last 7 days sales
-        $dates = collect(range(6, 0))->map(function ($days) {
-            return now()->subDays($days)->format('Y-m-d');
-        });
-
-        $data = [];
-        $labels = [];
-
-        foreach ($dates as $date) {
-            $labels[] = \Carbon\Carbon::parse($date)->isoFormat('dddd');
-            $data[] = Sale::whereDate('date', $date)->sum('total_amount');
-        }
-
-        return [
-            'labels' => $labels,
-            'data' => $data,
-        ];
-    }
-
-    #[Computed]
     public function activeShifts(): \Illuminate\Support\Collection
     {
         $today = now()->toDateString();

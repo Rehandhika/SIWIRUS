@@ -213,6 +213,7 @@ class Monitoring extends Component
             return;
         }
 
+        ActivityLogService::log("Mengekspor data Poin SHU Mahasiswa");
         return Excel::download(new ShuStudentsExport($this->search), 'poin-shu-mahasiswa.xlsx');
     }
 
@@ -284,6 +285,7 @@ class Monitoring extends Component
             return;
         }
 
+        ActivityLogService::log("Mengekspor data pencairan Poin SHU");
         return Excel::download(new ShuRedemptionsExport($this->redemptionSearch, $this->dateFrom, $this->dateTo), 'poin-shu-pencairan.xlsx');
     }
 
