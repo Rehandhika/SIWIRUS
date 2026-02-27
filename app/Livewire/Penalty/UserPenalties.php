@@ -3,6 +3,7 @@
 namespace App\Livewire\Penalty;
 
 use App\Models\Penalty;
+use App\Services\ActivityLogService;
 use App\Services\PenaltyService;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -68,6 +69,7 @@ class UserPenalties extends Component
                 $this->appealReason
             );
 
+            ActivityLogService::log("Mengajukan banding untuk penalti #{$this->selectedPenalty->id}");
             $this->dispatch('toast', message: 'Banding berhasil diajukan dan akan ditinjau oleh admin', type: 'success');
             $this->reset(['showAppealModal', 'appealReason', 'selectedPenalty']);
 

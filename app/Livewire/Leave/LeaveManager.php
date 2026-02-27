@@ -3,6 +3,7 @@
 namespace App\Livewire\Leave;
 
 use App\Models\LeaveRequest;
+use App\Services\ActivityLogService;
 use App\Services\LeaveService;
 use App\Services\Storage\FileStorageServiceInterface;
 use Carbon\Carbon;
@@ -192,6 +193,7 @@ class LeaveManager extends Component
                 $path
             );
 
+            ActivityLogService::logLeaveCreated(Auth::user()->name, $start->format('d M Y'), $end->format('d M Y'));
             $this->closeForm();
             $this->dispatch('toast', message: 'Pengajuan berhasil dikirim', type: 'success');
         } catch (\Exception $e) {

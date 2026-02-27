@@ -3,6 +3,7 @@
 namespace App\Livewire\Product;
 
 use App\Models\Product;
+use App\Services\ActivityLogService;
 use App\Services\ProductService;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -49,7 +50,10 @@ class ProductList extends Component
         $productService = app(ProductService::class);
 
         try {
+            $product = Product::findOrFail($id);
+            $productName = $product->name;
             $productService->delete($id);
+            ActivityLogService::logProductDeleted($productName);
             $this->dispatch('toast', message: 'Produk berhasil dihapus', type: 'success');
         } catch (\Exception $e) {
             $this->dispatch('toast', message: $e->getMessage(), type: 'error');
@@ -70,6 +74,7 @@ class ProductList extends Component
         $productService = app(ProductService::class);
         $productService->update($id, ['status' => $newStatus]);
 
+        ActivityLogService::log("Mengubah status produk '{$product->name}' menjadi {$newStatus}");
         $this->dispatch('toast', message: 'Status produk berhasil diubah', type: 'success');
     }
 

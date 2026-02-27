@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Banner;
 use App\Models\News;
+use App\Services\ActivityLogService;
 use App\Services\BannerService;
 use App\Services\NewsService;
 use Livewire\Attributes\Validate;
@@ -141,6 +142,7 @@ class BannerNewsManagement extends Component
                     'priority' => $this->bannerPriority,
                 ], $this->bannerImage);
 
+                ActivityLogService::logBannerUpdated($this->bannerTitle);
                 $this->dispatch('toast', message: 'Banner berhasil diperbarui', type: 'success');
             } else {
                 // Create new banner
@@ -149,6 +151,7 @@ class BannerNewsManagement extends Component
                     'priority' => $this->bannerPriority,
                 ], $this->bannerImage);
 
+                ActivityLogService::logBannerCreated($this->bannerTitle);
                 $this->dispatch('toast', message: 'Banner berhasil dibuat', type: 'success');
             }
 
@@ -164,8 +167,10 @@ class BannerNewsManagement extends Component
     {
         try {
             $banner = Banner::findOrFail($id);
+            $bannerTitle = $banner->title;
             $this->bannerService->delete($banner);
 
+            ActivityLogService::logBannerDeleted($bannerTitle);
             $this->dispatch('toast', message: 'Banner berhasil dihapus', type: 'success');
 
         } catch (\Exception $e) {
@@ -181,6 +186,7 @@ class BannerNewsManagement extends Component
 
             $freshBanner = $banner->fresh();
             $statusText = $freshBanner->is_active ? 'diaktifkan' : 'dinonaktifkan';
+            ActivityLogService::logBannerStatusChanged($freshBanner->title, $freshBanner->is_active);
             $this->dispatch('toast', message: "Banner berhasil {$statusText}", type: 'success');
 
         } catch (\Exception $e) {
@@ -270,11 +276,13 @@ class BannerNewsManagement extends Component
                 $news = News::findOrFail($this->editingNewsId);
                 $this->newsService->update($news, $data, $this->newsImage);
 
+                ActivityLogService::logNewsUpdated($this->newsTitle);
                 $this->dispatch('toast', message: 'Berita berhasil diperbarui', type: 'success');
             } else {
                 // Create new news
                 $this->newsService->store($data, $this->newsImage);
 
+                ActivityLogService::logNewsCreated($this->newsTitle);
                 $this->dispatch('toast', message: 'Berita berhasil dibuat', type: 'success');
             }
 
@@ -290,8 +298,10 @@ class BannerNewsManagement extends Component
     {
         try {
             $news = News::findOrFail($id);
+            $newsTitle = $news->title;
             $this->newsService->delete($news);
 
+            ActivityLogService::logNewsDeleted($newsTitle);
             $this->dispatch('toast', message: 'Berita berhasil dihapus', type: 'success');
 
         } catch (\Exception $e) {
@@ -307,6 +317,7 @@ class BannerNewsManagement extends Component
 
             $freshNews = $news->fresh();
             $statusText = $freshNews->is_active ? 'diaktifkan' : 'dinonaktifkan';
+            ActivityLogService::logNewsStatusChanged($freshNews->title, $freshNews->is_active);
             $this->dispatch('toast', message: "Berita berhasil {$statusText}", type: 'success');
 
         } catch (\Exception $e) {

@@ -4,6 +4,7 @@ namespace App\Livewire\Stock;
 
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Services\ActivityLogService;
 use App\Services\ProductService;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
@@ -176,6 +177,9 @@ class ProcurementModal extends Component
         ]);
 
         try {
+            $itemCount = count($this->items);
+            $totalAmount = $this->totalAmount();
+            
             app(ProductService::class)->createProcurement([
                 'supplier_name' => $this->supplier_name,
                 'invoice_number' => $this->invoice_number,
@@ -183,6 +187,7 @@ class ProcurementModal extends Component
                 'notes' => $this->notes,
             ], $this->items);
 
+            ActivityLogService::logPurchaseCreated($this->invoice_number, $totalAmount);
             $this->close();
             $this->dispatch('procurement-saved'); // To refresh parent
             $this->dispatch('notify', type: 'success', message: 'Pengadaan berhasil disimpan');

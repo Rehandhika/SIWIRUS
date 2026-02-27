@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Models\ActivityLog;
 use App\Models\LoginHistory;
+use App\Services\ActivityLogService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -40,12 +40,9 @@ class LogLoginActivity implements ShouldQueue
                 'failure_reason' => $this->failureReason,
             ]);
 
-            // Create activity log for successful login
+            // Create activity log for successful login using ActivityLogService
             if ($this->status === 'success') {
-                ActivityLog::create([
-                    'user_id' => $this->userId,
-                    'activity' => 'Masuk ke sistem',
-                ]);
+                ActivityLogService::logLogin();
             }
         } catch (\Exception $e) {
             Log::error('Failed to log login activity: '.$e->getMessage());

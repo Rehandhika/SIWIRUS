@@ -4,6 +4,7 @@ namespace App\Livewire\Schedule;
 
 use App\Models\ScheduleAssignment;
 use App\Models\ScheduleChangeRequest;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -230,6 +231,15 @@ class ScheduleChangeManager extends Component
             }
 
             DB::commit();
+
+            // Log activity
+            $requestUserName = $request->user->name ?? 'Unknown';
+            $originalDate = $request->originalAssignment?->date?->format('d/m/Y') ?? 'N/A';
+            if ($newStatus === 'approved') {
+                ActivityLogService::log("Menyetujui pengajuan perubahan jadwal {$requestUserName} dari tanggal {$originalDate}");
+            } else {
+                ActivityLogService::log("Menolak pengajuan perubahan jadwal {$requestUserName} dari tanggal {$originalDate}");
+            }
 
             $this->closeReview();
             $this->viewingId = null;

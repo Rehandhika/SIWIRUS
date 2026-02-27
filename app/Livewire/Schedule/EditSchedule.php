@@ -5,6 +5,7 @@ namespace App\Livewire\Schedule;
 use App\Models\Schedule;
 use App\Models\ScheduleAssignment;
 use App\Models\User;
+use App\Services\ActivityLogService;
 use App\Services\ConflictDetectionService;
 use App\Services\ScheduleConfigurationService;
 use App\Services\ScheduleEditService;
@@ -403,6 +404,7 @@ class EditSchedule extends Component
             // Show success message
             $this->dispatch('notify', type: 'success', message: 'Slot berhasil dikosongkan.');
 
+            ActivityLogService::log("Mengosongkan slot jadwal tanggal {$date} sesi {$session}");
             Log::info('Slot cleared via component', [
                 'schedule_id' => $this->schedule->id,
                 'date' => $date,
@@ -449,13 +451,15 @@ class EditSchedule extends Component
             $this->refreshData();
 
             // Show success message
-            $this->dispatch('notify', type: 'success', message: count($userIds).' user berhasil ditambahkan ke slot.');
+            $userCount = count($userIds);
+            $this->dispatch('notify', type: 'success', message: $userCount.' user berhasil ditambahkan ke slot.');
 
+            ActivityLogService::log("Menambahkan {$userCount} user ke slot jadwal tanggal {$date} sesi {$session}");
             Log::info('Bulk users added to slot via component', [
                 'schedule_id' => $this->schedule->id,
                 'date' => $date,
                 'session' => $session,
-                'count' => count($userIds),
+                'count' => $userCount,
             ]);
 
         } catch (\Exception $e) {
@@ -627,6 +631,8 @@ class EditSchedule extends Component
             // Show success message
             $this->dispatch('notify', type: 'success', message: 'Perubahan berhasil disimpan.');
 
+            $weekDate = $this->schedule->week_start_date->format('d M Y');
+            ActivityLogService::logScheduleUpdated("Jadwal Mingguan", $weekDate);
             Log::info('Schedule changes saved', [
                 'schedule_id' => $this->schedule->id,
                 'user' => auth()->user()->name,
