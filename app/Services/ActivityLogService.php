@@ -13,12 +13,13 @@ class ActivityLogService
      *
      * @param  string  $activity  The activity description
      * @param  array|null  $metadata  Optional structured data
+     * @param  int|null  $userId  Optional user ID to log for (defaults to Auth::id())
      */
-    public static function log(string $activity, ?array $metadata = null): ?ActivityLog
+    public static function log(string $activity, ?array $metadata = null, ?int $userId = null): ?ActivityLog
     {
         try {
             return ActivityLog::create([
-                'user_id' => Auth::id(),
+                'user_id' => $userId ?? Auth::id(),
                 'activity' => $activity,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
@@ -448,18 +449,27 @@ class ActivityLogService
 
     /**
      * Log attendance check-in
+     * 
+     * @param string $session
+     * @param string $time
+     * @param int|null $userId
      */
-    public static function logCheckIn(string $session, string $time): void
+    public static function logCheckIn(string $session, string $time, ?int $userId = null): void
     {
-        self::log("Check-in {$session} pada pukul {$time}");
+        self::log("Check-in {$session} pada pukul {$time}", null, $userId);
     }
 
     /**
      * Log attendance check-out
+     * 
+     * @param string $session
+     * @param string $time
+     * @param string $workHours
+     * @param int|null $userId
      */
-    public static function logCheckOut(string $session, string $time, string $workHours): void
+    public static function logCheckOut(string $session, string $time, string $workHours, ?int $userId = null): void
     {
-        self::log("Check-out {$session} pada pukul {$time} (total {$workHours} jam)");
+        self::log("Check-out {$session} pada pukul {$time} (total {$workHours} jam)", null, $userId);
     }
 
     /**

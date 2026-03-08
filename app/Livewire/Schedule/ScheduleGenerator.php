@@ -8,6 +8,7 @@ use App\Models\ScheduleAssignment;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class ScheduleGenerator extends Component
@@ -22,12 +23,73 @@ class ScheduleGenerator extends Component
 
     public $generateStatus = '';
 
+    public $generationStatus = '';
+
     public $generatedCount = 0;
+
+    public $isGenerating = false;
+
+    public $showPreview = false;
+
+    public $previewAssignments = [];
+
+    public $selectedWeekOffset = 0;
+
+    #[Computed]
+    public function scheduleTemplates()
+    {
+        return \App\Models\Schedule::where('is_active', true)
+            ->orderBy('day')
+            ->orderBy('session')
+            ->get();
+    }
+
+    #[Computed]
+    public function weekRange()
+    {
+        $start = Carbon::parse($this->startDate);
+        $end = Carbon::parse($this->endDate);
+
+        return $start->format('d M Y').' - '.$end->format('d M Y');
+    }
+
+    #[Computed]
+    public function availableUsers()
+    {
+        $weekStart = Carbon::parse($this->startDate)->startOfWeek(Carbon::MONDAY);
+
+        return User::where('status', 'active')
+            ->whereHas('availabilities', function ($query) use ($weekStart) {
+                $query->where('week_start_date', $weekStart->format('Y-m-d'))
+                    ->where('status', 'submitted');
+            })
+            ->get();
+    }
 
     public function mount()
     {
         $this->startDate = now()->startOfWeek()->format('Y-m-d');
-        $this->endDate = now()->addWeeks(2)->endOfWeek()->format('Y-m-d');
+        $this->endDate = now()->addWeeks(1)->endOfWeek()->format('Y-m-d');
+    }
+
+    public function updatedSelectedWeekOffset($value)
+    {
+        $start = now()->addWeeks($value)->startOfWeek(Carbon::MONDAY);
+        $end = $start->copy()->endOfWeek(Carbon::SUNDAY);
+
+        $this->startDate = $start->format('Y-m-d');
+        $this->endDate = $end->format('Y-m-d');
+    }
+
+    public function generatePreview()
+    {
+        $this->validate([
+            'startDate' => 'required|date',
+            'endDate' => 'required|date|after_or_equal:startDate',
+        ]);
+
+        $this->previewAssignments = $this->generateScheduleAssignments(true);
+        $this->showPreview = true;
     }
 
     public function generateSchedule()
@@ -94,15 +156,27 @@ class ScheduleGenerator extends Component
         $endDate = Carbon::parse($this->endDate);
         $current = $startDate->copy();
 
-        // Get user availability for the week
-        $weekStart = $startDate->copy()->startOfWeek(Carbon::MONDAY);
-        $userAvailabilities = $this->getUserAvailabilities($weekStart);
+        $currentWeekStart = null;
+        $userAvailabilities = collect();
 
         // Track assignments per user for balancing
         $userAssignmentCounts = [];
 
         while ($current <= $endDate) {
             $dayName = strtolower($current->englishName);
+
+            if (! in_array($dayName, ['monday', 'tuesday', 'wednesday', 'thursday'])) {
+                $current->addDay();
+                continue;
+            }
+
+            $weekStart = $current->copy()->startOfWeek(Carbon::MONDAY);
+            $weekStartDateStr = $weekStart->format('Y-m-d');
+
+            if ($weekStartDateStr !== $currentWeekStart) {
+                $currentWeekStart = $weekStartDateStr;
+                $userAvailabilities = $this->getUserAvailabilities($weekStart);
+            }
 
             // Get templates for this day
             $dayTemplates = $this->scheduleTemplates->where('day', $dayName);
@@ -114,6 +188,7 @@ class ScheduleGenerator extends Component
                     $assignments[] = [
                         'user_id' => $user->id,
                         'date' => $current->format('Y-m-d'),
+                        'day' => $dayName,
                         'schedule_id' => $template->id,
                         'session' => $template->session,
                         'time_start' => $template->time_start,
@@ -140,8 +215,8 @@ class ScheduleGenerator extends Component
     private function getUserAvailabilities($weekStart)
     {
         return AvailabilityDetail::whereHas('availability', function ($query) use ($weekStart) {
-            $query->where('week_start', $weekStart->format('Y-m-d'))
-                ->where('status', 'active');
+            $query->where('week_start_date', $weekStart->format('Y-m-d'))
+                ->where('status', 'submitted');
         })
             ->with('availability.user')
             ->get()
@@ -153,11 +228,10 @@ class ScheduleGenerator extends Component
                     'user_id' => $userDetails->first()->availability->user_id,
                     'user' => $userDetails->first()->availability->user,
                     'available_days' => $userDetails->pluck('day')->unique()->toArray(),
-                    'time_slots' => $userDetails->map(function ($detail) {
+                    'available_sessions' => $userDetails->map(function ($detail) {
                         return [
                             'day' => $detail->day,
-                            'start_time' => $detail->start_time,
-                            'end_time' => $detail->end_time,
+                            'session' => $detail->session,
                         ];
                     })->groupBy('day'),
                 ];
@@ -175,18 +249,11 @@ class ScheduleGenerator extends Component
                 continue;
             }
 
-            // Check if user is available during the template time
-            $dayTimeSlots = $availability['time_slots']->get($dayName, collect());
-            $isTimeAvailable = $dayTimeSlots->contains(function ($slot) use ($template) {
-                $templateStart = Carbon::parse($template->time_start);
-                $templateEnd = Carbon::parse($template->time_end);
-                $slotStart = Carbon::parse($slot['start_time']);
-                $slotEnd = Carbon::parse($slot['end_time']);
+            // Check if user is available during the template session
+            $daySessions = $availability['available_sessions']->get($dayName, collect());
+            $isSessionAvailable = $daySessions->contains('session', $template->session);
 
-                return $templateStart >= $slotStart && $templateEnd <= $slotEnd;
-            });
-
-            if (! $isTimeAvailable) {
+            if (! $isSessionAvailable) {
                 continue;
             }
 

@@ -105,10 +105,10 @@ class AttendanceRepository
      */
     private function getAbsentCount(Carbon $date): int
     {
-        $scheduled = ScheduleAssignment::where('date', $date)->pluck('user_id');
-        $checkedIn = Attendance::whereDate('check_in', $date)->pluck('user_id');
-
-        return $scheduled->diff($checkedIn)->count();
+        // Count schedule assignments that don't have a corresponding attendance record
+        return ScheduleAssignment::where('date', $date)
+            ->whereDoesntHave('attendance')
+            ->count();
     }
 
     /**
@@ -116,15 +116,13 @@ class AttendanceRepository
      */
     public function getNotCheckedInToday(): Collection
     {
-        $scheduledUserIds = ScheduleAssignment::where('date', today())
-            ->pluck('user_id');
+        // Find schedule assignments for today that don't have an attendance record
+        $assignmentUserIds = ScheduleAssignment::where('date', today())
+            ->whereDoesntHave('attendance')
+            ->pluck('user_id')
+            ->unique();
 
-        $checkedInUserIds = Attendance::whereDate('check_in', today())
-            ->pluck('user_id');
-
-        $notCheckedInIds = $scheduledUserIds->diff($checkedInUserIds);
-
-        return \App\Models\User::whereIn('id', $notCheckedInIds)
+        return \App\Models\User::whereIn('id', $assignmentUserIds)
             ->with('roles')
             ->get();
     }

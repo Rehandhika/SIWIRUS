@@ -245,7 +245,7 @@ class ConflictDetectionService
             // Check if user marked this slot as unavailable
             $isUnavailable = AvailabilityDetail::whereHas('availability', function ($query) use ($schedule, $assignment) {
                 $query->where('user_id', $assignment->user_id)
-                    ->where('schedule_id', $schedule->id)
+                    ->where('week_start_date', $schedule->week_start_date)
                     ->where('status', 'submitted');
             })
                 ->where('day', $dayName)

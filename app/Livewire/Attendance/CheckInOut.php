@@ -7,10 +7,9 @@ use App\Models\ScheduleAssignment;
 use App\Services\ActivityLogService;
 use App\Services\AttendanceService;
 use App\Services\NotificationService;
-use App\Services\Storage\FileStorageServiceInterface;
+use App\Services\StoreStatusService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -19,157 +18,87 @@ class CheckInOut extends Component
     use WithFileUploads;
 
     public $currentSchedule;
-
     public $currentAttendance;
-
     public $checkInTime;
-
     public $checkOutTime;
-
     public $checkInPhoto;
-
     public $checkInPhotoPreview = null;
-
-    public $scheduleStatus; // 'active', 'upcoming', 'past'
-
+    public $scheduleStatus; 
     public $showPhotoPreview = false;
-
-    protected FileStorageServiceInterface $fileStorageService;
-    protected AttendanceService $attendanceService;
-    protected \App\Services\StoreStatusService $storeStatusService;
-
-    protected $rules = [
-        'checkInPhoto' => 'required|image|max:5120', // 5MB max
-    ];
-
-    protected $messages = [
-        'checkInPhoto.required' => 'Foto bukti check-in wajib diunggah.',
-        'checkInPhoto.image' => 'File harus berupa gambar (jpg, jpeg, png).',
-        'checkInPhoto.max' => 'Ukuran foto maksimal 5MB.',
-    ];
-
-    public function boot(
-        FileStorageServiceInterface $fileStorageService,
-        AttendanceService $attendanceService,
-        \App\Services\StoreStatusService $storeStatusService
-    ) {
-        $this->fileStorageService = $fileStorageService;
-        $this->attendanceService = $attendanceService;
-        $this->storeStatusService = $storeStatusService;
-    }
 
     public function mount()
     {
         $this->loadCurrentSchedule();
     }
 
-    /**
-     * Refresh schedule status (called by polling)
-     */
-    public function refreshSchedule()
-    {
-        $this->loadCurrentSchedule();
-    }
-
-    /**
-     * Load current schedule and attendance data
-     */
     public function loadCurrentSchedule()
     {
         $user = auth()->user();
-        $now = now();
-        $today = today();
-        $currentTime = $now->format('H:i:s');
+        if (!$user) return;
 
-        // Find current active schedule assignment
-        // Priority 1: Find assignment that is currently active (within time range)
-        $this->currentSchedule = ScheduleAssignment::where('user_id', $user->id)
-            ->where('date', $today)
-            ->where('status', 'scheduled')
-            ->whereHas('schedule', function ($query) {
-                $query->where('status', 'published');
-            })
-            ->where('time_start', '<=', $currentTime)
-            ->where('time_end', '>=', $currentTime)
-            ->with(['schedule', 'user'])
+        $today = today();
+        $currentTime = now()->format('H:i:s');
+
+        // PRIORITY 0: Active attendance session (any day)
+        // Removed whereDate so user can check-out sessions that cross over midnight
+        $this->currentAttendance = Attendance::where('user_id', $user->id)
+            ->whereNull('check_out')
+            ->latest('check_in')
             ->first();
 
-        // Priority 2: If no active assignment, find today's next upcoming assignment
+        if ($this->currentAttendance) {
+            if ($this->currentAttendance->schedule_assignment_id) {
+                $this->currentSchedule = ScheduleAssignment::with(['schedule'])->find($this->currentAttendance->schedule_assignment_id);
+            }
+            $this->scheduleStatus = 'active';
+            $this->checkInTime = $this->currentAttendance->check_in?->format('H:i');
+            return;
+        }
+
+        // Priority 1: Current active assignment
+        $this->currentSchedule = ScheduleAssignment::where('user_id', $user->id)
+            ->where('date', $today)
+            ->whereIn('status', ['scheduled', 'in_progress'])
+            ->whereDoesntHave('attendance')
+            ->whereHas('schedule', fn($q) => $q->where('status', 'published'))
+            ->where('time_start', '<=', $currentTime)
+            ->where('time_end', '>=', $currentTime)
+            ->first();
+
+        // Priority 2: Next upcoming assignment
         if (! $this->currentSchedule) {
             $this->currentSchedule = ScheduleAssignment::where('user_id', $user->id)
                 ->where('date', $today)
                 ->where('status', 'scheduled')
-                ->whereHas('schedule', function ($query) {
-                    $query->where('status', 'published');
-                })
+                ->whereDoesntHave('attendance')
+                ->whereHas('schedule', fn($q) => $q->where('status', 'published'))
                 ->where('time_start', '>', $currentTime)
-                ->with(['schedule', 'user'])
                 ->orderBy('time_start')
                 ->first();
         }
 
-        // Priority 3: If no upcoming, check if there's a past assignment today (for late check-in)
-        if (! $this->currentSchedule) {
-            $this->currentSchedule = ScheduleAssignment::where('user_id', $user->id)
-                ->where('date', $today)
-                ->where('status', 'scheduled')
-                ->whereHas('schedule', function ($query) {
-                    $query->where('status', 'published');
-                })
-                ->with(['schedule', 'user'])
-                ->orderBy('time_start', 'desc')
-                ->first();
-        }
-
-        // Load attendance data and determine schedule status
         if ($this->currentSchedule) {
-            // Determine schedule status
-            $scheduleStart = $this->currentSchedule->date->copy()->setTimeFromTimeString($this->currentSchedule->time_start);
-            $scheduleEnd = $this->currentSchedule->date->copy()->setTimeFromTimeString($this->currentSchedule->time_end);
+            $start = Carbon::parse($this->currentSchedule->time_start);
+            $end = Carbon::parse($this->currentSchedule->time_end);
+            $now = now();
 
-            if ($now->between($scheduleStart, $scheduleEnd)) {
+            if ($now->between($start, $end)) {
                 $this->scheduleStatus = 'active';
-            } elseif ($now->lt($scheduleStart)) {
+            } elseif ($now->lt($start)) {
                 $this->scheduleStatus = 'upcoming';
             } else {
                 $this->scheduleStatus = 'past';
             }
-
-            $this->currentAttendance = Attendance::where('user_id', $user->id)
-                ->where('schedule_assignment_id', $this->currentSchedule->id)
-                ->first();
         } else {
             $this->scheduleStatus = null;
-
-            // Fallback A: User has checked-in for a published schedule that was marked completed on check-in (no checkout yet)
-            $activeAttendance = Attendance::where('user_id', $user->id)
+            // Fallback: Only load unscheduled attendance if it's still ACTIVE
+            // This allows the UI to show a fresh "Check-in" button after checking out in override mode
+            $this->currentAttendance = Attendance::where('user_id', $user->id)
                 ->whereDate('date', $today)
-                ->whereNotNull('schedule_assignment_id')
-                ->whereNull('check_out')
-                ->latest('check_in')
+                ->whereNull('schedule_assignment_id')
+                ->whereNull('check_out') // Key change: only active sessions
+                ->latest()
                 ->first();
-
-            if ($activeAttendance) {
-                // Load the related schedule assignment even if status already moved from 'scheduled'
-                $assignment = ScheduleAssignment::with(['schedule', 'user'])
-                    ->find($activeAttendance->schedule_assignment_id);
-
-                if ($assignment) {
-                    $this->currentSchedule = $assignment;
-                    $this->currentAttendance = $activeAttendance;
-                    $this->scheduleStatus = 'active';
-                }
-            }
-
-            // Fallback B: Override attendance (no schedule)
-            if (! $this->currentSchedule && ! $this->currentAttendance) {
-                // Get the latest one to handle multiple sessions correctly
-                $this->currentAttendance = Attendance::where('user_id', $user->id)
-                    ->where('date', $today)
-                    ->whereNull('schedule_assignment_id')
-                    ->latest()
-                    ->first();
-            }
         }
 
         if ($this->currentAttendance) {
@@ -178,269 +107,95 @@ class CheckInOut extends Component
         }
     }
 
-    /**
-     * Handle check-in with photo upload
-     */
     public function checkIn()
     {
         try {
-            $isOverride = false;
-
-            // Validate schedule exists or override is allowed
-            if (! $this->currentSchedule) {
-                if ($this->storeStatusService->isOverrideActive()) {
-                    $isOverride = true;
-                } else {
-                    throw new \Exception('Tidak ada jadwal aktif saat ini.');
-                }
+            $storeStatus = app(StoreStatusService::class);
+            if (!$this->currentSchedule && !$storeStatus->isOverrideActive()) {
+                throw new \Exception('Tidak ada jadwal aktif.');
             }
 
-            // Check if already checked in
-            if ($this->currentAttendance && $this->currentAttendance->check_in) {
+            if ($this->currentAttendance?->check_in) {
                 throw new \Exception('Anda sudah check-in.');
             }
 
-            // If schedule exists, validate status and timing
-            if ($this->currentSchedule) {
-                // Check if schedule is published
-                if ($this->currentSchedule->schedule->status !== 'published') {
-                    throw new \Exception('Jadwal belum dipublikasikan.');
-                }
+            $this->validate(['checkInPhoto' => 'required|image|max:10240']);
 
-                // Validate timing
-                $scheduleStart = $this->currentSchedule->date->copy()->setTimeFromTimeString($this->currentSchedule->time_start);
-                $now = now();
-                $tolerance = config('app-settings.attendance.allow_early_checkin_minutes', 30);
+            $photoPath = $this->checkInPhoto->store('attendance/check-in', 'public');
 
-                if ($now->lt($scheduleStart->copy()->subMinutes($tolerance))) {
-                    throw new \Exception("Belum waktunya check-in. Check-in dapat dilakukan {$tolerance} menit sebelum jadwal dimulai.");
-                }
-            }
-
-            // Validate photo and notes
-            $this->validate();
-
-            // Store photo using FileStorageService
-            $photoPath = $this->storeCheckInPhoto();
-
-            // Use AttendanceService to create check-in
-            $this->currentAttendance = $this->attendanceService->checkIn(
+            $attendanceService = app(AttendanceService::class);
+            $this->currentAttendance = $attendanceService->checkIn(
                 userId: auth()->id(),
-                scheduleAssignmentId: $this->currentSchedule?->id,
-                notes: null
+                scheduleAssignmentId: $this->currentSchedule?->id
             );
             
-            // Update photo path since Service doesn't handle photo upload in checkIn method yet
-            // Or we could pass it to notes, but better to update model directly here
             $this->currentAttendance->update(['check_in_photo' => $photoPath]);
 
-            $now = $this->currentAttendance->check_in;
-            $this->checkInTime = $now->format('H:i');
-
-            // Log activity
-            $sessionLabel = $this->currentSchedule ? ($this->currentSchedule->session_label ?? 'Sesi '.$this->currentSchedule->session) : 'Check-in Luar Jadwal';
-            ActivityLogService::logCheckIn($sessionLabel, $now->format('H:i'));
-
-            // Send notification
-            $notifTitle = $isOverride ? 'Check-in Luar Jadwal Berhasil' : 'Check-in Berhasil';
-            $notifMessage = $isOverride 
-                ? "Check-in berhasil pada {$now->format('H:i')} (Tanpa Jadwal)"
-                : "Check-in berhasil pada {$now->format('H:i')} untuk jadwal {$this->currentSchedule->day_label} {$this->currentSchedule->session_label}";
-
-            NotificationService::send(
-                auth()->user(),
-                'check_in_success',
-                $notifTitle,
-                $notifMessage
+            ActivityLogService::logCheckIn(
+                $this->currentSchedule ? ($this->currentSchedule->session_label ?? 'Sesi '.$this->currentSchedule->session) : 'Luar Jadwal',
+                now()->format('H:i')
             );
 
-            // Create toast message with late details if applicable
-            $toastMessage = 'Check-in berhasil!';
-            if ($this->currentAttendance->status === 'late') {
-                $toastMessage .= " Terlambat {$this->currentAttendance->late_category} ({$this->currentAttendance->late_minutes} menit)";
-            } else {
-                $toastMessage .= ' Waktu: '.$now->format('H:i');
-            }
-
-            $this->dispatch('toast', message: $toastMessage, type: $this->currentAttendance->status === 'late' ? 'warning' : 'success');
-
-            // Reset form
             $this->reset(['checkInPhoto', 'checkInPhotoPreview', 'showPhotoPreview']);
-
-            // Reload schedule data
             $this->loadCurrentSchedule();
-
-            // Notify dashboards/widgets to refresh
-            $this->dispatch('attendance-updated');
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Re-throw validation exceptions to show field errors
-            throw $e;
+            $this->dispatch('toast', message: 'Check-in berhasil!', type: 'success');
         } catch (\Exception $e) {
             $this->dispatch('toast', message: $e->getMessage(), type: 'error');
-            Log::error('Check-in error: '.$e->getMessage(), [
-                'user_id' => auth()->id(),
-                'schedule_id' => $this->currentSchedule?->id,
-            ]);
         }
     }
 
-    /**
-     * Store check-in photo using FileStorageService.
-     *
-     * @return string Photo path
-     */
-    protected function storeCheckInPhoto(): string
-    {
-        try {
-            $result = $this->fileStorageService->upload($this->checkInPhoto, 'attendance', [
-                'day' => now()->day,
-                'user_id' => auth()->id(),
-            ]);
-
-            return $result->path;
-        } catch (\Exception $e) {
-            Log::warning('CheckInOut: FileStorageService upload failed, using fallback', [
-                'error' => $e->getMessage(),
-            ]);
-
-            // Fallback to direct storage
-            return $this->checkInPhoto->store('attendance/check-in', 'public');
-        }
-    }
-
-    /**
-     * Handle check-out (no photo required)
-     */
     public function checkOut()
     {
         try {
-            // Validate attendance exists
-            if (! $this->currentAttendance || ! $this->currentAttendance->check_in) {
-                throw new \Exception('Anda belum check-in.');
-            }
+            if (!$this->currentAttendance?->check_in) throw new \Exception('Belum check-in.');
+            
+            $attendanceService = app(AttendanceService::class);
+            $this->currentAttendance = $attendanceService->checkOut($this->currentAttendance->id);
 
-            // Check if already checked out
-            if ($this->currentAttendance->check_out) {
-                throw new \Exception('Anda sudah check-out.');
-            }
-
-            // Use AttendanceService to process check-out (handles work hours and schedule status)
-            $this->currentAttendance = $this->attendanceService->checkOut($this->currentAttendance->id);
-
-            $now = $this->currentAttendance->check_out;
-            $this->checkOutTime = $now->format('H:i');
-            $workingHours = $this->currentAttendance->work_hours;
-
-            // Log activity
-            $sessionLabel = $this->currentSchedule ? ($this->currentSchedule->session_label ?? 'Sesi '.$this->currentSchedule->session) : 'Check-in Luar Jadwal';
-            ActivityLogService::logCheckOut($sessionLabel, $now->format('H:i'), number_format($workingHours, 2));
-
-            // Send notification
-            NotificationService::send(
-                auth()->user(),
-                'check_out_success',
-                'Check-out Berhasil',
-                "Check-out berhasil pada {$now->format('H:i')}. Total jam kerja: ".number_format($workingHours, 2).' jam'
+            ActivityLogService::logCheckOut(
+                $this->currentSchedule ? ($this->currentSchedule->session_label ?? 'Sesi '.$this->currentSchedule->session) : 'Luar Jadwal',
+                now()->format('H:i'),
+                number_format($this->currentAttendance->work_hours, 2)
             );
 
-            $this->dispatch('toast', message: 'Check-out berhasil! Total jam kerja: '.number_format($workingHours, 2).' jam', type: 'success');
-
-            // Reload schedule data
+            $this->dispatch('toast', message: 'Check-out berhasil!', type: 'success');
             $this->loadCurrentSchedule();
-
-            // Notify dashboards/widgets to refresh
-            $this->dispatch('attendance-updated');
-
         } catch (\Exception $e) {
             $this->dispatch('toast', message: $e->getMessage(), type: 'error');
-            Log::error('Check-out error: '.$e->getMessage(), [
-                'user_id' => auth()->id(),
-                'attendance_id' => $this->currentAttendance?->id,
-            ]);
         }
     }
 
-    /**
-     * Preview uploaded photo
-     */
     public function updatedCheckInPhoto()
     {
-        $this->validate([
-            'checkInPhoto' => 'image|max:5120',
-        ]);
-
-        if ($this->checkInPhoto) {
+        try {
             $this->checkInPhotoPreview = $this->checkInPhoto->temporaryUrl();
+            $this->showPhotoPreview = true;
+        } catch (\Exception $e) {
+            Log::error('CheckInOut Preview Error: ' . $e->getMessage());
         }
-        $this->showPhotoPreview = true;
     }
 
-    /**
-     * Remove uploaded photo
-     */
     public function removePhoto()
     {
         $this->reset(['checkInPhoto', 'checkInPhotoPreview', 'showPhotoPreview']);
     }
 
-    /**
-     * Check if user can check-in now
-     */
     public function canCheckInNow(): bool
     {
-        if ($this->currentAttendance && $this->currentAttendance->check_in) {
-            return false;
-        }
+        if ($this->currentAttendance?->check_in) return false;
+        if (!$this->currentSchedule) return app(StoreStatusService::class)->isOverrideActive();
 
-        if (! $this->currentSchedule) {
-            // Allow check-in if override mode is enabled
-            return $this->storeStatusService->isOverrideActive();
-        }
-
-        // Allow check-in with tolerance
-        $scheduleStart = $this->currentSchedule->date->copy()->setTimeFromTimeString($this->currentSchedule->time_start);
         $now = now();
-        $tolerance = config('app-settings.attendance.allow_early_checkin_minutes', 30);
+        $start = Carbon::parse($this->currentSchedule->time_start)->subMinutes(30);
+        $end = Carbon::parse($this->currentSchedule->time_end);
 
-        return $now->gte($scheduleStart->copy()->subMinutes($tolerance));
+        return $now->gte($start) && $now->lte($end);
     }
 
-    /**
-     * Get time until check-in is available
-     */
     public function getTimeUntilCheckIn(): ?string
     {
-        if (! $this->currentSchedule || $this->scheduleStatus !== 'upcoming') {
-            return null;
-        }
-
-        $scheduleStart = $this->currentSchedule->date->copy()->setTimeFromTimeString($this->currentSchedule->time_start);
-        $tolerance = config('app-settings.attendance.allow_early_checkin_minutes', 30);
-        $checkInAvailable = $scheduleStart->copy()->subMinutes($tolerance);
-
-        return $checkInAvailable->diffForHumans();
-    }
-
-    /**
-     * Get check-in photo URL.
-     */
-    public function getCheckInPhotoUrl(): ?string
-    {
-        if (! $this->currentAttendance || ! $this->currentAttendance->check_in_photo) {
-            return null;
-        }
-
-        try {
-            return $this->fileStorageService->getUrl($this->currentAttendance->check_in_photo, 'thumbnail');
-        } catch (\Exception $e) {
-            // Fallback to direct URL
-            if (Storage::disk('public')->exists($this->currentAttendance->check_in_photo)) {
-                return Storage::disk('public')->url($this->currentAttendance->check_in_photo);
-            }
-
-            return null;
-        }
+        if (!$this->currentSchedule || $this->scheduleStatus !== 'upcoming') return null;
+        return Carbon::parse($this->currentSchedule->time_start)->subMinutes(30)->diffForHumans();
     }
 
     public function render()
@@ -448,8 +203,7 @@ class CheckInOut extends Component
         return view('livewire.attendance.check-in-out', [
             'canCheckIn' => $this->canCheckInNow(),
             'timeUntilCheckIn' => $this->getTimeUntilCheckIn(),
-            'checkInPhotoUrl' => $this->getCheckInPhotoUrl(),
-            'isOverrideActive' => $this->storeStatusService->isOverrideActive(),
+            'isOverrideActive' => app(StoreStatusService::class)->isOverrideActive(),
         ])->layout('layouts.app');
     }
 }

@@ -12,7 +12,7 @@ use Livewire\Component;
 
 class AvailabilityManager extends Component
 {
-    public int $weekOffset = 0;
+    public int $weekOffset = 1;
 
     public array $grid = [];
 

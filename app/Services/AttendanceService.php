@@ -171,7 +171,7 @@ class AttendanceService
                 });
             } catch (\Illuminate\Database\QueryException $e) {
                 if ($e->errorInfo[1] == 1062) { // Duplicate entry error code
-                    throw new BusinessException('Anda sudah melakukan absensi hari ini.', 'DUPLICATE_ATTENDANCE');
+                    throw new BusinessException('Anda sudah melakukan absensi untuk sesi ini.', 'DUPLICATE_ATTENDANCE');
                 }
                 throw $e;
             }
@@ -368,6 +368,60 @@ class AttendanceService
 
             return $attendance;
         });
+    }
+
+    /**
+     * Process auto check-outs for users who forgot to check out
+     * 
+     * @return int Number of processed attendances
+     */
+    public function processAutoCheckOuts(): int
+    {
+        $now = now();
+        $bufferHours = 3;
+        $count = 0;
+
+        $activeAttendances = Attendance::whereNull('check_out')
+            ->whereNotNull('schedule_assignment_id')
+            ->with('scheduleAssignment')
+            ->get();
+
+        foreach ($activeAttendances as $attendance) {
+            $assignment = $attendance->scheduleAssignment;
+            if (!$assignment) continue;
+
+            $endTime = $assignment->date->copy()->setTimeFromTimeString($assignment->time_end);
+            
+            if ($now->gt($endTime->copy()->addHours($bufferHours))) {
+                DB::transaction(function () use ($attendance, $endTime, $assignment) {
+                    $checkIn = $attendance->check_in;
+                    $workHours = 0;
+                    if ($checkIn && $endTime->gt($checkIn)) {
+                        $workHours = round($checkIn->diffInMinutes($endTime) / 60, 2);
+                    }
+
+                    $attendance->update([
+                        'check_out' => $endTime,
+                        'work_hours' => $workHours,
+                        'notes' => ($attendance->notes ? $attendance->notes . "\n" : "") . "[Sistem: Auto-checkout (Lupa checkout)]",
+                    ]);
+
+                    if ($assignment->status === 'in_progress') {
+                        $assignment->update(['status' => 'completed']);
+                    }
+
+                    ActivityLogService::logCheckOut(
+                        $assignment->session_label ?? 'Sesi '.$assignment->session,
+                        $endTime->format('H:i'),
+                        number_format($workHours, 2),
+                        $attendance->user_id
+                    );
+                });
+                $count++;
+            }
+        }
+
+        return $count;
     }
 
     /**

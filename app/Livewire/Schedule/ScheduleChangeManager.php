@@ -124,7 +124,7 @@ class ScheduleChangeManager extends Component
             return;
         }
 
-        // Jika reschedule, cek tidak bentrok dengan jadwal lain
+        // Jika reschedule, cek tidak bentrok dengan jadwal lain dan ketersediaan
         if ($this->changeType === 'reschedule') {
             $conflict = ScheduleAssignment::where('user_id', Auth::id())
                 ->where('date', $this->requestedDate)
@@ -132,6 +132,26 @@ class ScheduleChangeManager extends Component
                 ->exists();
             if ($conflict) {
                 $this->addError('requestedDate', 'Anda sudah punya jadwal di waktu tersebut');
+
+                return;
+            }
+
+            // Cek ketersediaan user
+            $dayName = strtolower(\Carbon\Carbon::parse($this->requestedDate)->englishDayOfWeek);
+            $weekStart = \Carbon\Carbon::parse($this->requestedDate)->startOfWeek(\Carbon\Carbon::MONDAY)->toDateString();
+            
+            $isAvailable = \App\Models\AvailabilityDetail::whereHas('availability', function ($query) use ($weekStart) {
+                $query->where('user_id', Auth::id())
+                    ->where('week_start_date', $weekStart)
+                    ->where('status', 'submitted');
+            })
+                ->where('day', $dayName)
+                ->where('session', $this->requestedSession)
+                ->where('is_available', true)
+                ->exists();
+
+            if (! $isAvailable) {
+                $this->addError('requestedDate', 'Anda tidak menandai ketersediaan di waktu tersebut untuk minggu ini');
 
                 return;
             }
@@ -217,8 +237,22 @@ class ScheduleChangeManager extends Component
                     // Batalkan jadwal - hapus assignment
                     $assignment->delete();
                 } else {
-                    // Pindah jadwal - update assignment
+                    // Pindah jadwal - cari/buat schedule untuk minggu tersebut
+                    $newSchedule = \App\Models\Schedule::forDate($request->requested_date->toDateString());
+                    
+                    if (! $newSchedule) {
+                        $weekStart = $request->requested_date->copy()->startOfWeek(\Carbon\Carbon::MONDAY);
+                        $newSchedule = \App\Models\Schedule::create([
+                            'week_start_date' => $weekStart->toDateString(),
+                            'week_end_date' => $weekStart->copy()->addDays(3)->toDateString(),
+                            'status' => 'draft',
+                            'total_slots' => 12,
+                        ]);
+                    }
+
+                    // Update assignment
                     $assignment->update([
+                        'schedule_id' => $newSchedule->id,
                         'date' => $request->requested_date,
                         'session' => $request->requested_session,
                         'time_start' => $this->getSessionTime($request->requested_session, 'start'),

@@ -269,7 +269,10 @@ class CreateSchedule extends Component
         $dayName = strtolower(Carbon::parse($date)->englishDayOfWeek);
 
         $this->availableUsers = User::where('status', 'active')
-            ->with(['availabilities.details' => function ($query) use ($dayName, $session) {
+            ->with(['availabilities' => function ($query) {
+                $query->where('week_start_date', $this->weekStartDate)
+                    ->where('status', 'submitted');
+            }, 'availabilities.details' => function ($query) use ($dayName, $session) {
                 $query->where('day', $dayName)
                     ->where('session', $session);
             }])
@@ -431,9 +434,13 @@ class CreateSchedule extends Component
      */
     private function checkAvailabilityMismatch(int $userId, string $date, int $session): bool
     {
-        $dayName = strtolower(Carbon::parse($date)->englishDayOfWeek);
+        $carbonDate = Carbon::parse($date);
+        $dayName = strtolower($carbonDate->englishDayOfWeek);
+        $weekStart = $carbonDate->copy()->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
 
-        $user = User::with(['availabilities.details' => function ($query) use ($dayName, $session) {
+        $user = User::with(['availabilities' => function ($query) use ($weekStart) {
+            $query->where('week_start_date', $weekStart)->where('status', 'submitted');
+        }, 'availabilities.details' => function ($query) use ($dayName, $session) {
             $query->where('day', $dayName)->where('session', $session);
         }])->find($userId);
 
@@ -700,7 +707,7 @@ class CreateSchedule extends Component
             foreach ($sessions as $session => $users) {
                 foreach ($users as $assignment) {
                     ScheduleAssignment::create([
-                        'schedule_id' => $schedule->id,
+                        'schedule_id' => $schedule->getKey(),
                         'user_id' => $assignment['user_id'],
                         'date' => $date,
                         'session' => $session,

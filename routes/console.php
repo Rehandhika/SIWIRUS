@@ -41,3 +41,9 @@ Schedule::command('livewire:configure-s3-upload-cleanup')->daily()->at('03:00');
 
 // Monitor Queue
 Schedule::command('queue:monitor default:100')->everyFiveMinutes();
+
+// Auto Checkout Attendance (3 hours buffer after session ends)
+Schedule::command('attendance:auto-checkout')->everyThirtyMinutes();
+
+// Process Daily Absences (at the end of the day)
+Schedule::command('attendance:process-absences')->dailyAt('23:55');

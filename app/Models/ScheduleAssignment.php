@@ -226,7 +226,10 @@ class ScheduleAssignment extends Model
         }
 
         // Check availability mismatch
+        $weekStart = $this->date->copy()->startOfWeek(\Carbon\Carbon::MONDAY)->toDateString();
         $availability = Availability::where('user_id', $this->user_id)
+            ->where('week_start_date', $weekStart)
+            ->where('status', 'submitted')
             ->whereHas('details', function ($query) {
                 $dayName = strtolower($this->date->englishDayOfWeek);
                 $query->where('day', $dayName)
@@ -248,9 +251,11 @@ class ScheduleAssignment extends Model
     public function checkUserAvailability(): bool
     {
         $dayName = strtolower($this->date->englishDayOfWeek);
+        $weekStart = $this->date->copy()->startOfWeek(\Carbon\Carbon::MONDAY)->toDateString();
 
-        return AvailabilityDetail::whereHas('availability', function ($query) {
+        return AvailabilityDetail::whereHas('availability', function ($query) use ($weekStart) {
             $query->where('user_id', $this->user_id)
+                ->where('week_start_date', $weekStart)
                 ->where('status', 'submitted');
         })
             ->where('day', $dayName)

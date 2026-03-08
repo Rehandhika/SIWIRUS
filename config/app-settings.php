@@ -50,7 +50,7 @@ return [
             'LATE_A' => 5,
             'LATE_B' => 10,
             'LATE_C' => 15,
-            'ABSENT' => 20,
+            'ABSENT' => 25,
         ],
     ],
 

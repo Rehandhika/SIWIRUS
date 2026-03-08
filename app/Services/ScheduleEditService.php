@@ -810,6 +810,7 @@ class ScheduleEditService
 
         // Get user's availability for the week
         $availability = \App\Models\Availability::where('user_id', $userId)
+            ->where('week_start_date', $weekStart)
             ->where('status', 'submitted')
             ->with('details')
             ->first();

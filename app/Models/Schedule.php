@@ -89,6 +89,13 @@ class Schedule extends Model
         return $this->status === 'draft';
     }
 
+    public static function forDate(string $date): ?self
+    {
+        $monday = Carbon::parse($date)->startOfWeek(Carbon::MONDAY)->toDateString();
+
+        return self::where('week_start_date', $monday)->first();
+    }
+
     public function canEdit(): bool
     {
         return $this->status === 'draft';
