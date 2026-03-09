@@ -301,7 +301,7 @@ function ProductsSection({ initialCategories, initialProducts }) {
                             key={idx}
                             className="overflow-hidden bg-card/40 border border-border/40 rounded-2xl"
                         >
-                            <div className="aspect-[4/3] sm:aspect-square">
+                            <div className="aspect-square">
                                 <Skeleton className="h-full w-full rounded-none" />
                             </div>
                             <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
@@ -329,7 +329,7 @@ function ProductsSection({ initialCategories, initialProducts }) {
                                     className="group relative flex flex-col overflow-hidden bg-card/40 hover:bg-card/60 border border-border/40 hover:border-primary/30 rounded-2xl transition-all duration-300 ease-out hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5 active:scale-[0.98]"
                                 >
                                     {/* Image Container */}
-                                    <div className="aspect-[4/3] sm:aspect-square relative overflow-hidden bg-muted/50">
+                                    <div className="aspect-square relative overflow-hidden bg-muted/50">
                                         {p.image_medium_url ? (
                                             <img
                                                 src={p.image_thumbnail_url || p.image_medium_url}

@@ -69,7 +69,7 @@ class ScheduleTemplate extends Model
      */
     public function canEdit(User $user): bool
     {
-        return $this->created_by === $user->id || $user->hasRole('super_admin');
+        return $this->created_by === $user->id || $user->can('kelola_jadwal');
     }
 
     /**
@@ -77,7 +77,7 @@ class ScheduleTemplate extends Model
      */
     public function canDelete(User $user): bool
     {
-        return $this->created_by === $user->id || $user->hasRole('super_admin');
+        return $this->created_by === $user->id || $user->can('kelola_jadwal');
     }
 
     /**

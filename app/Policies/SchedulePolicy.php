@@ -60,19 +60,19 @@ class SchedulePolicy
 
     /**
      * Determine if the user can force edit any schedule (including archived)
-     * Only Super Admins can force edit
+     * Requires 'kelola_jadwal' permission
      */
     public function forceEdit(User $user, Schedule $schedule): bool
     {
-        return $user->hasRole('Super Admin');
+        return $user->can('kelola_jadwal');
     }
 
     /**
      * Determine if the user can view edit history
-     * Admins, Super Admins, and Pengurus can view history
+     * Users with schedule management or viewing permissions can view history
      */
     public function viewHistory(User $user, Schedule $schedule): bool
     {
-        return $user->hasRole(['Super Admin', 'Admin', 'Pengurus']);
+        return $user->can('kelola_jadwal') || $user->can('lihat_semua_jadwal') || $user->can('lihat_jadwal_sendiri');
     }
 }

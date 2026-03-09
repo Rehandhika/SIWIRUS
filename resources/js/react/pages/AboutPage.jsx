@@ -178,9 +178,6 @@ export default function AboutPage({ initialData }) {
                         </div>
 
                         <Separator className="bg-border" />
-                        <div className="text-xs text-muted-foreground text-center">
-                            Sistem desain: shadcn/ui + Tailwind, konsisten dengan halaman katalog dan produk.
-                        </div>
                     </CardContent>
                 </Card>
 

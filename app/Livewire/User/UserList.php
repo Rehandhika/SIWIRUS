@@ -203,7 +203,7 @@ class UserList extends Component
         try {
             $user = User::findOrFail($id);
 
-            if ($user->hasRole('super-admin')) {
+            if ($user->hasRole(config('roles.super_admin_role', 'Super Admin'))) {
                 $this->dispatch('toast', message: 'Super Admin tidak dapat dihapus', type: 'error');
 
                 return;
@@ -231,7 +231,7 @@ class UserList extends Component
         try {
             $user = User::findOrFail($id);
 
-            if ($user->hasRole('super-admin')) {
+            if ($user->hasRole(config('roles.super_admin_role', 'Super Admin'))) {
                 $this->dispatch('toast', message: 'Status Super Admin tidak dapat diubah', type: 'error');
 
                 return;

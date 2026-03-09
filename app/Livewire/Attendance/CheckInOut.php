@@ -6,7 +6,6 @@ use App\Models\Attendance;
 use App\Models\ScheduleAssignment;
 use App\Services\ActivityLogService;
 use App\Services\AttendanceService;
-use App\Services\NotificationService;
 use App\Services\StoreStatusService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -22,9 +21,10 @@ class CheckInOut extends Component
     public $checkInTime;
     public $checkOutTime;
     public $checkInPhoto;
-    public $checkInPhotoPreview = null;
     public $scheduleStatus; 
-    public $showPhotoPreview = false;
+
+    // Upload state management — driven by Alpine via events
+    public bool $photoReady = false;
 
     public function mount()
     {
@@ -40,7 +40,6 @@ class CheckInOut extends Component
         $currentTime = now()->format('H:i:s');
 
         // PRIORITY 0: Active attendance session (any day)
-        // Removed whereDate so user can check-out sessions that cross over midnight
         $this->currentAttendance = Attendance::where('user_id', $user->id)
             ->whereNull('check_out')
             ->latest('check_in')
@@ -91,12 +90,10 @@ class CheckInOut extends Component
             }
         } else {
             $this->scheduleStatus = null;
-            // Fallback: Only load unscheduled attendance if it's still ACTIVE
-            // This allows the UI to show a fresh "Check-in" button after checking out in override mode
             $this->currentAttendance = Attendance::where('user_id', $user->id)
                 ->whereDate('date', $today)
                 ->whereNull('schedule_assignment_id')
-                ->whereNull('check_out') // Key change: only active sessions
+                ->whereNull('check_out')
                 ->latest()
                 ->first();
         }
@@ -105,6 +102,25 @@ class CheckInOut extends Component
             $this->checkInTime = $this->currentAttendance->check_in?->format('H:i');
             $this->checkOutTime = $this->currentAttendance->check_out?->format('H:i');
         }
+    }
+
+    /**
+     * Called by Alpine after Livewire temp upload finishes successfully.
+     * This sets the flag that enables the check-in button.
+     */
+    public function markPhotoReady()
+    {
+        if ($this->checkInPhoto) {
+            $this->photoReady = true;
+        }
+    }
+
+    /**
+     * Called when user wants to remove selected photo and retry.
+     */
+    public function removePhoto()
+    {
+        $this->reset(['checkInPhoto', 'photoReady']);
     }
 
     public function checkIn()
@@ -119,7 +135,14 @@ class CheckInOut extends Component
                 throw new \Exception('Anda sudah check-in.');
             }
 
-            $this->validate(['checkInPhoto' => 'required|image|max:10240']);
+            // Strict backend validation
+            $this->validate([
+                'checkInPhoto' => 'required|image|max:10240', // max 10MB
+            ], [
+                'checkInPhoto.required' => 'Foto check-in wajib diunggah.',
+                'checkInPhoto.image' => 'File harus berupa gambar.',
+                'checkInPhoto.max' => 'Ukuran foto maksimal 10MB.',
+            ]);
 
             $photoPath = $this->checkInPhoto->store('attendance/check-in', 'public');
 
@@ -136,10 +159,14 @@ class CheckInOut extends Component
                 now()->format('H:i')
             );
 
-            $this->reset(['checkInPhoto', 'checkInPhotoPreview', 'showPhotoPreview']);
+            $this->reset(['checkInPhoto', 'photoReady']);
             $this->loadCurrentSchedule();
             $this->dispatch('toast', message: 'Check-in berhasil!', type: 'success');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Re-throw so Livewire shows @error messages
+            throw $e;
         } catch (\Exception $e) {
+            Log::error('CheckIn Error: ' . $e->getMessage());
             $this->dispatch('toast', message: $e->getMessage(), type: 'error');
         }
     }
@@ -163,21 +190,6 @@ class CheckInOut extends Component
         } catch (\Exception $e) {
             $this->dispatch('toast', message: $e->getMessage(), type: 'error');
         }
-    }
-
-    public function updatedCheckInPhoto()
-    {
-        try {
-            $this->checkInPhotoPreview = $this->checkInPhoto->temporaryUrl();
-            $this->showPhotoPreview = true;
-        } catch (\Exception $e) {
-            Log::error('CheckInOut Preview Error: ' . $e->getMessage());
-        }
-    }
-
-    public function removePhoto()
-    {
-        $this->reset(['checkInPhoto', 'checkInPhotoPreview', 'showPhotoPreview']);
     }
 
     public function canCheckInNow(): bool

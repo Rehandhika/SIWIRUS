@@ -39,21 +39,21 @@ class ScheduleList extends Component
         unset($this->membersWithAvailability);
         unset($this->availabilityStats);
 
-        // Clear the cache for members availability
-        $weekStart = now()->startOfWeek(Carbon::MONDAY);
+        // Clear the cache for members availability (using next week's date to match current default)
+        $weekStart = now()->addWeek()->startOfWeek(Carbon::MONDAY);
         Cache::forget("members_availability_{$weekStart->format('Y-m-d')}");
     }
 
     #[Computed]
     public function currentWeekStart(): Carbon
     {
-        return now()->startOfWeek(Carbon::MONDAY);
+        return now()->addWeek()->startOfWeek(Carbon::MONDAY);
     }
 
     #[Computed]
     public function currentWeekEnd(): Carbon
     {
-        return now()->endOfWeek(Carbon::SUNDAY);
+        return now()->addWeek()->endOfWeek(Carbon::SUNDAY);
     }
 
     #[Computed]

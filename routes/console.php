@@ -43,7 +43,20 @@ Schedule::command('livewire:configure-s3-upload-cleanup')->daily()->at('03:00');
 Schedule::command('queue:monitor default:100')->everyFiveMinutes();
 
 // Auto Checkout Attendance (3 hours buffer after session ends)
-Schedule::command('attendance:auto-checkout')->everyThirtyMinutes();
+// Sesi 1 ends 10:00 -> Check at 13:05
+// Sesi 2 ends 12:50 -> Check at 15:55
+// Sesi 3 ends 16:00 -> Check at 19:05
+Schedule::command('attendance:auto-checkout')->dailyAt('13:05');
+Schedule::command('attendance:auto-checkout')->dailyAt('15:55');
+Schedule::command('attendance:auto-checkout')->dailyAt('19:05');
 
-// Process Daily Absences (at the end of the day)
-Schedule::command('attendance:process-absences')->dailyAt('23:55');
+// Aggressively check for missed check-ins right after shift ends
+// Sesi 1 ends 10:00 -> Check at 10:05
+// Sesi 2 ends 12:50 -> Check at 12:55
+// Sesi 3 ends 16:00 -> Check at 16:05
+Schedule::command('attendance:check-late-absences')->dailyAt('10:05');
+Schedule::command('attendance:check-late-absences')->dailyAt('12:55');
+Schedule::command('attendance:check-late-absences')->dailyAt('16:05');
+
+// Process Daily Absences (fallback for any missed by the aggressive checker)
+Schedule::command('attendance:process-absences')->dailyAt('00:05');

@@ -1,19 +1,4 @@
-<div class="max-w-2xl mx-auto" 
-     x-data="{ 
-        libStatus: 'loading',
-        init() {
-            if (typeof heic2any !== 'undefined') {
-                this.libStatus = 'ready';
-                return;
-            }
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
-            script.onload = () => { this.libStatus = 'ready'; console.log('HEIC Library Loaded'); };
-            script.onerror = () => { this.libStatus = 'error'; console.error('HEIC Library Failed to Load'); };
-            document.head.appendChild(script);
-        }
-     }"
->
+<div class="max-w-2xl mx-auto">
     <x-ui.card title="Absensi Hari Ini">
         @if($currentSchedule)
             {{-- Schedule Info with Status --}}
@@ -106,117 +91,114 @@
                             <p class="text-sm text-gray-500 mb-3">Sudah check-in</p>
                             @if($currentAttendance && $currentAttendance->check_in_photo)
                                 <div class="mt-3">
-                                    <img src="{{ $currentAttendance->check_in_photo_url }}" class="w-full h-32 object-cover rounded-lg border">
+                                    <img src="{{ $currentAttendance->check_in_photo_url }}" class="w-full h-32 object-contain rounded-lg border">
                                 </div>
                             @endif
                         </div>
                     @else
-                        <div
-                            x-data="{
-                                uploading: false,
-                                async compressAndUpload(event) {
-                                    let file = event.target.files[0];
-                                    if (!file) return;
-                                    
-                                    this.uploading = true;
-                                    
-                                    try {
-                                        const isHeic = file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || file.type === 'image/heic' || file.type === 'image/heif';
-
-                                        if (isHeic) {
-                                            if (typeof heic2any === 'undefined') {
-                                                this.uploading = false;
-                                                alert('Modul iPhone sedang dimuat. Harap tunggu 3 detik lalu coba pilih foto kembali.');
-                                                return;
-                                            }
-                                            console.log('Converting HEIC...');
-                                            const converted = await heic2any({
-                                                blob: file,
-                                                toType: 'image/jpeg',
-                                                quality: 0.7
-                                            });
-                                            const blob = Array.isArray(converted) ? converted[0] : converted;
-                                            file = new File([blob], 'from_iphone.jpg', { type: 'image/jpeg' });
-                                        }
-
-                                        // Use ObjectURL for better performance
-                                        const url = URL.createObjectURL(file);
-                                        const img = new Image();
-                                        img.src = url;
-                                        
-                                        img.onerror = () => {
-                                            URL.revokeObjectURL(url);
-                                            this.uploading = false;
-                                            alert('Format gambar tidak dikenali. Jika Anda menggunakan iPhone, pastikan koneksi internet stabil.');
-                                        };
-
-                                        img.onload = () => {
-                                            const canvas = document.createElement('canvas');
-                                            const MAX_WIDTH = 1000;
-                                            const MAX_HEIGHT = 1000;
-                                            let width = img.width;
-                                            let height = img.height;
-
-                                            if (width > height) {
-                                                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                                            } else {
-                                                if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                                            }
-                                            
-                                            canvas.width = width;
-                                            canvas.height = height;
-                                            const ctx = canvas.getContext('2d');
-                                            ctx.drawImage(img, 0, 0, width, height);
-                                            
-                                            canvas.toBlob((blob) => {
-                                                URL.revokeObjectURL(url);
-                                                const finalFile = new File([blob], 'attendance.jpg', { type: 'image/jpeg' });
-                                                @this.upload('checkInPhoto', finalFile, 
-                                                    () => this.uploading = false, 
-                                                    () => { this.uploading = false; alert('Gagal mengunggah foto ke server.'); }
-                                                );
-                                            }, 'image/jpeg', 0.8);
-                                        };
-                                    } catch (err) {
-                                        console.error('Processing error:', err);
-                                        this.uploading = false;
-                                        alert('Gagal memproses gambar: ' + err.message);
-                                    }
-                                }
-                            }"
-                        >
+                        <div>
                             @if($canCheckIn)
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Foto Bukti Check-in <span class="text-red-500">*</span></label>
+                                {{-- ========================================
+                                     ALPINE-MANAGED UPLOAD COMPONENT 
+                                     ======================================== --}}
+                                <div
+                                    x-data="photoUploader()"
+                                    x-on:livewire-upload-start="handleUploadStart($event)"
+                                    x-on:livewire-upload-finish="handleUploadFinish($event)"
+                                    x-on:livewire-upload-error="handleUploadError($event)"
+                                    x-on:livewire-upload-progress="handleUploadProgress($event)"
+                                    class="mb-4"
+                                >
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Foto Bukti Check-in <span class="text-red-500">*</span>
+                                    </label>
                                     
-                                    @if($checkInPhotoPreview)
+                                    {{-- PREVIEW STATE: Photo selected & ready --}}
+                                    <template x-if="previewUrl">
                                         <div class="relative mb-3">
-                                            <img src="{{ $checkInPhotoPreview }}" class="w-full h-48 object-cover rounded-lg border-2 border-success-300">
-                                            <button type="button" wire:click="removePhoto" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"><x-ui.icon name="x" class="w-4 h-4" /></button>
+                                            <img :src="previewUrl" class="w-full h-48 object-contain rounded-lg border-2 border-success-300">
+                                            <button 
+                                                type="button" 
+                                                x-on:click="resetUpload()" 
+                                                class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-lg transition-colors"
+                                            >
+                                                <x-ui.icon name="x" class="w-4 h-4" />
+                                            </button>
+
+                                            {{-- Status overlay --}}
+                                            <div 
+                                                x-show="state === 'compressing' || state === 'uploading'"
+                                                class="absolute inset-0 bg-black/40 rounded-lg flex flex-col items-center justify-center"
+                                            >
+                                                <x-ui.icon name="arrow-path" class="w-8 h-8 text-white animate-spin mb-2" />
+                                                <span class="text-white text-sm font-medium" x-text="stateMessage"></span>
+                                                {{-- Progress bar --}}
+                                                <div x-show="state === 'uploading'" class="w-3/4 mt-2 bg-white/30 rounded-full h-2 overflow-hidden">
+                                                    <div class="bg-white h-full rounded-full transition-all duration-300" :style="'width: ' + progress + '%'"></div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Success badge --}}
+                                            <div 
+                                                x-show="state === 'success'" 
+                                                x-transition
+                                                class="absolute top-2 left-2 bg-green-500 text-white rounded-full px-2 py-1 text-xs font-medium flex items-center gap-1 shadow"
+                                            >
+                                                <x-ui.icon name="check-circle" class="w-3.5 h-3.5" />
+                                                Siap
+                                            </div>
                                         </div>
-                                    @else
-                                        <div class="flex items-center justify-center w-full" x-show="!uploading">
-                                            <label class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                                    </template>
+
+                                    {{-- IDLE STATE: No photo selected --}}
+                                    <template x-if="!previewUrl">
+                                        <div class="flex items-center justify-center w-full">
+                                            <label class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                                                :class="state === 'error' ? 'border-red-400 bg-red-50' : 'border-gray-300'"
+                                            >
                                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                                     <x-ui.icon name="camera" class="w-10 h-10 mb-3 text-gray-400" />
                                                     <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Klik untuk ambil foto</span></p>
-                                                    <p class="text-xs text-gray-500 text-center px-2">Mendukung iPhone (HEIC otomatis dikonversi)</p>
+                                                    <p class="text-xs text-gray-400">Maks. 10MB • JPG, PNG, HEIC</p>
                                                 </div>
-                                                <input type="file" class="hidden" accept="image/*" @change="compressAndUpload">
+                                                <input 
+                                                    type="file" 
+                                                    class="hidden" 
+                                                    accept="image/*"
+                                                    x-ref="fileInput"
+                                                    x-on:change="handleFileSelect($event)"
+                                                >
                                             </label>
                                         </div>
-                                        <div class="flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-lg bg-gray-50" x-show="uploading">
-                                            <x-ui.icon name="arrow-path" class="w-8 h-8 animate-spin text-primary-500 mb-2" />
-                                            <p class="text-sm text-gray-500 font-medium">Memproses foto iPhone...</p>
-                                            <p class="text-xs text-gray-400 mt-1">Langkah ini memakan waktu beberapa detik</p>
-                                        </div>
-                                    @endif
-                                    @error('checkInPhoto') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                                    </template>
+
+                                    {{-- Error message from upload --}}
+                                    <template x-if="errorMessage">
+                                        <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                                            <x-ui.icon name="exclamation-triangle" class="w-4 h-4 flex-shrink-0" />
+                                            <span x-text="errorMessage"></span>
+                                        </p>
+                                    </template>
+
+                                    {{-- Livewire validation error --}}
+                                    @error('checkInPhoto') 
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p> 
+                                    @enderror
                                 </div>
 
-                                <x-ui.button variant="success" wire:click="checkIn" :disabled="!$checkInPhoto" class="w-full">
+                                {{-- CHECK-IN BUTTON --}}
+                                <x-ui.button 
+                                    variant="success" 
+                                    wire:click="checkIn" 
+                                    x-bind:disabled="state !== 'success'"
+                                    class="w-full"
+                                >
                                     <x-ui.icon name="check-circle" class="w-5 h-5 mr-2" />
-                                    <span>Check-in</span>
+                                    <span wire:loading.remove wire:target="checkIn">Check-in</span>
+                                    <span wire:loading wire:target="checkIn">
+                                        <x-ui.icon name="arrow-path" class="w-4 h-4 inline animate-spin mr-2" />
+                                        Memproses...
+                                    </span>
                                 </x-ui.button>
                             @else
                                 <div class="text-center text-gray-500">
@@ -256,3 +238,213 @@
         @endif
     </x-ui.card>
 </div>
+
+@script
+<script>
+    Alpine.data('photoUploader', () => ({
+        // States: idle, compressing, uploading, success, error
+        state: 'idle',
+        previewUrl: null,
+        errorMessage: null,
+        progress: 0,
+
+        // Max file size before compression (2MB)
+        COMPRESS_THRESHOLD: 2 * 1024 * 1024,
+        // Max allowed file size from input (10MB original)
+        MAX_FILE_SIZE: 10 * 1024 * 1024,
+        // Target max dimension for resize
+        MAX_DIMENSION: 1920,
+        // JPEG quality for compression
+        JPEG_QUALITY: 0.8,
+
+        get stateMessage() {
+            switch (this.state) {
+                case 'compressing': return 'Mengompres foto...';
+                case 'uploading': return `Mengunggah... ${this.progress}%`;
+                default: return '';
+            }
+        },
+
+        async handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Reset previous state
+            this.errorMessage = null;
+            this.progress = 0;
+
+            // 1. Validate basic type
+            if (!file.type.startsWith('image/') && !file.name.match(/\.(heic|heif)$/i)) {
+                this.showError('File harus berupa gambar (JPG, PNG, HEIC).');
+                this.clearInput();
+                return;
+            }
+
+            // 2. Validate max size (before compression)
+            if (file.size > this.MAX_FILE_SIZE) {
+                const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+                this.showError(`Ukuran foto terlalu besar (${sizeMB}MB). Maksimal 10MB.`);
+                this.clearInput();
+                return;
+            }
+
+            // 3. Generate preview immediately from original file
+            this.generatePreview(file);
+
+            // 4. Compress if needed, then upload
+            try {
+                let fileToUpload = file;
+
+                if (file.size > this.COMPRESS_THRESHOLD) {
+                    this.state = 'compressing';
+                    fileToUpload = await this.compressImage(file);
+                }
+
+                // 5. Upload to Livewire temp storage
+                this.state = 'uploading';
+                await this.uploadToLivewire(fileToUpload);
+            } catch (err) {
+                console.error('Photo upload error:', err);
+                this.showError('Gagal memproses foto. Silakan coba lagi.');
+                this.previewUrl = null;
+            }
+        },
+
+        generatePreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.previewUrl = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        },
+
+        compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(file);
+
+                img.onload = () => {
+                    try {
+                        let { width, height } = img;
+
+                        // Calculate new dimensions
+                        if (width > this.MAX_DIMENSION || height > this.MAX_DIMENSION) {
+                            const ratio = Math.min(this.MAX_DIMENSION / width, this.MAX_DIMENSION / height);
+                            width = Math.round(width * ratio);
+                            height = Math.round(height * ratio);
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        canvas.toBlob(
+                            (blob) => {
+                                URL.revokeObjectURL(url);
+                                if (!blob) {
+                                    reject(new Error('Kompresi gagal'));
+                                    return;
+                                }
+                                // Create a new File from the blob
+                                const compressed = new File(
+                                    [blob], 
+                                    file.name.replace(/\.\w+$/, '.jpg'), 
+                                    { type: 'image/jpeg', lastModified: Date.now() }
+                                );
+                                resolve(compressed);
+                            },
+                            'image/jpeg',
+                            this.JPEG_QUALITY
+                        );
+                    } catch (e) {
+                        URL.revokeObjectURL(url);
+                        reject(e);
+                    }
+                };
+
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    // If image can't be loaded (e.g. HEIC on some browsers), upload original
+                    resolve(file);
+                };
+
+                img.src = url;
+            });
+        },
+
+        uploadToLivewire(file) {
+            // Use Livewire's JavaScript upload API for granular control
+            return new Promise((resolve, reject) => {
+                @this.upload('checkInPhoto', file,
+                    // Success callback
+                    () => {
+                        this.state = 'success';
+                        this.progress = 100;
+                        // Tell the server the photo is ready
+                        @this.call('markPhotoReady');
+                        resolve();
+                    },
+                    // Error callback
+                    (error) => {
+                        this.showError('Gagal mengunggah foto. Periksa koneksi internet Anda.');
+                        this.previewUrl = null;
+                        reject(error);
+                    },
+                    // Progress callback
+                    (event) => {
+                        this.progress = event.detail?.progress || Math.round((event.loaded / event.total) * 100) || 0;
+                    }
+                );
+            });
+        },
+
+        // Livewire global upload event handlers (fallback/redundancy)
+        handleUploadStart(event) {
+            // Already managed by uploadToLivewire, but just in case
+            if (this.state !== 'uploading' && this.state !== 'compressing') {
+                this.state = 'uploading';
+            }
+        },
+        handleUploadFinish(event) {
+            if (this.state === 'uploading') {
+                this.state = 'success';
+                this.progress = 100;
+            }
+        },
+        handleUploadError(event) {
+            if (this.state === 'uploading') {
+                this.showError('Gagal mengunggah foto. Silakan coba lagi.');
+                this.previewUrl = null;
+            }
+        },
+        handleUploadProgress(event) {
+            if (this.state === 'uploading' && event.detail?.progress) {
+                this.progress = event.detail.progress;
+            }
+        },
+
+        resetUpload() {
+            this.previewUrl = null;
+            this.state = 'idle';
+            this.errorMessage = null;
+            this.progress = 0;
+            this.clearInput();
+            @this.call('removePhoto');
+        },
+
+        showError(msg) {
+            this.state = 'error';
+            this.errorMessage = msg;
+        },
+
+        clearInput() {
+            if (this.$refs.fileInput) {
+                this.$refs.fileInput.value = '';
+            }
+        }
+    }));
+</script>
+@endscript
