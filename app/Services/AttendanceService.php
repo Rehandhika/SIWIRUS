@@ -34,19 +34,28 @@ class AttendanceService
 
     /**
      * Process check-in with validation and penalty calculation
+     * FIXED: All validation is now inside transaction with pessimistic locking to prevent race conditions
      *
      * @throws \Exception
      */
     public function checkIn(int $userId, ?int $scheduleAssignmentId, ?string $notes = null): Attendance
     {
-        try {
+        // Use transaction with pessimistic locking to prevent race conditions
+        return DB::transaction(function () use ($userId, $scheduleAssignmentId, $notes) {
             $schedule = null;
             $status = 'present';
             $lateMinutes = 0;
+            $checkInTime = now();
 
             if ($scheduleAssignmentId) {
-                // Validate schedule exists and belongs to user
-                $schedule = ScheduleAssignment::findOrFail($scheduleAssignmentId);
+                // FIX: Lock the schedule row to prevent concurrent modifications
+                $schedule = ScheduleAssignment::where('id', $scheduleAssignmentId)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$schedule) {
+                    throw new BusinessException('Jadwal tidak ditemukan.', 'SCHEDULE_NOT_FOUND');
+                }
 
                 if ($schedule->user_id !== $userId) {
                     Log::warning('Unauthorized check-in attempt', [
@@ -57,73 +66,74 @@ class AttendanceService
                     throw new BusinessException('Jadwal tidak sesuai dengan user.', 'UNAUTHORIZED_SCHEDULE');
                 }
 
-                // Validate schedule date is today
-                if (! $schedule->date->isToday()) {
+                if (!$schedule->date->isToday()) {
                     throw new BusinessException('Hanya dapat check-in untuk jadwal hari ini.', 'INVALID_SCHEDULE_DATE');
                 }
 
-                // Check if already checked in for this schedule
+                // FIX: Check within transaction with lock
                 $existing = Attendance::where('user_id', $userId)
                     ->where('schedule_assignment_id', $scheduleAssignmentId)
+                    ->lockForUpdate()
                     ->first();
 
                 if ($existing && $existing->check_in) {
                     throw new BusinessException('Anda sudah check-in untuk jadwal ini.', 'ALREADY_CHECKED_IN');
                 }
+
+                // FIX: Check other sessions within same transaction with lock
+                $todayCheckedIn = Attendance::where('user_id', $userId)
+                    ->whereDate('date', today())
+                    ->whereNotNull('check_in')
+                    ->whereNull('check_out')
+                    ->where('schedule_assignment_id', '!=', $scheduleAssignmentId)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($todayCheckedIn) {
+                    throw new BusinessException('Anda masih memiliki sesi check-in aktif. Silakan checkout terlebih dahulu.', 'ACTIVE_SESSION_EXISTS');
+                }
             } else {
                 // Override Mode Check-in (No Schedule)
-            if (! $this->storeStatusService->isOverrideActive()) {
-                throw new BusinessException('Check-in tanpa jadwal tidak diizinkan.', 'OVERRIDE_DISABLED');
-            }
+                if (!$this->storeStatusService->isOverrideActive()) {
+                    throw new BusinessException('Check-in tanpa jadwal tidak diizinkan.', 'OVERRIDE_DISABLED');
+                }
 
-                // Check for duplicate unscheduled check-in today?
-                // Optional: Prevent multiple unscheduled check-ins?
-                // For now, let's allow it but maybe limit to 1 per day?
-                // Or check if user has an active attendance without check-out?
                 $existingActive = Attendance::where('user_id', $userId)
                     ->whereNull('schedule_assignment_id')
                     ->whereDate('date', today())
                     ->whereNull('check_out')
+                    ->lockForUpdate()
                     ->exists();
 
                 if ($existingActive) {
-                     throw new BusinessException('Anda masih memiliki sesi check-in aktif.', 'ALREADY_CHECKED_IN');
+                    throw new BusinessException('Anda masih memiliki sesi check-in aktif.', 'ALREADY_CHECKED_IN');
                 }
             }
 
-            $checkInTime = now();
-
-            // Check if user has approved leave for this date (Only relevant if schedule exists?)
-            // If override check-in, user is present, so leave doesn't matter much unless we want to warn them.
+            // Check approved leave
             if ($schedule && $this->hasApprovedLeave($userId, $checkInTime->toDateString())) {
-                // User has approved leave, mark as excused without penalty
-                return DB::transaction(function () use ($userId, $scheduleAssignmentId, $notes, $checkInTime, $schedule) {
-                    $attendance = $this->repository->create([
-                        'user_id' => $userId,
-                        'schedule_assignment_id' => $scheduleAssignmentId,
-                        'date' => today(),
-                        'check_in' => $checkInTime,
-                        'status' => 'excused',
-                        'notes' => $notes,
-                    ]);
+                $attendance = $this->repository->create([
+                    'user_id' => $userId,
+                    'schedule_assignment_id' => $scheduleAssignmentId,
+                    'date' => today(),
+                    'check_in' => $checkInTime,
+                    'status' => 'excused',
+                    'notes' => $notes,
+                ]);
 
-                    // Update schedule assignment status
-                    $schedule->update(['status' => 'excused']);
+                $schedule->update(['status' => 'excused']);
+                log_audit('check_in', $attendance);
 
-                    // Log audit
-                    log_audit('check_in', $attendance);
+                Log::info('User checked in with approved leave', [
+                    'user_id' => $userId,
+                    'attendance_id' => $attendance->id,
+                    'status' => 'excused',
+                ]);
 
-                    Log::info('User checked in with approved leave', [
-                        'user_id' => $userId,
-                        'attendance_id' => $attendance->id,
-                        'status' => 'excused',
-                    ]);
-
-                    return $attendance;
-                });
+                return $attendance;
             }
 
-            // Determine status and late minutes only if schedule exists
+            // Determine status and late minutes
             $lateCategory = null;
             if ($schedule) {
                 $statusData = $this->determineStatus($checkInTime, $schedule);
@@ -132,61 +142,40 @@ class AttendanceService
                 $lateCategory = $statusData['late_category'];
             }
 
-            // Create attendance record within transaction
-            try {
-                return DB::transaction(function () use ($userId, $scheduleAssignmentId, $notes, $checkInTime, $status, $lateMinutes, $lateCategory, $schedule) {
-                    $attendance = $this->repository->create([
-                        'user_id' => $userId,
-                        'schedule_assignment_id' => $scheduleAssignmentId,
-                        'date' => today(),
-                        'check_in' => $checkInTime,
-                        'status' => $status,
-                        'late_minutes' => $lateMinutes,
-                        'late_category' => $lateCategory,
-                        'notes' => $notes,
-                    ]);
-
-                    // Apply penalty if late and schedule exists
-                    if ($schedule && $status === 'late' && $lateMinutes > 0) {
-                        $this->applyLatePenalty($userId, $attendance, $lateMinutes, $lateCategory);
-                    }
-
-                    // Update schedule assignment status to in_progress if exists
-                    if ($schedule) {
-                        $schedule->update(['status' => 'in_progress']);
-                    }
-
-                    // Log audit
-                    log_audit('check_in', $attendance);
-
-                    Log::info('User checked in successfully', [
-                        'user_id' => $userId,
-                        'attendance_id' => $attendance->id,
-                        'status' => $status,
-                        'late_minutes' => $lateMinutes,
-                        'is_override' => is_null($scheduleAssignmentId),
-                    ]);
-
-                    return $attendance;
-                });
-            } catch (\Illuminate\Database\QueryException $e) {
-                if ($e->errorInfo[1] == 1062) { // Duplicate entry error code
-                    throw new BusinessException('Anda sudah melakukan absensi untuk sesi ini.', 'DUPLICATE_ATTENDANCE');
-                }
-                throw $e;
-            }
-
-        } catch (BusinessException $e) {
-            throw $e;
-        } catch (\Exception $e) {
-            Log::error('Check-in failed', [
+            // Create attendance record
+            $attendance = $this->repository->create([
                 'user_id' => $userId,
                 'schedule_assignment_id' => $scheduleAssignmentId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'date' => today(),
+                'check_in' => $checkInTime,
+                'status' => $status,
+                'late_minutes' => $lateMinutes,
+                'late_category' => $lateCategory,
+                'notes' => $notes,
             ]);
-            throw new BusinessException('Terjadi kesalahan saat melakukan check-in. Silakan coba lagi.', 'CHECK_IN_FAILED');
-        }
+
+            // Apply penalty if late
+            if ($schedule && $status === 'late' && $lateMinutes > 0) {
+                $this->applyLatePenalty($userId, $attendance, $lateMinutes, $lateCategory);
+            }
+
+            // Update schedule assignment status
+            if ($schedule) {
+                $schedule->update(['status' => 'in_progress']);
+            }
+
+            log_audit('check_in', $attendance);
+
+            Log::info('User checked in successfully', [
+                'user_id' => $userId,
+                'attendance_id' => $attendance->id,
+                'status' => $status,
+                'late_minutes' => $lateMinutes,
+                'is_override' => is_null($scheduleAssignmentId),
+            ]);
+
+            return $attendance;
+        });
     }
 
     /**
@@ -206,13 +195,64 @@ class AttendanceService
     }
 
     /**
+     * Get active attendance for user (for UI layer state retrieval)
+     * Centralized method for getting active session
+     */
+    public function getActiveAttendance(int $userId): ?Attendance
+    {
+        return Attendance::where('user_id', $userId)
+            ->whereDate('date', today())
+            ->whereNotNull('check_in')
+            ->whereNull('check_out')
+            ->latest('check_in')
+            ->first();
+    }
+
+    /**
+     * Check if user has active session that should block new check-in
+     * Returns: ['has_active' => bool, 'blocking_session' => ?ScheduleAssignment, 'message' => ?string]
+     */
+    public function getActiveSessionBlockingInfo(int $userId, ?int $targetAssignmentId = null): array
+    {
+        $activeAttendance = $this->getActiveAttendance($userId);
+        
+        if (!$activeAttendance || !$activeAttendance->schedule_assignment_id) {
+            return ['has_active' => false, 'blocking_session' => null, 'message' => null];
+        }
+
+        $assignment = ScheduleAssignment::find($activeAttendance->schedule_assignment_id);
+        
+        if (!$assignment) {
+            return ['has_active' => false, 'blocking_session' => null, 'message' => null];
+        }
+
+        // If targeting the same assignment, don't block
+        if ($targetAssignmentId && $targetAssignmentId === $assignment->id) {
+            return ['has_active' => false, 'blocking_session' => null, 'message' => null];
+        }
+
+        // Check if within valid time window
+        $now = now();
+        $start = Carbon::parse($assignment->time_start)->subMinutes(30);
+        $end = Carbon::parse($assignment->time_end);
+
+        if ($now->gte($start) && $now->lte($end)) {
+            return [
+                'has_active' => true,
+                'blocking_session' => $assignment,
+                'message' => 'Anda masih memiliki sesi aktif: Sesi '.$assignment->session.' ('.$assignment->time_start.'-'.$assignment->time_end.')'
+            ];
+        }
+
+        return ['has_active' => false, 'blocking_session' => null, 'message' => null];
+    }
+
+    /**
      * Determine attendance status based on check-in time
      * Returns array with status and late_minutes
      *
      * @return array ['status' => string, 'late_minutes' => int]
      */
-
-
     public function determineStatus(Carbon $checkInTime, ScheduleAssignment $schedule): array
     {
         $scheduleStart = $this->getScheduleStartTime($schedule);
@@ -287,7 +327,7 @@ class AttendanceService
     {
         $attendance = Attendance::findOrFail($attendanceId);
 
-        if (! $attendance->check_in) {
+        if (!$attendance->check_in) {
             throw new \Exception('Belum check-in.');
         }
 
@@ -325,7 +365,7 @@ class AttendanceService
     public function markAbsent(ScheduleAssignment $assignment): Attendance
     {
         // Validate assignment exists and is valid
-        if (! $assignment->exists) {
+        if (!$assignment->exists) {
             throw new Exception('Invalid schedule assignment');
         }
 
@@ -372,6 +412,7 @@ class AttendanceService
 
     /**
      * Process auto check-outs for users who forgot to check out
+     * OPTIMIZED: Uses query-based approach instead of heavy eager loading
      * 
      * @return int Number of processed attendances
      */
@@ -381,44 +422,47 @@ class AttendanceService
         $bufferHours = 3;
         $count = 0;
 
-        $activeAttendances = Attendance::whereNull('check_out')
-            ->whereNotNull('schedule_assignment_id')
-            ->with('scheduleAssignment')
-            ->get();
+        // OPTIMIZED: Use query with join instead of eager loading entire relations
+        // This avoids loading unnecessary data and reduces memory usage
+        $pendingAttendances = Attendance::whereNull('attendances.check_out')
+            ->whereNotNull('attendances.schedule_assignment_id')
+            ->join('schedule_assignments', 'attendances.schedule_assignment_id', '=', 'schedule_assignments.id')
+            ->select('attendances.*', 'schedule_assignments.time_end', 'schedule_assignments.status as assignment_status', 'schedule_assignments.session')
+            ->whereRaw("CONCAT(attendances.date, ' ', schedule_assignments.time_end) < ?", [$now->copy()->subHours($bufferHours)->format('Y-m-d H:i:s')])
+            ->cursor();
 
-        foreach ($activeAttendances as $attendance) {
-            $assignment = $attendance->scheduleAssignment;
-            if (!$assignment) continue;
-
-            $endTime = $assignment->date->copy()->setTimeFromTimeString($assignment->time_end);
+        foreach ($pendingAttendances as $attendance) {
+            // Calculate end time from joined data
+            $endTime = Carbon::parse($attendance->date.' '.$attendance->time_end);
             
-            if ($now->gt($endTime->copy()->addHours($bufferHours))) {
-                DB::transaction(function () use ($attendance, $endTime, $assignment) {
-                    $checkIn = $attendance->check_in;
-                    $workHours = 0;
-                    if ($checkIn && $endTime->gt($checkIn)) {
-                        $workHours = round($checkIn->diffInMinutes($endTime) / 60, 2);
-                    }
+            DB::transaction(function () use ($attendance, $endTime) {
+                $checkIn = $attendance->check_in;
+                $workHours = 0;
+                if ($checkIn && $endTime->gt($checkIn)) {
+                    $workHours = round($checkIn->diffInMinutes($endTime) / 60, 2);
+                }
 
-                    $attendance->update([
-                        'check_out' => $endTime,
-                        'work_hours' => $workHours,
-                        'notes' => ($attendance->notes ? $attendance->notes . "\n" : "") . "[Sistem: Auto-checkout (Lupa checkout)]",
-                    ]);
+                $attendance->update([
+                    'check_out' => $endTime,
+                    'work_hours' => $workHours,
+                    'notes' => ($attendance->notes ? $attendance->notes . "\n" : "") . "[Sistem: Auto-checkout (Lupa checkout)]",
+                ]);
 
-                    if ($assignment->status === 'in_progress') {
-                        $assignment->update(['status' => 'completed']);
-                    }
+                // Update assignment if needed
+                $assignment = $attendance->scheduleAssignment;
+                if ($assignment && $assignment->status === 'in_progress') {
+                    $assignment->update(['status' => 'completed']);
+                }
 
-                    ActivityLogService::logCheckOut(
-                        $assignment->session_label ?? 'Sesi '.$assignment->session,
-                        $endTime->format('H:i'),
-                        number_format($workHours, 2),
-                        $attendance->user_id
-                    );
-                });
-                $count++;
-            }
+                ActivityLogService::logCheckOut(
+                    'Sesi '.$attendance->session ?? 'Unknown',
+                    $endTime->format('H:i'),
+                    number_format($workHours, 2),
+                    $attendance->user_id
+                );
+            });
+            
+            $count++;
         }
 
         return $count;
