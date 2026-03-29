@@ -50,13 +50,30 @@ Schedule::command('attendance:auto-checkout')->dailyAt('13:05');
 Schedule::command('attendance:auto-checkout')->dailyAt('15:55');
 Schedule::command('attendance:auto-checkout')->dailyAt('19:05');
 
-// Aggressively check for missed check-ins right after shift ends
-// Sesi 1 ends 10:00 -> Check at 10:05
-// Sesi 2 ends 12:50 -> Check at 12:55
-// Sesi 3 ends 16:00 -> Check at 16:05
-Schedule::command('attendance:check-late-absences')->dailyAt('10:05');
-Schedule::command('attendance:check-late-absences')->dailyAt('12:55');
-Schedule::command('attendance:check-late-absences')->dailyAt('16:05');
+// ============================================================
+// ABSENCE & PENALTY PROCESSING
+// ============================================================
+// Strategy: Multiple layers of checking to ensure no missed absences.
+// All commands are idempotent — safe to run repeatedly.
+//
+// Layer 1 (Primary): Check every 15 min during work hours (Mon-Thu)
+//   Catches absences as soon as each session ends.
+Schedule::command('attendance:check-late-absences')
+    ->everyFifteenMinutes()
+    ->weekdays()
+    ->between('10:00', '17:00')
+    ->appendOutputTo(storage_path('logs/scheduler.log'));
 
-// Process Daily Absences (fallback for any missed by the aggressive checker)
-Schedule::command('attendance:process-absences')->dailyAt('00:05');
+// Layer 2 (Same-day fallback): Process today's ended sessions every 30 min
+//   In case check-late-absences misses something.
+Schedule::command('attendance:process-absences', ['today'])
+    ->everyThirtyMinutes()
+    ->weekdays()
+    ->between('10:30', '17:30')
+    ->appendOutputTo(storage_path('logs/scheduler.log'));
+
+// Layer 3 (End-of-day fallback): Process yesterday's absences at midnight
+//   Final safety net for anything that slipped through during the day.
+Schedule::command('attendance:process-absences')
+    ->dailyAt('00:05')
+    ->appendOutputTo(storage_path('logs/scheduler.log'));

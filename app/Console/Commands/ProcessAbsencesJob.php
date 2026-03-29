@@ -25,7 +25,7 @@ class ProcessAbsencesJob extends Command
      *
      * @var string
      */
-    protected $description = 'Process absences for scheduled assignments without attendance and without approved leave';
+    protected $description = 'Process absences for scheduled assignments without attendance and without approved leave. Default: yesterday. Use "today" to process today\'s ended sessions.';
 
     protected PenaltyService $penaltyService;
 
@@ -48,20 +48,67 @@ class ProcessAbsencesJob extends Command
      */
     public function handle()
     {
-        // Get the date to process (default to yesterday)
-        $dateString = $this->argument('date') ?? Carbon::yesterday()->toDateString();
-        $date = Carbon::parse($dateString);
+        $dateArg = $this->argument('date');
+        
+        // Support "today" keyword for convenience
+        if ($dateArg === 'today') {
+            $date = today();
+        } else {
+            $dateString = $dateArg ?? Carbon::yesterday()->toDateString();
+            $date = Carbon::parse($dateString);
+        }
 
-        $this->info("Processing absences for date: {$date->format('Y-m-d')}");
+        $isToday = $date->isToday();
+        $currentTime = now()->format('H:i:s');
 
-        // Query scheduled assignments without attendance and without approved leave
-        // Skip assignments with status 'excused' or 'swapped'
-        $scheduledAssignments = ScheduleAssignment::where('date', $date)
+        $this->info("Processing absences for date: {$date->format('Y-m-d')} ({$date->locale('id')->isoFormat('dddd')})");
+        if ($isToday) {
+            $this->warn("⚠  Processing for TODAY — only ended sessions (time_end < {$currentTime}) will be processed.");
+        }
+
+        // Build query for scheduled assignments
+        $query = ScheduleAssignment::where('date', $date)
             ->where('status', 'scheduled')
-            ->whereNotIn('status', ['excused', 'swapped'])
-            ->get();
+            ->whereHas('schedule', fn($q) => $q->where('status', 'published'));
+
+        // If processing today, only consider sessions that have already ended
+        if ($isToday) {
+            $query->where('time_end', '<', $currentTime);
+        }
+
+        $scheduledAssignments = $query->get();
 
         $this->info("Found {$scheduledAssignments->count()} scheduled assignments to check");
+
+        if ($scheduledAssignments->isEmpty()) {
+            $this->info("No assignments to process.");
+            
+            // Show diagnostic info
+            $totalForDate = ScheduleAssignment::where('date', $date)->count();
+            $scheduledForDate = ScheduleAssignment::where('date', $date)->where('status', 'scheduled')->count();
+            
+            $this->newLine();
+            $this->table(
+                ['Metric', 'Value'],
+                [
+                    ['Total assignments on this date', $totalForDate],
+                    ['Status = scheduled', $scheduledForDate],
+                    ['Day of week', $date->locale('id')->isoFormat('dddd')],
+                    ['Is workday (Mon-Thu)', in_array($date->dayOfWeek, [1, 2, 3, 4]) ? 'Yes' : 'No'],
+                ]
+            );
+
+            if ($totalForDate === 0) {
+                $this->warn("⚠  No schedule assignments exist for this date at all.");
+                $this->warn("   Possible causes: no schedule published, or this is not a workday.");
+            } elseif ($scheduledForDate === 0) {
+                $this->info("ℹ  All assignments have been processed (status ≠ 'scheduled').");
+            } elseif ($isToday) {
+                $this->info("ℹ  {$scheduledForDate} assignments are still 'scheduled' but their sessions haven't ended yet.");
+            }
+
+            return Command::SUCCESS;
+        }
 
         $processedCount = 0;
         $skippedCount = 0;
@@ -70,13 +117,11 @@ class ProcessAbsencesJob extends Command
             // Check if there's already an attendance record
             $hasAttendance = Attendance::where('user_id', $assignment->user_id)
                 ->where('schedule_assignment_id', $assignment->id)
-                ->where('date', $date)
                 ->exists();
 
             if ($hasAttendance) {
-                $this->line("  Skipping assignment #{$assignment->id} - already has attendance");
+                $this->line("  Skipping assignment #{$assignment->id} (user #{$assignment->user_id}) - already has attendance");
                 $skippedCount++;
-
                 continue;
             }
 
@@ -84,9 +129,8 @@ class ProcessAbsencesJob extends Command
             $hasApprovedLeave = $this->attendanceService->hasApprovedLeave($assignment->user_id, $date);
 
             if ($hasApprovedLeave) {
-                $this->line("  Skipping assignment #{$assignment->id} - user has approved leave");
+                $this->line("  Skipping assignment #{$assignment->id} (user #{$assignment->user_id}) - has approved leave");
                 $skippedCount++;
-
                 continue;
             }
 
@@ -94,7 +138,7 @@ class ProcessAbsencesJob extends Command
             try {
                 $this->processAbsence($assignment, $date);
                 $processedCount++;
-                $this->info("  ✓ Processed absence for user #{$assignment->user_id}, assignment #{$assignment->id}");
+                $this->info("  ✓ Processed absence for user #{$assignment->user_id}, assignment #{$assignment->id} (Sesi {$assignment->session})");
             } catch (\Exception $e) {
                 $this->error("  ✗ Failed to process absence for assignment #{$assignment->id}: {$e->getMessage()}");
                 Log::error('Failed to process absence', [
@@ -134,7 +178,7 @@ class ProcessAbsencesJob extends Command
                 'notes' => 'Tidak hadir - diproses otomatis oleh sistem',
             ]);
 
-            // Create ABSENT penalty (20 points)
+            // Create ABSENT penalty
             $this->penaltyService->createPenalty(
                 $assignment->user_id,
                 'ABSENT',
