@@ -35,7 +35,7 @@ Schedule::call(function () {
 })->daily()->at('02:30')->name('cleanup-old-data');
 
 // Clean Livewire Temp Files
-Schedule::command('livewire:configure-s3-upload-cleanup')->daily()->at('03:00'); // If using S3
+// Schedule::command('livewire:configure-s3-upload-cleanup')->dailyAt('03:00'); // Disabled: App uses local storage, not S3
 // For local, Laravel handles this via garbage collection, but explicit cleanup is good.
 // No built-in command for local yet without custom implementation.
 
