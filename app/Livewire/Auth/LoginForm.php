@@ -48,37 +48,66 @@ class LoginForm extends Component
             return;
         }
 
-        // Attempt login
-        $credentials = [
-            'nim' => $this->nim,
-            'password' => $this->password,
-            'status' => 'active',
-        ];
+        // Attempt login with error handling for weak internet
+        try {
+            $credentials = [
+                'nim' => $this->nim,
+                'password' => $this->password,
+                'status' => 'active',
+            ];
 
-        if (Auth::attempt($credentials, false)) {
-            // Clear rate limiter
-            RateLimiter::clear($key);
+            if (Auth::attempt($credentials, false)) {
+                // Clear rate limiter
+                RateLimiter::clear($key);
 
-            // Regenerate session
-            session()->regenerate();
+                // Regenerate session
+                session()->regenerate();
 
-            // Log login activity synchronously (ensure it's recorded)
-            ActivityLogService::logLogin();
+                // Log login activity synchronously (ensure it's recorded)
+                ActivityLogService::logLogin();
 
-            // Create login history record
-            LoginHistory::create([
-                'user_id' => Auth::id(),
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent() ?? 'Unknown',
-                'logged_in_at' => now(),
-                'status' => 'success',
-            ]);
+                // Create login history record
+                LoginHistory::create([
+                    'user_id' => Auth::id(),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent() ?? 'Unknown',
+                    'logged_in_at' => now(),
+                    'status' => 'success',
+                ]);
 
-            // Redirect to dashboard immediately
-            return redirect()->intended(route('admin.dashboard'));
+                // Redirect to dashboard immediately
+                return redirect()->intended(route('admin.dashboard'));
+            }
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Handle database connection issues (weak internet)
+            \Log::warning('Login failed due to database connection issue: ' . $e->getMessage());
+            $this->addError('nim', 'Koneksi bermasalah. Silakan coba lagi.');
+            
+            // Apply rate limiting to prevent abuse
+            RateLimiter::hit($key, 60);
+            
+            // Dispatch async logging for failed attempt
+            LogLoginActivity::dispatch(
+                0,
+                request()->ip(),
+                request()->userAgent() ?? 'Unknown',
+                'failed',
+                'Connection error'
+            );
+            
+            return;
+        } catch (\Exception $e) {
+            // Handle other unexpected errors
+            \Log::error('Login failed with error: ' . $e->getMessage());
+            $this->addError('nim', 'Terjadi kesalahan. Silakan coba lagi.');
+            
+            // Apply rate limiting to prevent abuse
+            RateLimiter::hit($key, 60);
+            
+            return;
         }
 
-        // Increment rate limiter
+        // Increment rate limiter for invalid credentials
         RateLimiter::hit($key, 60);
 
         // Dispatch async logging for failed attempt (non-blocking)

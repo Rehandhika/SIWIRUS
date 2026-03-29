@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | HTTP Client Settings (for weak internet handling)
+    |--------------------------------------------------------------------------
+    */
+
+    'http' => [
+        'connect_timeout' => env('HTTP_CONNECT_TIMEOUT', 10),
+        'timeout' => env('HTTP_TIMEOUT', 30),
+    ],
+
 ];

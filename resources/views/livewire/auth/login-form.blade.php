@@ -42,10 +42,17 @@
             type="submit"
             variant="primary"
             wire:loading.attr="disabled"
-            class="w-full"
+            wire:loading.delay.300ms
+            class="w-full transition-opacity duration-300"
           >
             <span wire:loading.remove>MASUK</span>
-            <span wire:loading>Memproses...</span>
+            <span wire:loading class="flex items-center gap-2">
+              <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.835 5.728 4.571 7.271l1.429-1.98z"></path>
+              </svg>
+              Memproses...
+            </span>
           </x-ui.button>
         </div>
       </form>
