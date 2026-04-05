@@ -101,18 +101,18 @@
                                         </div>
                                         
                                         <!-- User List -->
-                                        <div class="space-y-1 mb-2">
-                                            @forelse(array_slice($users, 0, 3) as $u)
+                                        <div class="flex flex-col gap-1.5 mb-2 max-h-[240px] overflow-y-auto pr-1 user-scroll">
+                                            @forelse($users as $u)
                                                 <div class="flex items-center justify-between bg-white rounded-lg px-2 py-1.5 shadow-sm border border-gray-100 group">
                                                     <div class="flex items-center gap-1.5 min-w-0">
                                                         <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[10px] font-semibold text-blue-700 shrink-0">
                                                             {{ strtoupper(substr($u['user_name'], 0, 1)) }}
                                                         </div>
-                                                        <span class="text-xs text-gray-700 truncate">{{ $u['user_name'] }}</span>
+                                                        <span class="text-xs text-gray-700 truncate" title="{{ $u['user_name'] }}">{{ $u['user_name'] }}</span>
                                                     </div>
                                                     <button wire:click="removeUserFromSlot({{ $u['id'] }})" 
                                                             wire:loading.attr="disabled"
-                                                            class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 p-1 hover:bg-red-50 rounded transition-all"
+                                                            class="opacity-0 lg:opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 p-1 hover:bg-red-50 rounded transition-all shrink-0"
                                                             title="Hapus">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -122,9 +122,6 @@
                                             @empty
                                                 <div class="text-xs text-gray-400 text-center py-3">Belum ada user</div>
                                             @endforelse
-                                            @if($count > 3)
-                                                <div class="text-xs text-gray-500 text-center py-1">+{{ $count - 3 }} lainnya</div>
-                                            @endif
                                         </div>
                                         
                                         <!-- Add Button -->
@@ -158,7 +155,7 @@
              wire:click.self="closeUserSelector"
              x-data x-transition>
             <div class="bg-white rounded-2xl w-full max-w-md max-h-[85vh] overflow-hidden shadow-2xl" 
-                 wire:click.stop
+                 @click.stop
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 scale-95"
                  x-transition:enter-end="opacity-100 scale-100">
@@ -287,6 +284,21 @@
             border-radius: 3px;
         }
         .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* User List Scrollbar */
+        .user-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .user-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .user-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .user-scroll::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
     </style>
