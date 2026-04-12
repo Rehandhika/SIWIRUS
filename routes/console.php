@@ -39,8 +39,8 @@ Schedule::call(function () {
 // For local, Laravel handles this via garbage collection, but explicit cleanup is good.
 // No built-in command for local yet without custom implementation.
 
-// Monitor Queue
-Schedule::command('queue:monitor default:100')->everyFiveMinutes();
+// Monitor Queue (using 'database' connection as configured in .env)
+Schedule::command('queue:monitor database:100')->everyFiveMinutes();
 
 // Auto Checkout Attendance (runs every 5 minutes to check for ended sessions)
 // Processes attendances immediately when session time_end is reached

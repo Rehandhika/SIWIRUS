@@ -490,7 +490,11 @@ class AttendanceService
 
         foreach ($pendingAttendances as $attendance) {
             // Calculate end time from joined data
-            $endTime = Carbon::parse($attendance->date.' '.$attendance->time_end);
+            // Fix: Ensure date is formatted as string before concatenation
+            $dateString = $attendance->date instanceof \Carbon\Carbon 
+                ? $attendance->date->format('Y-m-d') 
+                : $attendance->date;
+            $endTime = Carbon::parse($dateString . ' ' . $attendance->time_end);
             
             DB::transaction(function () use ($attendance, $endTime) {
                 $checkIn = $attendance->check_in;
