@@ -34,7 +34,7 @@
     </div>
 
     {{-- Stats Cards --}}
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
@@ -79,18 +79,6 @@
                 </div>
                 <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
                     <x-ui.icon name="x-circle" class="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Poin</p>
-                    <p class="text-xl sm:text-2xl font-bold text-violet-600 dark:text-violet-400 mt-1">{{ number_format($this->stats->total_points ?? 0) }}</p>
-                </div>
-                <div class="w-10 h-10 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center">
-                    <x-ui.icon name="chart-bar" class="w-5 h-5 text-violet-600 dark:text-violet-400" />
                 </div>
             </div>
         </div>
@@ -163,20 +151,6 @@
                     @if($penalty->description)
                         <p class="text-xs text-gray-500 truncate">{{ $penalty->description }}</p>
                     @endif
-                    @if($penalty->reference_type)
-                        @php
-                            $refLabel = match($penalty->reference_type) {
-                                'attendance' => 'Absensi',
-                                'leave' => 'Cuti',
-                                'schedule' => 'Jadwal',
-                                default => ucfirst($penalty->reference_type)
-                            };
-                        @endphp
-                        <div class="flex items-center gap-1 text-xs text-gray-500">
-                            <x-ui.icon name="link" class="w-3 h-3" />
-                            <span>{{ $refLabel }} #{{ $penalty->reference_id }}</span>
-                        </div>
-                    @endif
                     @if($penalty->status === 'dismissed' && $penalty->reviewer)
                         <div class="text-xs text-gray-500">
                             Direview oleh: {{ $penalty->reviewer->name }}
@@ -208,7 +182,6 @@
                         <th class="px-4 py-3 text-left">Jenis</th>
                         <th class="px-4 py-3 text-center">Poin</th>
                         <th class="px-4 py-3 text-left">Deskripsi</th>
-                        <th class="px-4 py-3 text-left">Referensi</th>
                         <th class="px-4 py-3 text-center">Status</th>
                         <th class="px-4 py-3 text-center">Aksi</th>
                     </tr>
@@ -241,28 +214,6 @@
                                 <div class="flex flex-col">
                                     <span>{{ $penalty->description ?? '-' }}</span>
                                 </div>
-                            </td>
-                            {{-- Referensi --}}
-                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
-                                @if($penalty->reference_type)
-                                    @php
-                                        $refLabel = match($penalty->reference_type) {
-                                            'attendance' => 'Absensi',
-                                            'leave' => 'Cuti',
-                                            'schedule' => 'Jadwal',
-                                            default => ucfirst($penalty->reference_type)
-                                        };
-                                    @endphp
-                                    <div class="flex items-center gap-1 text-xs">
-                                        <x-ui.icon name="link" class="w-3 h-3 text-gray-400" />
-                                        <span>{{ $refLabel }}</span>
-                                        @if($penalty->reference_id)
-                                            <span class="text-gray-400">#{{ $penalty->reference_id }}</span>
-                                        @endif
-                                    </div>
-                                @else
-                                    <span class="text-gray-400 text-xs">-</span>
-                                @endif
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <span class="px-2 py-0.5 rounded text-xs font-medium {{ $statusConfig['class'] }}">
@@ -301,7 +252,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-12 text-center text-gray-400 text-sm">Tidak ada data penalti</td>
+                            <td colspan="7" class="px-4 py-12 text-center text-gray-400 text-sm">Tidak ada data penalti</td>
                         </tr>
                     @endforelse
                 </tbody>

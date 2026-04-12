@@ -254,15 +254,13 @@ class PenaltyReport extends Component
             $params[] = $this->userFilter;
         }
 
-        // FIX: Gunakan IFNULL untuk handle NULL values dengan benar
         $result = DB::select("
             SELECT 
                 COUNT(*) as total,
                 SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
                 SUM(CASE WHEN status = 'appealed' THEN 1 ELSE 0 END) as appealed,
                 SUM(CASE WHEN status = 'dismissed' THEN 1 ELSE 0 END) as dismissed,
-                SUM(CASE WHEN status = 'expired' THEN 1 ELSE 0 END) as expired,
-                IFNULL(SUM(points), 0) as total_points
+                SUM(CASE WHEN status = 'expired' THEN 1 ELSE 0 END) as expired
             FROM penalties 
             WHERE date BETWEEN ? AND ? 
             AND deleted_at IS NULL
@@ -271,7 +269,7 @@ class PenaltyReport extends Component
 
         return $result[0] ?? (object) [
             'total' => 0, 'active' => 0, 'appealed' => 0,
-            'dismissed' => 0, 'expired' => 0, 'total_points' => 0,
+            'dismissed' => 0, 'expired' => 0,
         ];
     }
 

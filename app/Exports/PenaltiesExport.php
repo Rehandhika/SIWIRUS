@@ -35,7 +35,6 @@ class PenaltiesExport implements FromCollection, WithHeadings, WithMapping, With
             'Poin',
             'Deskripsi',
             'Status',
-            'Referensi',
             'Alasan Banding',
             'Direview Oleh',
             'Catatan Review',
@@ -52,17 +51,6 @@ class PenaltiesExport implements FromCollection, WithHeadings, WithMapping, With
             default => $penalty->status
         };
 
-        $reference = '';
-        if ($penalty->reference_type) {
-            $refLabel = match($penalty->reference_type) {
-                'attendance' => 'Absensi',
-                'leave' => 'Cuti',
-                'schedule' => 'Jadwal',
-                default => ucfirst($penalty->reference_type)
-            };
-            $reference = $refLabel . ' #' . $penalty->reference_id;
-        }
-
         return [
             $penalty->date->format('d/m/Y'),
             $penalty->user->name ?? '-',
@@ -72,7 +60,6 @@ class PenaltiesExport implements FromCollection, WithHeadings, WithMapping, With
             $penalty->points,
             $penalty->description ?? '-',
             $statusLabel,
-            $reference ?: '-',
             $penalty->appeal_reason ?? '-',
             $penalty->reviewer->name ?? '-',
             $penalty->review_notes ?? '-',

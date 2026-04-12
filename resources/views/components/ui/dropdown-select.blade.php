@@ -20,7 +20,7 @@
 
     <div x-data="{ 
         open: false, 
-        selected: @if($wire) $wire.entangle('{{ $wire }}') @else '' @endif,
+        selected: @if($wire) $wire.entangle('{{ $wire }}').live @else '' @endif,
         search: '',
         options: {{ json_encode($options) }},
         get filteredOptions() {
