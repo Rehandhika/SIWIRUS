@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Attendance;
+use App\Models\Penalty;
 use App\Models\ScheduleAssignment;
 use App\Services\AttendanceService;
 use App\Services\PenaltyService;
@@ -115,14 +116,54 @@ class ProcessAbsencesJob extends Command
 
         foreach ($scheduledAssignments as $assignment) {
             // Check if there's already an attendance record
-            $hasAttendance = Attendance::where('user_id', $assignment->user_id)
+            $existingAttendance = Attendance::where('user_id', $assignment->user_id)
                 ->where('schedule_assignment_id', $assignment->id)
-                ->exists();
+                ->first();
 
-            if ($hasAttendance) {
-                $this->line("  Skipping assignment #{$assignment->id} (user #{$assignment->user_id}) - already has attendance");
-                $skippedCount++;
-                continue;
+            if ($existingAttendance) {
+                // Check if penalty already exists for this attendance
+                $hasPenalty = \App\Models\Penalty::where('reference_type', 'attendance')
+                    ->where('reference_id', $existingAttendance->id)
+                    ->exists();
+                
+                if ($hasPenalty) {
+                    $this->line("  Skipping assignment #{$assignment->id} (user #{$assignment->user_id}) - attendance and penalty already exist");
+                    $skippedCount++;
+                    
+                    // Ensure assignment status is updated
+                    if ($assignment->status === 'scheduled') {
+                        $assignment->update(['status' => 'missed']);
+                    }
+                    continue;
+                } else {
+                    // Attendance exists but no penalty - try to create penalty only
+                    try {
+                        $this->penaltyService->createPenalty(
+                            $assignment->user_id,
+                            'ABSENT',
+                            "Tidak hadir pada {$date->locale('id')->isoFormat('dddd, D MMMM Y')} - Sesi {$assignment->session}",
+                            'attendance',
+                            $existingAttendance->id,
+                            $date
+                        );
+                        
+                        $assignment->update(['status' => 'missed']);
+                        
+                        $this->info("  ✓ Created missing penalty for existing attendance (User ID: {$assignment->user_id})");
+                        $processedCount++;
+                        continue;
+                    } catch (\Exception $e) {
+                        $this->error("  ✗ Failed to create penalty for existing attendance: {$e->getMessage()}");
+                        Log::error('Failed to create penalty for existing attendance', [
+                            'assignment_id' => $assignment->id,
+                            'attendance_id' => $existingAttendance->id,
+                            'date' => $date->toDateString(),
+                            'error' => $e->getMessage(),
+                        ]);
+                        $skippedCount++;
+                        continue;
+                    }
+                }
             }
 
             // Check if user has approved leave for this date
@@ -140,14 +181,34 @@ class ProcessAbsencesJob extends Command
                 $processedCount++;
                 $this->info("  ✓ Processed absence for user #{$assignment->user_id}, assignment #{$assignment->id} (Sesi {$assignment->session})");
             } catch (\Exception $e) {
-                $this->error("  ✗ Failed to process absence for assignment #{$assignment->id}: {$e->getMessage()}");
-                Log::error('Failed to process absence', [
-                    'assignment_id' => $assignment->id,
-                    'user_id' => $assignment->user_id,
-                    'date' => $date->toDateString(),
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                ]);
+                // Check if error is due to duplicate penalty (expected in some cases)
+                if (str_contains($e->getMessage(), 'Penalti sudah ada untuk referensi') || 
+                    str_contains($e->getMessage(), 'Duplicate entry') ||
+                    str_contains($e->getMessage(), 'UNIQUE constraint failed')) {
+                    $this->line("  ⚠ Skipping assignment #{$assignment->id} - penalty already exists");
+                    $skippedCount++;
+                    
+                    // Still update assignment status to missed if not already
+                    if ($assignment->status === 'scheduled') {
+                        $assignment->update(['status' => 'missed']);
+                    }
+                    
+                    Log::warning('Penalti alpa sudah ada, skip duplicate', [
+                        'assignment_id' => $assignment->id,
+                        'user_id' => $assignment->user_id,
+                        'date' => $date->toDateString(),
+                    ]);
+                } else {
+                    // Real error - log with full details
+                    $this->error("  ✗ Failed to process absence for assignment #{$assignment->id}: {$e->getMessage()}");
+                    Log::error('Failed to process absence', [
+                        'assignment_id' => $assignment->id,
+                        'user_id' => $assignment->user_id,
+                        'date' => $date->toDateString(),
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
+                }
             }
         }
 
